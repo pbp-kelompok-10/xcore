@@ -88,11 +88,11 @@ Dataset negara :
 ```
 
 Pembagian :
-1-9 : Alvin
-10-18 : Zita
-19-27 : Garuga
-28-36 : Kasa
-37-46 : Abhi
+1-9 : Alvin</br>
+10-18 : Zita</br>
+19-27 : Garuga</br>
+28-36 : Kasa</br>
+37-46 : Abhi</br>
 
 ## Sumber dataset
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
