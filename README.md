@@ -30,11 +30,11 @@ Prediction adalah tempat dimana pengguna dapat memberika prediksi siapa yang aka
 `Admin` : Admin adalah role yang menentukan data yang akan ditampilkan di website. </br>
 
 ## Pembagian Job Desk
-`Scoreboard` : Anak Agung Ngurah Abhivadya Nandana 
-`Statistik`  : Garuga Dewangga Putra Handikto
-`forum`      : Zita Nayra Ardini
-`highlight`  : Alvin Christian Halim
-`prediction` : Khansa Dinda Arya Putri
+`Scoreboard` : Anak Agung Ngurah Abhivadya Nandana </br>
+`Statistik`  : Garuga Dewangga Putra Handikto</br>
+`forum`      : Zita Nayra Ardini</br>
+`highlight`  : Alvin Christian Halim</br>
+`prediction` : Khansa Dinda Arya Putri</br>
 
 Dataset negara :
 ```
