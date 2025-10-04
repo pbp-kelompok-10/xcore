@@ -6,19 +6,19 @@ XCore adalah aplikasi untuk melihat data tentang piala dunia. Aplikasi ini bertu
 TBA
 
 ## Fitur
-1. Scoreboard
+1. Scoreboard</br>
 Scoreboard adalah tempat dimana kita bisa lihat hasil dari pertandingan yang sudah terjadi
 
-2. Statistik
+2. Statistik</br>
 Statistik adalah tempat untuk menunjukkan statistik dari suatu pertandingan seperti jumblah tendangan yang tidak masuk dan masuk, jumblah kartu merah/kuning, dll
 
-3. Forum
+3. Forum</br>
 Forum adalah tempat dimana pengguna dapat berbincang dan berbagi pendapat tentang pertandingan
 
-4. Highlight
+4. Highlight</br>
 Highlight adalah tempat dimana pengguna dapat menonton highlights dari sebuah pertandingan
 
-5. Prediction
+5. Prediction</br>
 Prediction adalah tempat dimana pengguna dapat memberika prediksi siapa yang akan menang dan berapa skornya untuk pertandingan yang akan data
 
 ## Roles
