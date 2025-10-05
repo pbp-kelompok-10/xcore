@@ -1,11 +1,19 @@
 # XCORE
 
-XCore adalah aplikasi untuk melihat data tentang piala dunia. Aplikasi ini bertujuan agar penggemar sepakbola dan penonton piala dunia dapat mengakses semua informasi tentang piala dunia dalam satu tempat
+## Deskripsi
+Xcore adalah sebuah website berbasis django yang menyediakan layanan pendataan skor pertandingan sepakbola piala dunia secara akurat. Website bertujuan agar para penonton sepakbola untuk melihat hasil pertandingan, statistik pemain, polling pertandingan yang akan datang, serta terlibat aktif dalam diskusi seputar pertandingan.
+
+## Anggota Kelompok
+1. 2406496063 - Khansa Dinda Arya Putri
+2. 2406400070 - Alvin Christian Halim
+3. 2406404913 - Zita Nayra Ardini
+4. 2406437615 - Garuga Dewangga Putra Handikto
+5. 2406439192 - Anak Agung Ngurah Abhivadya Nandana
 
 ## Links
 TBA
 
-## Fitur
+## Fitur / Modul
 1. Scoreboard</br>
 Scoreboard adalah tempat dimana kita bisa lihat hasil dari pertandingan yang sudah terjadi
 
@@ -32,9 +40,9 @@ Prediction adalah tempat dimana pengguna dapat memberika prediksi siapa yang aka
 ## Pembagian Job Desk
 `Scoreboard` : Anak Agung Ngurah Abhivadya Nandana </br>
 `Statistik`  : Garuga Dewangga Putra Handikto</br>
-`forum`      : Zita Nayra Ardini</br>
-`highlight`  : Alvin Christian Halim</br>
-`prediction` : Khansa Dinda Arya Putri</br>
+`Forum`      : Zita Nayra Ardini</br>
+`Highlight`  : Alvin Christian Halim</br>
+`Prediction` : Khansa Dinda Arya Putri</br>
 
 Dataset negara :
 ```
@@ -96,6 +104,7 @@ Pembagian :
 
 ## Sumber dataset
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
+
 
 
 
