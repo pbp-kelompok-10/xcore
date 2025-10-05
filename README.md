@@ -105,7 +105,8 @@ Pembagian :
 ## Sumber dataset
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
 
-
+## Link Design
+https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
 
 
 
