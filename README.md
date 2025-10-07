@@ -13,7 +13,7 @@ Xcore adalah sebuah website berbasis django yang menyediakan layanan pendataan s
 ## Links
 
 Deployment : 
-TBA
+https
 
 Design :
 https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
