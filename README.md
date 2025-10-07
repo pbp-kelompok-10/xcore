@@ -11,7 +11,12 @@ Xcore adalah sebuah website berbasis django yang menyediakan layanan pendataan s
 5. 2406439192 - Anak Agung Ngurah Abhivadya Nandana
 
 ## Links
+
+Deployment : 
 TBA
+
+Design :
+https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
 
 ## Fitur / Modul
 1. Scoreboard</br>
@@ -106,7 +111,7 @@ Pembagian :
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
 
 ## Link Design
-https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
+
 
 
 
