@@ -10,14 +10,6 @@ Xcore adalah sebuah website berbasis django yang menyediakan layanan pendataan s
 4. 2406437615 - Garuga Dewangga Putra Handikto
 5. 2406439192 - Anak Agung Ngurah Abhivadya Nandana
 
-## Links
-
-Deployment : 
-https://alvin-christian-xcore.pbp.cs.ui.ac.id/
-
-Design :
-https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
-
 ## Fitur / Modul
 1. Scoreboard</br>
 Scoreboard adalah tempat dimana kita bisa lihat hasil dari pertandingan yang sudah terjadi
@@ -110,7 +102,11 @@ Pembagian :
 ## Sumber dataset
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
 
-## Link Design
+## Deployment
+https://alvin-christian-xcore.pbp.cs.ui.ac.id/
+
+## Design
+https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
 
 
 
