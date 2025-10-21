@@ -260,6 +260,7 @@
                 {{ match_date|date:"l, d F Y" }}
             </div>
             
+<<<<<<< HEAD
             {% for match in matches %}
                 <!-- CONDITIONAL -->
                 {% if match.status == 'upcoming' %}
@@ -318,6 +319,86 @@
         </div>
     {% endif %}
 </div>
+=======
+            .search-bar input {
+                width: 80%;
+            }
+            
+            .match-card {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .team {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            
+            .score-section {
+                width: 100%;
+                order: -1;
+                margin-bottom: 15px;
+            }
+            
+            .team:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="menu-icon">☰</div>
+        <h1>Xcore</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Cari pertandingan, tim, atau tanggal...">
+        </div>
+        <div class="user-icon">👤</div>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="container">
+        <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
+
+        {% for match in matches %}
+        <div class="match-card">
+            <div class="team">
+                <!-- Gunakan home_team_code dari database -->
+                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
+                    alt="{{ match.home_team }}"
+                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                <div class="team-name">{{ match.home_team }}</div>
+            </div>
+
+            <div class="score-section">
+                <div class="score">
+                    {% if match.status == 'upcoming' %}
+                        Upcoming
+                    {% else %}
+                        {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
+                    {% endif %}
+                </div>
+                <div class="match-info">
+                    {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
+                    {{ match.match_date|date:"D, d M Y" }} · {{ match.stadium }}
+                </div>
+            </div>
+
+            <div class="team" style="justify-content: flex-end;">
+                <div class="team-name">{{ match.away_team }}</div>
+                <!-- Gunakan away_team_code dari database -->
+                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
+                    alt="{{ match.away_team }}"
+                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align:center;">Belum ada pertandingan.</p>
+        {% endfor %}
+    </div>
+>>>>>>> bafb301 (update tampilan)
 
 <!-- FOOTER -->
 <div class="footer">
@@ -350,18 +431,12 @@
                     }
                 });
                 
-<<<<<<< HEAD
                 const matchInfo = link.querySelector('.match-info').textContent.toLowerCase();
-=======
-                // Check match info as well
-                const matchInfo = card.querySelector('.match-info').textContent.toLowerCase();
->>>>>>> a752609 (update)
                 if (matchInfo.includes(searchTerm)) {
                     found = true;
                 }
                 
                 if (found || searchTerm === '') {
-<<<<<<< HEAD
                     link.style.display = 'block';
                     sectionHasVisibleMatches = true;
                     hasVisibleMatches = true;
@@ -382,21 +457,3 @@
 
 </script>
 {% endblock %}
-=======
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-
-        // Set date based on the image
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set the date from the image (Senin, 15 Juli 2024)
-            const dateHeader = document.querySelector('.date-header');
-            dateHeader.textContent = 'Senin, 15 Juli 2024';
-        });
-    </script>
-</body>
-</html>
->>>>>>> a752609 (update)
