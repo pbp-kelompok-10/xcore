@@ -55,13 +55,12 @@ class Match(models.Model):
     home_team_code = models.CharField( 
         max_length=3, 
         choices=COUNTRY_CHOICES,
-        default='id'
-    )
+        default=''    )
     away_team = models.CharField(max_length=100)
     away_team_code = models.CharField(  
         max_length=3, 
         choices=COUNTRY_CHOICES,
-        default='id'
+        default=''
     )
     home_score = models.PositiveIntegerField(default=0)
     away_score = models.PositiveIntegerField(default=0)

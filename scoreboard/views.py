@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
-from .models import Match
 from collections import OrderedDict
+from .models import Match
 from .forms import MatchForm
 from django.utils import timezone
 from django.db.models.functions import TruncDate
