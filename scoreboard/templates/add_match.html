@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tambah Pertandingan</title>
+</head>
+<body>
+    <h1>Tambah Pertandingan Baru</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Simpan</button>
+    </form>
+
+    <p><a href="{% url 'scoreboard:scoreboard_list' %}">Kembali ke daftar pertandingan</a></p>
+</body>
+</html>
