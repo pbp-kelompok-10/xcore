@@ -350,12 +350,18 @@
                     }
                 });
                 
+<<<<<<< HEAD
                 const matchInfo = link.querySelector('.match-info').textContent.toLowerCase();
+=======
+                // Check match info as well
+                const matchInfo = card.querySelector('.match-info').textContent.toLowerCase();
+>>>>>>> a752609 (update)
                 if (matchInfo.includes(searchTerm)) {
                     found = true;
                 }
                 
                 if (found || searchTerm === '') {
+<<<<<<< HEAD
                     link.style.display = 'block';
                     sectionHasVisibleMatches = true;
                     hasVisibleMatches = true;
@@ -376,3 +382,21 @@
 
 </script>
 {% endblock %}
+=======
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Set date based on the image
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the date from the image (Senin, 15 Juli 2024)
+            const dateHeader = document.querySelector('.date-header');
+            dateHeader.textContent = 'Senin, 15 Juli 2024';
+        });
+    </script>
+</body>
+</html>
+>>>>>>> a752609 (update)
