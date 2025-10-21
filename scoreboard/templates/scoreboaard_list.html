@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scoreboard</title>
+</head>
+<body>
+    <h1>Daftar Pertandingan</h1>
+
+    {% if matches %}
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>Tanggal</th>
+                <th>Home Team</th>
+                <th>Skor</th>
+                <th>Away Team</th>
+                <th>Stadium</th>
+                {% if user.is_superuser %}
+                    <th>Aksi</th>
+                {% endif %}
+            </tr>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match.date|date:"d M Y H:i" }}</td>
+                <td>{{ match.team_home }}</td>
+                <td>{{ match.score_home }} - {{ match.score_away }}</td>
+                <td>{{ match.team_away }}</td>
+                <td>{{ match.stadium }}</td>
+
+                {% if user.is_superuser %}
+                <td>
+                    <a href="{% url 'scoreboard:update_score' match.id %}">Edit</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Belum ada pertandingan.</p>
+    {% endif %}
+
+    {% if user.is_superuser %}
+        <p><a href="{% url 'scoreboard:add_match' %}">Tambah Pertandingan Baru</a></p>
+    {% endif %}
+</body>
+</html>
