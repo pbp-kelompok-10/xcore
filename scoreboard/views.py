@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import user_passes_test
 from collections import OrderedDict
 from .models import Match
 from collections import OrderedDict
+from .models import Match
 from .forms import MatchForm
 from django.utils import timezone
 from django.db.models.functions import TruncDate
