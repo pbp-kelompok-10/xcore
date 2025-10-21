@@ -1,0 +1,24 @@
+import uuid
+from django.db import models
+from django.contrib.auth.models import Match, User;
+
+class Forum(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, null=True)
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nama = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nama
+
+class Post(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title   
