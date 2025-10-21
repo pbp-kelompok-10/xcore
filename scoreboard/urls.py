@@ -5,6 +5,6 @@ app_name = 'scoreboard'
 
 urlpatterns = [
     path('', scoreboard_list, name='scoreboard_list'),
-    path('add_match/', add_match, name='add-match'),
+    path('add_match/', add_match, name='add_match'),
     path('update/<int:match_id>/', update_score, name='update_score'),
 ]
