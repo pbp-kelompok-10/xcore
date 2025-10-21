@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Match(models.Model):
+    id = models.UUIDField()
     home_team = models.CharField(max_length=100)
     away_team = models.CharField(max_length=100)
     home_score = models.PositiveIntegerField(default=0)
