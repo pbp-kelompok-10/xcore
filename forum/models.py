@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import Match, User;
+from django.contrib.auth.models import User
+from scoreboard.models import Match
 
 class Forum(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, null=True)
