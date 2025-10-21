@@ -13,7 +13,7 @@ def scoreboard_list(request):
     # Group matches by date
     matches_by_date = OrderedDict()
     for match in matches:
-        match_date = match.match_date.date()  # Get only date part
+        match_date = match.match_date.date() 
         if match_date not in matches_by_date:
             matches_by_date[match_date] = []
         matches_by_date[match_date].append(match)
