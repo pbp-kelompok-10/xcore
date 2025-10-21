@@ -64,7 +64,7 @@
         }
 
         .search-bar {
-            flex-grow: 2;
+            flex-grow: 1;
             display: flex;
             justify-content: center;
         }
@@ -334,7 +334,7 @@
                             {% endif %}
                             <br>
                             {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
-                            {{ match.match_date|date:"H:i" }} · {{ match.stadium }}
+                            {{ match.stadium }}
                         </div>
                     </div>
 
