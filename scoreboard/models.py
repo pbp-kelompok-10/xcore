@@ -1,8 +1,9 @@
 from django.db import models
+import uuid
 
 # Create your models here.
 class Match(models.Model):
-    id = models.UUIDField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     home_team = models.CharField(max_length=100)
     away_team = models.CharField(max_length=100)
     home_score = models.PositiveIntegerField(default=0)
