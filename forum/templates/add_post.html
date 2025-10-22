@@ -1,0 +1,8 @@
+<h2>Add a New Post</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form as table }}
+    
+    <button type="submit">Add Post</button>
+</form>
