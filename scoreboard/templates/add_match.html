@@ -1,17 +1,279 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Tambah Pertandingan</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Pertandingan - Xcore</title>
+    <style>
+        :root {
+            --primary-color: #28574E;
+            --secondary-color: #56BDA9;
+            --light-bg: #f4f6f7;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-light: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .team img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover; /* Penting untuk bendera */
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            margin: 0 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar h1::before {
+            content: "⚽";
+            margin-right: 8px;
+        }
+
+        .back-button {
+            color: white;
+            text-decoration: none;
+            font-size:20px;
+            margin-right: 10px;
+        }
+
+        .form-container {
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            background-color: var(--primary-color);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Tambah Pertandingan Baru</h1>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
+        <h1>Xcore - Tambah Pertandingan</h1>
+    </div>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Simpan</button>
-    </form>
+    <!-- FORM CONTAINER -->
+    <div class="form-container">
+        <h2 class="form-title">Tambah Pertandingan Baru</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div style="color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #ffeaea; border-radius: 5px;">
+                    Terdapat error dalam form. Silakan periksa kembali input Anda.
+                </div>
+            {% endif %}
 
-    <p><a href="{% url 'scoreboard:scoreboard_list' %}">Kembali ke daftar pertandingan</a></p>
+            <!-- TIM TUAN RUMAH -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.home_team.id_for_label }}">Tim Tuan Rumah</label>
+                    {{ form.home_team }}
+                    {% if form.home_team.errors %}
+                        <div class="error-message">{{ form.home_team.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.home_team_code.id_for_label }}">Kode Negara (Tuan Rumah)</label>
+                    {{ form.home_team_code }}
+                    {% if form.home_team_code.errors %}
+                        <div class="error-message">{{ form.home_team_code.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TIM TAMU -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.away_team.id_for_label }}">Tim Tamu</label>
+                    {{ form.away_team }}
+                    {% if form.away_team.errors %}
+                        <div class="error-message">{{ form.away_team.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.away_team_code.id_for_label }}">Kode Negara (Tamu)</label>
+                    {{ form.away_team_code }}
+                    {% if form.away_team_code.errors %}
+                        <div class="error-message">{{ form.away_team_code.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- SKOR -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.home_score.id_for_label }}">Skor Tim Tuan Rumah</label>
+                    {{ form.home_score }}
+                    {% if form.home_score.errors %}
+                        <div class="error-message">{{ form.home_score.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.away_score.id_for_label }}">Skor Tim Tamu</label>
+                    {{ form.away_score }}
+                    {% if form.away_score.errors %}
+                        <div class="error-message">{{ form.away_score.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TANGGAL PERTANDINGAN -->
+            <div class="form-group">
+                <label for="{{ form.match_date.id_for_label }}">Tanggal Pertandingan</label>
+                {{ form.match_date }}
+                <div class="form-help">Pilih tanggal dan waktu</div>
+                {% if form.match_date.errors %}
+                    <div class="error-message">{{ form.match_date.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.round.id_for_label }}">Round</label>
+                    {{ form.round }}
+                    {% if form.round.errors %}
+                        <div class="error-message">{{ form.round.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.group.id_for_label }}">Group</label>
+                    {{ form.group }}
+                    {% if form.group.errors %}
+                        <div class="error-message">{{ form.group.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.stadium.id_for_label }}">Stadion</label>
+                {{ form.stadium }}
+                {% if form.stadium.errors %}
+                    <div class="error-message">{{ form.stadium.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">Status</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <div class="error-message">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="submit-button">Simpan Pertandingan</button>
+        </form>
+    </div>
 </body>
 </html>
