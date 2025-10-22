@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-
+app_name = 'lineup'
 urlpatterns = [
     # ---------- Upload Endpoints ----------
     path('upload/', upload_page, name='upload-page'),

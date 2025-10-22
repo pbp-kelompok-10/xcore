@@ -234,10 +234,6 @@ class LineupDeleteView(DeleteView):
         context['match'] = Match.objects.get(pk=self.kwargs['match_id'])
         return context
 
-
-
-
-
 COUNTRY_MAP = {name: code for code, name in COUNTRY_CHOICES}
 
 

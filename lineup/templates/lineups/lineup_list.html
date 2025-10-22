@@ -6,7 +6,7 @@
 <body>
   <h1>Lineups</h1>
 
-  <a href="{% url 'lineup-create' %}">Add Lineup</a>
+  <a href="{% url 'lineup:lineup-create' %}">Add Lineup</a>
   <ul>
     {% for match, lineups in grouped_lineups.items %}
       <li>
@@ -16,9 +16,9 @@
           {% if not forloop.last %} | {% endif %}
         {% endfor %}
         (
-          <a href="{% url 'lineup-detail' lineups.0.id %}">View</a> |
-          <a href="{% url 'lineup-update' lineups.0.id %}">Edit</a> |
-          <form action="{% url 'lineup-delete' lineups.0.id %}" method="post" style="display:inline;">
+          <a href="{% url 'lineup:lineup-detail' lineups.0.id %}">View</a> |
+          <a href="{% url 'lineup:lineup-update' lineups.0.id %}">Edit</a> |
+          <form action="{% url 'lineup:lineup-delete' lineups.0.id %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button type="submit">Delete</button>
           </form>

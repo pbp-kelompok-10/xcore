@@ -3,13 +3,13 @@
 <head><title>Players</title></head>
 <body>
 <h1>Players</h1>
-<a href="{% url 'player-create' %}">Add Player</a>
+<a href="{% url 'lineup:player-create' %}">Add Player</a>
 <ul>
   {% for player in players %}
   <li>
-    <a href="{% url 'player-detail' player.pk %}">{{ player.nama }}</a> ({{ player.tim.name }})
-    (<a href="{% url 'player-update' player.pk %}">Edit</a> |
-    <form action="{% url 'player-delete' player.pk %}" method="post" style="display:inline;"
+    <a href="{% url 'lineup:player-detail' player.pk %}">{{ player.nama }}</a> ({{ player.tim.name }})
+    (<a href="{% url 'lineup:player-update' player.pk %}">Edit</a> |
+    <form action="{% url 'lineup:player-delete' player.pk %}" method="post" style="display:inline;"
           onsubmit="return confirm('Delete {{ player.nama }}?');">
       {% csrf_token %}
       <button type="submit">Delete</button>

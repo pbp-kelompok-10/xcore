@@ -10,8 +10,8 @@
   <p><strong>Number:</strong> {{ player.nomor }}</p>
   <p><strong>Team:</strong> {{ player.tim.name }}</p>
 
-  <a href="{% url 'player-update' player.pk %}">Edit</a> |
-  <a href="{% url 'player-delete' player.pk %}">Delete</a> |
-  <a href="{% url 'player-list' %}">Back</a>
+  <a href="{% url 'lineup:player-update' player.pk %}">Edit</a> |
+  <a href="{% url 'lineup:player-delete' player.pk %}">Delete</a> |
+  <a href="{% url 'lineup:player-list' %}">Back</a>
 </body>
 </html>

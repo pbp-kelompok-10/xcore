@@ -3,13 +3,13 @@
 <head><title>Teams</title></head>
 <body>
 <h1>Teams</h1>
-<a href="{% url 'team-create' %}">Add New Team</a>
+<a href="{% url 'lineup:team-create' %}">Add New Team</a>
 <ul>
   {% for team in teams %}
   <li>
-    <a href="{% url 'team-detail' team.pk %}">{{ team.name }}</a>
-    (<a href="{% url 'team-update' team.pk %}">Edit</a> |
-    <form action="{% url 'team-delete' team.pk %}" method="post" style="display:inline;"
+    <a href="{% url 'lineup:team-detail' team.pk %}">{{ team.name }}</a>
+    (<a href="{% url 'lineup:team-update' team.pk %}">Edit</a> |
+    <form action="{% url 'lineup:team-delete' team.pk %}" method="post" style="display:inline;"
           onsubmit="return confirm('Delete {{ team.name }}?');">
       {% csrf_token %}
       <button type="submit">Delete</button>

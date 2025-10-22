@@ -16,8 +16,8 @@
     {% endfor %}
   </ul>
 
-  <a href="{% url 'team-update' team.pk %}">Edit</a> |
-  <a href="{% url 'team-delete' team.pk %}">Delete</a> |
-  <a href="{% url 'team-list' %}">Back</a>
+  <a href="{% url 'lineup:team-update' team.pk %}">Edit</a> |
+  <a href="{% url 'lineup:team-delete' team.pk %}">Delete</a> |
+  <a href="{% url 'lineup:team-list' %}">Back</a>
 </body>
 </html>
