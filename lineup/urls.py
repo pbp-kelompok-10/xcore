@@ -22,11 +22,10 @@ urlpatterns = [
     path('players/<int:pk>/delete/', PlayerDeleteView.as_view(), name='player-delete'),
 
     # ---------- Lineup CRUD ----------
-    path('lineups/', LineupListView.as_view(), name='lineup-list'),
-    path('lineups/<int:pk>/', LineupDetailView.as_view(), name='lineup-detail'),
-    path('lineups/create/', LineupCreateView.as_view(), name='lineup-create'),
-    path('lineups/<int:pk>/update/', LineupUpdateView.as_view(), name='lineup-update'),
-    path('lineups/<int:pk>/delete/', LineupDeleteView.as_view(), name='lineup-delete'),
+    path('lineup/<int:match_id>/', LineupDetailView.as_view(), name='lineup-detail'),
+    path('lineup/create/<int:match_id>/', LineupCreateView.as_view(), name='lineup-create'),
+    path('lineup/update/<int:match_id>/', LineupUpdateView.as_view(), name='lineup-update'),
+    path('lineup/delete/<int:match_id>/', LineupDeleteView.as_view(), name='lineup-delete'),
 
     path('ajax/get-teams/', get_teams_for_match, name='ajax-get-teams'),
     path('ajax/get-players/', get_players_for_team, name='ajax-get-players'),
