@@ -244,7 +244,7 @@
                 {% if match.status == 'upcoming' %}
                     <a href="#" class="match-link" onclick="alert('Prediction coming soon')">
                 {% else %}
-                    <a href="#" class="match-link" onclick="alert('Statistic coming soon')">
+                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
                 {% endif %}
                     <div class="match-card">
                         <div class="team">
@@ -270,11 +270,12 @@
                                 {% else %}
                                     <span class="status-finished">FINISHED</span>
                                 {% endif %}
-                                <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
 
                                 <br>
                                 {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
                                 {{ match.stadium }}
+
+                                
                             </div>
                         </div>
                         

@@ -20,11 +20,8 @@ def show_main(request, id):
 @login_required(login_url='/login/')
 @require_POST
 def add_post(request, forum_id):
-    print(request.POST)  # Debug: lihat data dari AJAX
-    
     forum = Forum.objects.get(id=forum_id)
-    message = request.POST.get('content')
-    print(message)
+    message = request.POST.get('message')
     author = request.user
 
     if not message:
@@ -37,12 +34,7 @@ def add_post(request, forum_id):
     )
     new_post.save()
     
-    return JsonResponse({
-        'author_name': author.username,
-        'author_picture': author.profile.picture.url if hasattr(author, 'profile') and author.profile.picture else '/static/image/default_pp.jpg',
-        'content': new_post.message,
-        'created_at': new_post.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-    })
+    return HttpResponse(b'Post added successfully.', status=201)
 
 def get_posts(request, forum_id):
     try:
