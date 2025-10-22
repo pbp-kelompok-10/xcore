@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Teams</title></head>
+<body>
+<h1>Teams</h1>
+<a href="{% url 'lineup:team-create' %}">Add New Team</a>
+<ul>
+  {% for team in teams %}
+  <li>
+    <a href="{% url 'lineup:team-detail' team.pk %}">{{ team.name }}</a>
+    (<a href="{% url 'lineup:team-update' team.pk %}">Edit</a> |
+    <form action="{% url 'lineup:team-delete' team.pk %}" method="post" style="display:inline;"
+          onsubmit="return confirm('Delete {{ team.name }}?');">
+      {% csrf_token %}
+      <button type="submit">Delete</button>
+    </form>)
+  </li>
+  {% empty %}
+  <li>No teams.</li>
+  {% endfor %}
+</ul>
+<a href="/">Back</a>
+</body>
+</html>

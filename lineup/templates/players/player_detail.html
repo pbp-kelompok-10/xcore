@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ player.nama }}</title>
+</head>
+<body>
+  <h1>{{ player.nama }}</h1>
+  <p><strong>Country of Origin:</strong> {{ player.asal }}</p>
+  <p><strong>Age:</strong> {{ player.umur }}</p>
+  <p><strong>Number:</strong> {{ player.nomor }}</p>
+  <p><strong>Team:</strong> {{ player.tim.name }}</p>
+
+  <a href="{% url 'lineup:player-update' player.pk %}">Edit</a> |
+  <a href="{% url 'lineup:player-delete' player.pk %}">Delete</a> |
+  <a href="{% url 'lineup:player-list' %}">Back</a>
+</body>
+</html>

@@ -254,6 +254,12 @@
         <!-- LIVE: Bisa ke highlight atau tetap alert -->
         <a href="#" class="match-link" onclick="alert('Match is live! Check highlights later.')">
     {% endif %}
+                <!-- CONDITIONAL -->
+                {% if match.status == 'upcoming' %}
+                    <a href="#" class="match-link" onclick="alert('Prediction coming soon')">
+                {% else %}
+                    <a href="#" class="match-link" onclick="alert('Statistic coming soon')">
+                {% endif %}
                     <div class="match-card">
                         <div class="team">
                             <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 

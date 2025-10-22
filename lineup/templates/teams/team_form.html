@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team Form</title>
+</head>
+<body>
+  <h1>{{ view.object|default:"New Team" }}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+
+  <a href="{% url 'lineup:team-list' %}">Cancel</a>
+</body>
+</html>

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'statistik',
     'embed_video',
     'highlights',
+    'lineup',
 ]
 
 MIDDLEWARE = [
