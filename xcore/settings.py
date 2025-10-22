@@ -32,10 +32,12 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
     "https://alvin-christian-xcore.pbp.cs.ui.ac.id"
 ]
+
 
 # Application definition
 
@@ -46,6 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'scoreboard',  
+    'statistik',
+    'embed_video',
+    'highlights',
+    'lineup',
 ]
 
 MIDDLEWARE = [
@@ -141,8 +149,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+import os
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ team.name }}</title>
+</head>
+<body>
+  <h1>{{ team.name }}</h1>
+  <p><strong>Code:</strong> {{ team.code }}</p>
+
+  <h2>Players</h2>
+  <ul>
+    {% for player in team.players.all %}
+      <li>{{ player.nama }} (No. {{ player.nomor }}, Age {{ player.umur }})</li>
+    {% empty %}
+      <li>No players yet.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'lineup:team-update' team.pk %}">Edit</a> |
+  <a href="{% url 'lineup:team-delete' team.pk %}">Delete</a> |
+  <a href="{% url 'lineup:team-list' %}">Back</a>
+</body>
+</html>
