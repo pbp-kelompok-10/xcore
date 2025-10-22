@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from django.http import HttpResponseBadRequest
 from django.urls import reverse
 from .models import Forum, Post
@@ -14,20 +15,25 @@ def show_main(request, id):
     except (Match.DoesNotExist, Forum.DoesNotExist):
         return HttpResponse(b"Forum or Match not found.", status=404)
 
-# def add_post(request, forum_id):
-#     print(request.POST)
-#     forum = Forum.objects.get(id=forum_id)
-#     message = request.POST.get('content')
-#     print(message)
-#     author = request.user
+@require_POST
+def add_post(request, forum_id):
+    print(request.POST)  # Debug: lihat data dari AJAX
     
-#     new_post = Post(
-#         forum=forum,
-#         message=message
-#     )
-#     new_post.save()
+    forum = Forum.objects.get(id=forum_id)
+    message = request.POST.get('content')
+    author = request.user
+
+    if not message:
+        return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
+
+    new_post = Post(
+        forum=forum,
+        message=message,
+        author=author
+    )
+    new_post.save()
     
-#     return HttpResponse(b"Post added successfully.", status=201)
+    return HttpResponse(b"Post added successfully.", status=201)
 
 
 # @require_POST
