@@ -3,16 +3,31 @@ from .models import Statistik
 from .forms import StatistikForm
 from scoreboard.views import Match
 
-def add_statistik(request):
+def add_statistik(request, match_id):
+    from scoreboard.models import Match
+    match = get_object_or_404(Match, id=match_id)
+    
+    # Cek apakah sudah ada statistik
+    existing_statistik = Statistik.objects.filter(match=match).first()
+    if existing_statistik:
+        return redirect('statistik:statistik_display', match_id=match.id)
+    
     if request.method == 'POST':
         form = StatistikForm(request.POST)
         if form.is_valid():
-            statistik = form.save()
-            return redirect('statistik:statistik_display', match_id=statistik.match_id)
+            statistik = form.save(commit=False)
+            statistik.match = match  # Set match dari URL
+            statistik.save()
+            return redirect('statistik:statistik_display', match_id=match.id)
     else:
-        form = StatistikForm()
+        # Pre-fill form dengan match
+        form = StatistikForm(initial={'match': match})
     
-    return render(request, 'statistik/add_statistik.html', {'form': form})
+    context = {
+        'form': form,
+        'match': match
+    }
+    return render(request, 'statistik/add_statistik.html', context)
 
 def statistik_display(request, match_id):
     # Pastikan match dengan ID itu ada
