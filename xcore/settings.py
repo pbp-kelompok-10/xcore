@@ -32,7 +32,10 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://alvin-christian-xcore.pbp.cs.ui.ac.id"
+]
 
 # Application definition
 
