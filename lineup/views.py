@@ -9,14 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Team, Player, Lineup, COUNTRY_CHOICES
-from .forms import LineupForm
+from .forms import LineupForm, TeamForm, PlayerInlineFormSet
 from scoreboard.models import Match
-
-# ============================================
-#   CRUD VIEWS
-# ============================================
-
-# ---------- Teams ----------
+from django.contrib import messages
+from django.forms import modelform_factory
 class TeamListView(ListView):
     model = Team
     template_name = 'teams/team_list.html'
@@ -38,22 +34,32 @@ class TeamCreateView(CreateView):
 
 class TeamUpdateView(UpdateView):
     model = Team
-    fields = ['code']
+    form_class = TeamForm
     template_name = 'teams/team_form.html'
     success_url = reverse_lazy('team-list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        team = self.object
+        if self.request.POST:
+            context['player_formset'] = PlayerInlineFormSet(self.request.POST, instance=team)
+        else:
+            context['player_formset'] = PlayerInlineFormSet(instance=team)
+        return context
 
-class TeamDeleteView(DeleteView):
-    model = Team
-    success_url = reverse_lazy('team-list')
+    def form_valid(self, form):
+        context = self.get_context_data()
+        player_formset = context['player_formset']
 
-
-# ---------- Players ----------
-class PlayerListView(ListView):
-    model = Player
-    template_name = 'players/player_list.html'
-    context_object_name = 'players'
-
+        if player_formset.is_valid():
+            self.object = form.save()
+            player_formset.instance = self.object
+            player_formset.save()
+            messages.success(self.request, "Team and players updated successfully!")
+            return redirect(self.get_success_url())
+        else:
+            messages.error(self.request, "Please correct errors in player fields.")
+            return self.form_invalid(form)
 
 class PlayerDetailView(DetailView):
     model = Player
@@ -79,8 +85,6 @@ class PlayerDeleteView(DeleteView):
     model = Player
     success_url = reverse_lazy('player-list')
 
-
-# ---------- Lineups ----------
 class LineupListView(ListView):
     model = Lineup
     template_name = 'lineups/lineup_list.html'
