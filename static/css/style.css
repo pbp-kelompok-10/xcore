@@ -1,0 +1,127 @@
+:root {
+  --primary-color: #28574E;
+  --secondary-color: #56BDA9;
+  --light-bg: #f4f6f7;
+  --white: #ffffff;
+  --text-dark: #333333;
+  --text-light: #888888;
+}
+
+/* === GLOBAL RESET === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--light-bg);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* === CONTAINER === */
+.container {
+  width: 90%;
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+/* === CARD === */
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 18px;
+  overflow: hidden;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+/* === TEAMS === */
+.teams {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.team img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+
+.team span {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* === VOTE BUTTON === */
+.vote-button {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+  background-size: 300%;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  transition: background-position 1s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.vote-button:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(86,189,169,0.4);
+}
+
+/* === STATUS === */
+.status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-upcoming { color: #e67e22; }
+.status-live { color: #e74c3c; }
+.status-finished { color: #27ae60; }
+
+/* === EMPTY STATE === */
+.no-predictions {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .teams {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

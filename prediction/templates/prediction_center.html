@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Prediction Center{% endblock %}
+
+{% block content %}
+
+<style>
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup.hidden {
+  display: none;
+}
+.popup-content {
+  background: #fff;
+  color: #333;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  width: 300px;
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+.team-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.team-btn:hover {
+  background: #45a049;
+}
+</style>
+
+
+<div class="prediction-header" style="text-align: center;">
+    <h2>Predict The Winner</h2>
+    <h4>You Predict, You Decide</h4>
+</div>
+
+<br>
+<br>
+
+
+<h2>Upcoming Matches</h2>
+<!-- <div class="card-container">
+  {% for p in upcoming_predictions %}
+    <div class="prediction-card">
+      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
+      <button class="vote-btn">Vote</button>
+    </div>
+  {% empty %}
+    <p>No upcoming matches.</p>
+  {% endfor %}
+</div> -->
+<div class="prediction-card">
+  <h3>Argentina vs Brazil</h3>
+  <button class="vote-btn">Vote</button>
+</div>
+
+
+
+<br>
+
+<h2>Live Matches</h2>
+<div class="card-container">
+  {% for p in live_predictions %}
+    <div class="prediction-card live">
+      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
+      <p>Live now!</p>
+    </div>
+  {% empty %}
+    <p>No live matches.</p>
+  {% endfor %}
+</div>
+
+<br>
+
+<h2>Finished Matches</h2>
+<div class="card-container">
+  {% for p in finished_predictions %}
+    <div class="prediction-card finished">
+      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
+      <p>Final result: {{ p.match.score }}</p>
+    </div>
+  {% empty %}
+    <p>No finished matches.</p>
+  {% endfor %}
+</div>
+
+
+
+{% include 'modal_poll.html' %}
+
+{% endblock %}

@@ -1,0 +1,74 @@
+<div id="polling-popup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close-btn">&times;</span>
+    <h3>Who will win this match?</h3>
+    <div class="vote-options">
+      <button class="team-btn">Home Team</button>
+      <button class="team-btn">Away Team</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup.hidden { display: none; }
+.popup-content {
+  background: #fff;
+  color: #333;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  width: 300px;
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+.team-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.team-btn:hover { background: #45a049; }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const popup = document.getElementById("polling-popup");
+  const closeBtn = document.querySelector(".close-btn");
+
+  document.querySelectorAll(".vote-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const card = btn.closest(".prediction-card");
+      const matchTitle = card.querySelector("h3").textContent;
+      popup.querySelector("h3").textContent = `Who will win: ${matchTitle}?`;
+      popup.classList.remove("hidden");
+    });
+  });
+
+  closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
+
+  document.querySelectorAll(".team-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      alert(`You voted for: ${btn.textContent}`);
+      popup.classList.add("hidden");
+    });
+  });
+});
+</script>

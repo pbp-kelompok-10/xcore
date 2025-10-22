@@ -1,9 +1,9 @@
 from django.urls import path
-from prediction.views import show_main
+from prediction.views import prediction_list
 
 app_name = 'main'
 
 urlpatterns = [
-    path('', show_main, name='show_main'),
+    path('', prediction_list, name='prediction_list'),
 ]
 
