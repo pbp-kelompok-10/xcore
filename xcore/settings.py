@@ -32,7 +32,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
-
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
 
 # Application definition
 
@@ -43,8 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'scoreboard',  # belum ada app-nya, jadi dihapus dulu
+    'scoreboard',  
     'statistik',
+    'embed_video',
+    'highlights',
 ]
 
 MIDDLEWARE = [
