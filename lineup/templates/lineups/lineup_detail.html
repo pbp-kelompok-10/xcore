@@ -1,0 +1,48 @@
+<!-- lineup/templates/lineups/lineup_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ match.home_team }} vs {{ match.away_team }} - Lineup{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+  <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+  <h3>Match: {{ match.stadium }} — {{ match.match_date }}</h3>
+
+  <div class="teams">
+    <!-- HOME TEAM -->
+    <div class="team">
+      {% if home_lineup %}
+        <h2>{{ home_lineup.team.name }}</h2>
+        <ul>
+          {% for player in home_lineup.players.all %}
+            <li>{{ player.nama }} ({{ player.nomor }})</li>
+          {% empty %}
+            <li>No players selected yet.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No lineup yet for home team.</p>
+      {% endif %}
+    </div>
+
+    <!-- AWAY TEAM -->
+    <div class="team">
+      {% if away_lineup %}
+        <h2>{{ away_lineup.team.name }}</h2>
+        <ul>
+          {% for player in away_lineup.players.all %}
+            <li>{{ player.nama }} ({{ player.nomor }})</li>
+          {% empty %}
+            <li>No players selected yet.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No lineup yet for away team.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <br>
+  <a href="{% url 'statistik:statistik_display' match.id %}">Back to Statistik</a>
+</div>
+{% endblock %}

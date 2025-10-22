@@ -48,12 +48,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
-    'scoreboard',  
+
+    'scoreboard',
     'statistik',
+    'prediction',
     'embed_video',
     'highlights',
     'lineup',
+    'landingpage',
 ]
 
 MIDDLEWARE = [

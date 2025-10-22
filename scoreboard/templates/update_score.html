@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Score - Xcore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .update-container {
+        max-width: 650px;
+        margin: 60px auto;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        padding: 35px;
+        text-align: left;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .update-container h2 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #333;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #d0d0d0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: 0.25s;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 6px rgba(86, 189, 169, 0.3);
+        outline: none;
+    }
+
+    input[readonly] {
+        background: #f2f4f3;
+        cursor: not-allowed;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .btn-primary {
+        background: var(--secondary-color);
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        background: #ccc;
+        color: #333;
+    }
+
+    .btn-cancel:hover {
+        background: #aaa;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="update-container">
+    <h2>Update Pertandingan</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Home Team</label>
+            <input type="text" name="home_team" value="{{ match.home_team }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Away Team</label>
+            <input type="text" name="away_team" value="{{ match.away_team }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Home Score</label>
+            <input type="number" name="home_score" value="{{ match.home_score }}" min="0" required>
+        </div>
+
+        <div class="form-group">
+            <label>Away Score</label>
+            <input type="number" name="away_score" value="{{ match.away_score }}" min="0" required>
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status" required>
+                <option value="upcoming" {% if match.status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                <option value="live" {% if match.status == 'live' %}selected{% endif %}>Live</option>
+                <option value="finished" {% if match.status == 'finished' %}selected{% endif %}>Finished</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Round</label>
+            <input type="text" name="round" value="{{ match.round }}">
+        </div>
+
+        <div class="form-group">
+            <label>Group</label>
+            <input type="text" name="group" value="{{ match.group }}">
+        </div>
+
+        <div class="form-group">
+            <label>Stadium</label>
+            <input type="text" name="stadium" value="{{ match.stadium }}">
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{% url 'scoreboard:scoreboard_list' %}" class="btn btn-cancel">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
