@@ -18,7 +18,6 @@
     height: calc(100vh - 88px);
   }
 
-  /* Title */
   .highlights-title {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: clamp(24px, 4vw, 32px);
@@ -27,7 +26,6 @@
     text-align: left;
   }
 
-  /* Match Info Section */
   .match-info {
     display: flex;
     justify-content: center;
@@ -36,8 +34,6 @@
     flex-wrap: nowrap;
     background: transparent;
     padding: 0;
-    border-radius: 0;
-    box-shadow: none;
   }
 
   .team {
@@ -57,9 +53,7 @@
     transition: transform 0.3s ease;
   }
 
-  .team-flag:hover {
-    transform: scale(1.05);
-  }
+  .team-flag:hover { transform: scale(1.05); }
 
   .team-name {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -76,7 +70,6 @@
     color: #28574e;
   }
 
-  /* VS Container */
   .vs-container {
     display: flex;
     flex-direction: column;
@@ -99,10 +92,8 @@
     font-size: clamp(12px, 2vw, 18px);
     font-weight: 500;
     color: #666;
-    letter-spacing: 1px;
   }
 
-  /* Video Section */
   .video-section {
     display: flex;
     justify-content: center;
@@ -124,67 +115,34 @@
 
   .video-placeholder {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #28574e 0%, #56bda9 100%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: clamp(20px, 4vw, 28px);
     font-weight: 600;
     color: #eef8f6;
+    text-align: center;
+    gap: 15px;
   }
 
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .highlights-container {
-      padding: 20px 15px;
-      gap: 25px;
-      height: auto;
-    }
-
-    .match-info {
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .vs-container {
-      flex-direction: row;
-      gap: 10px;
-    }
-
-    .video-section {
-      aspect-ratio: 16 / 9;
-      min-height: 300px;
-    }
+  .add-video-btn {
+    background-color: #fff;
+    color: #28574e;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid #fff;
+    transition: all 0.3s ease;
   }
 
-  @media (max-width: 480px) {
-    .highlights-container {
-      padding: 15px 10px;
-      gap: 20px;
-    }
-
-    .team-flag {
-      width: 50px;
-      height: 50px;
-    }
-
-    .team-name {
-      font-size: 14px;
-    }
-
-    .team-score {
-      font-size: 22px;
-    }
-
-    .vs-text {
-      font-size: 18px;
-    }
-
-    .video-section {
-      min-height: 220px;
-    }
+  .add-video-btn:hover {
+    background-color: #28574e;
+    color: #fff;
   }
 </style>
 
@@ -192,24 +150,23 @@
   <h1 class="highlights-title">Highlights</h1>
 
   <div class="match-info">
-  <div class="team">
-    <img src="{{ home_team_flag }}" alt="{{ match.home_team }} Flag" class="team-flag">
-    <p class="team-name">{{ match.home_team }}</p>
-    <p class="team-score">{{ match.home_score }}</p>
-  </div>
+    <div class="team">
+      <img src="{{ home_team_flag }}" alt="{{ highlight.match.home_team }} Flag" class="team-flag">
+      <p class="team-name">{{ highlight.match.home_team }}</p>
+      <p class="team-score">{{ highlight.match.home_score }}</p>
+    </div>
 
-  <div class="vs-container">
-    <p class="vs-text">VS</p>
-    <p class="ft-text">FT</p>
-  </div>
+    <div class="vs-container">
+      <p class="vs-text">VS</p>
+      <p class="ft-text">FT</p>
+    </div>
 
-  <div class="team">
-    <img src="{{ away_team_flag }}" alt="{{ match.away_team }} Flag" class="team-flag">
-    <p class="team-name">{{ match.away_team }}</p>
-    <p class="team-score">{{ match.away_score }}</p>
+    <div class="team">
+      <img src="{{ away_team_flag }}" alt="{{ highlight.match.away_team }} Flag" class="team-flag">
+      <p class="team-name">{{ highlight.match.away_team }}</p>
+      <p class="team-score">{{ highlight.match.away_score }}</p>
+    </div>
   </div>
-</div>
-
 
   <!-- Video Section -->
   {% if highlight.video %}
@@ -225,7 +182,8 @@
   {% else %}
     <div class="video-section">
       <div class="video-placeholder">
-        No highlight video available
+        <p>No highlight video available</p>
+        <a href="{% url 'highlights:highlight_create' match.id %}" class="add-video-btn">Add Video</a>
       </div>
     </div>
   {% endif %}

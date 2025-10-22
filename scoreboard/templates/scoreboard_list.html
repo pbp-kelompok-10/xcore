@@ -54,7 +54,6 @@
         display: block;
     }
 
-<<<<<<< HEAD
     .match-link:hover .match-card {
         transform: translateY(-3px);
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
@@ -74,25 +73,6 @@
         position: relative;
         transition: transform 0.3s, box-shadow 0.3s, background-color 0.2s;
     }
-=======
-        .search-bar {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .search-bar input {
-            width: 60%;
-            max-width: 700px;
-            padding: 10px 16px;
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s;
-        }
->>>>>>> 07bb101 (otw selesai)
 
     .edit-button {
     position: absolute;
@@ -109,37 +89,11 @@
     transition: background-color 0.3s, transform 0.2s;
 }
 
-<<<<<<< HEAD
 .edit-button:hover {
     background-color: var(--primary-color);
     transform: scale(1.05);
 }
 
-=======
-        .user-icon {
-            margin-left: 15px;
-            color: white;
-        }
-
-        /* === DATE HEADER === */
-        .date-section {
-            margin: 25px 0 15px 0;
-        }
-
-        .date-header {
-            text-align: center;
-            color: var(--primary-color);
-            font-weight: 600;
-            font-size: 18px;
-            background-color: white;
-            padding: 12px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 900px;
-            margin: 0 auto 20px auto;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
->>>>>>> 07bb101 (otw selesai)
 
     .match-card:hover {
         background-color: #f8f9fa;
@@ -262,22 +216,8 @@
     /* === RESPONSIVE === */
     @media (max-width: 768px) {
         .match-card {
-<<<<<<< HEAD
             flex-direction: column;
             padding: 15px;
-=======
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 15px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 25px;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
->>>>>>> 07bb101 (otw selesai)
         }
         
         .team {
@@ -297,18 +237,8 @@
         }
 
         .team img {
-<<<<<<< HEAD
             width: 32px;
             height: 32px;
-=======
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            margin-right: 12px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            object-fit: cover;
-            border: 1px solid #f0f0f0;
->>>>>>> 07bb101 (otw selesai)
         }
 
         .search-bar input {
@@ -323,92 +253,13 @@
 <div class="container">
     <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
 
-<<<<<<< HEAD
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
         <div class="date-section">
             <div class="date-header">
                 {{ match_date|date:"l, d F Y" }}
             </div>
-=======
-        .score {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .ft {
-            font-size: 12px;
-            color: var(--text-light);
-            margin: 0 5px;
-        }
-
-        .match-info {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-top: 5px;
-        }
-
-        .status-upcoming {
-            color: #e67e22;
-            font-weight: 600;
-        }
-
-        .status-live {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-
-        .status-finished {
-            color: #27ae60;
-            font-weight: 600;
-        }
-
-        .add-button {
-            display: block;
-            width: 220px;
-            margin: 25px auto;
-            padding: 12px;
-            background-color: var(--secondary-color);
-            color: white;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .add-button:hover {
-            background-color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .no-matches {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-light);
-            font-style: italic;
-        }
-
-        /* === FOOTER === */
-        .footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            color: var(--text-light);
-            font-size: 14px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        /* === RESPONSIVE === */
-        @media (max-width: 768px) {
-            .navbar h1 {
-                font-size: 18px;
-            }
->>>>>>> 07bb101 (otw selesai)
             
-<<<<<<< HEAD
             {% for match in matches %}
                 <!-- CONDITIONAL -->
                 {% if match.status == 'upcoming' %}
@@ -467,114 +318,6 @@
         </div>
     {% endif %}
 </div>
-=======
-            .search-bar input {
-                width: 80%;
-            }
-            
-            .match-card {
-                flex-direction: column;
-                padding: 15px;
-            }
-            
-            .team {
-                width: 100%;
-                justify-content: center;
-                margin-bottom: 10px;
-            }
-            
-            .score-section {
-                width: 100%;
-                order: -1;
-                margin-bottom: 15px;
-            }
-            
-            .team:last-child {
-                margin-bottom: 0;
-            }
-
-            .team img {
-                width: 32px;
-                height: 32px;
-            }
-        }
-    </style>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <div class="menu-icon">☰</div>
-        <h1>Xcore</h1>
-        <div class="search-bar">
-            <input type="text" placeholder="Cari pertandingan, tim, atau tanggal...">
-        </div>
-        <div class="user-icon">
-            <i class="fas fa-user-circle"></i>
-        </div>
-    </div>
-
-    <!-- SCOREBOARD -->
-    <div class="container">
-        <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
-
-        {% if matches_by_date %}
-            {% for match_date, matches in matches_by_date.items %}
-            <div class="date-section">
-                <div class="date-header">
-                    {{ match_date|date:"l, d F Y" }}
-                </div>
-                
-                {% for match in matches %}
-                <div class="match-card">
-                    <div class="team">
-                        <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
-                             alt="{{ match.home_team }}"
-                             onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-                        <div class="team-name">{{ match.home_team }}</div>
-                    </div>
-
-                    <div class="score-section">
-                        <div class="score">
-                            {% if match.status == 'upcoming' %}
-                                - : -
-                            {% else %}
-                                {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
-                            {% endif %}
-                        </div>
-                        <div class="match-info">
-                            {% if match.status == 'upcoming' %}
-                                <span class="status-upcoming">UPCOMING</span>
-                            {% elif match.status == 'live' %}
-                                <span class="status-live">LIVE</span>
-                            {% else %}
-                                <span class="status-finished">FINISHED</span>
-                            {% endif %}
-                            <br>
-                            {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
-                            {{ match.stadium }}
-                        </div>
-                    </div>
-
-                    <div class="team" style="justify-content: flex-end;">
-                        <div class="team-name">{{ match.away_team }}</div>
-                        <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
-                             alt="{{ match.away_team }}"
-                             onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-matches">
-                <p>Belum ada pertandingan yang ditambahkan.</p>
-                <p>Klik tombol "Tambah Pertandingan" untuk menambahkan pertandingan pertama Anda.</p>
-            </div>
-        {% endif %}
-    </div>
->>>>>>> bafb301 (update tampilan)
 
 <!-- FOOTER -->
 <div class="footer">
@@ -582,7 +325,6 @@
 </div>
 {% endblock %}
 
-<<<<<<< HEAD
 {% block extra_js %}
 <script>
 
@@ -601,47 +343,13 @@
             linksInSection.forEach(link => {
                 const teamNames = link.querySelectorAll('.team-name');
                 let found = false;
-=======
-    <script>
-        // Simple search functionality
-        document.querySelector('.search-bar input').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const matchCards = document.querySelectorAll('.match-card');
-            const dateSections = document.querySelectorAll('.date-section');
-            
-            let hasVisibleMatches = false;
-            
-            dateSections.forEach(section => {
-                const matchesInSection = section.querySelectorAll('.match-card');
-                let sectionHasVisibleMatches = false;
->>>>>>> 07bb101 (otw selesai)
                 
-                matchesInSection.forEach(card => {
-                    const teamNames = card.querySelectorAll('.team-name');
-                    let found = false;
-                    
-                    teamNames.forEach(name => {
-                        if (name.textContent.toLowerCase().includes(searchTerm)) {
-                            found = true;
-                        }
-                    });
-                    
-                    // Check match info as well
-                    const matchInfo = card.querySelector('.match-info').textContent.toLowerCase();
-                    if (matchInfo.includes(searchTerm)) {
+                teamNames.forEach(name => {
+                    if (name.textContent.toLowerCase().includes(searchTerm)) {
                         found = true;
-                    }
-                    
-                    if (found || searchTerm === '') {
-                        card.style.display = 'flex';
-                        sectionHasVisibleMatches = true;
-                        hasVisibleMatches = true;
-                    } else {
-                        card.style.display = 'none';
                     }
                 });
                 
-<<<<<<< HEAD
                 const matchInfo = link.querySelector('.match-info').textContent.toLowerCase();
                 if (matchInfo.includes(searchTerm)) {
                     found = true;
@@ -654,15 +362,10 @@
                 } else {
                     link.style.display = 'none';
                 }
-=======
-                // Show/hide date section based on visible matches
-                section.style.display = sectionHasVisibleMatches ? 'block' : 'none';
->>>>>>> 07bb101 (otw selesai)
             });
             
             section.style.display = sectionHasVisibleMatches ? 'block' : 'none';
         });
-<<<<<<< HEAD
     });
 
     document.querySelectorAll('.edit-button').forEach(btn => {
@@ -673,8 +376,3 @@
 
 </script>
 {% endblock %}
-=======
-    </script>
-</body>
-</html>
->>>>>>> 07bb101 (otw selesai)
