@@ -13,5 +13,4 @@ class MatchForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set placeholder untuk stadium
         self.fields['stadium'].widget.attrs.update({'placeholder': 'Nama stadion...'})
