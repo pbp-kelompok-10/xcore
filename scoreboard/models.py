@@ -48,6 +48,7 @@ class Match(models.Model):
         ('tl', 'Timor-Leste'),
         ('mo', 'Macau'),
         ('sg', 'Singapore'),
+        ('in', 'India')
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -66,7 +67,7 @@ class Match(models.Model):
     away_score = models.PositiveIntegerField(default=0)
     match_date = models.DateTimeField()  
     stadium = models.CharField(max_length=100)
-    round = models.IntegerField(max_length=50, blank=True, null=True)
+    round = models.IntegerField(blank=True, null=True)
     group = models.CharField(max_length=20, blank=True, null=True) 
     status = models.CharField(
         max_length=10,

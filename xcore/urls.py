@@ -22,4 +22,5 @@ urlpatterns = [
     path('scoreboard/', include('scoreboard.urls')),
     # path('', include('prediction.urls')),
     # path('statistics/', include('statistics.urls')),
+    path('', include('lineup.urls')),
 ]
