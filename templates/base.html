@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Xcore{% endblock %}</title>
+    
+    <style>
+        :root {
+            --primary-color: #28574E;
+            --secondary-color: #56BDA9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-icon, .user-icon {
+            font-size: 22px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .menu-icon:hover, .user-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            margin: 0 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar-brand::before {
+            content: "⚽";
+            margin-right: 8px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 60%;
+            max-width: 700px;
+            padding: 10px 16px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        .search-bar input:focus {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-icon {
+            margin-left: 15px;
+            color: white;
+        }
+    </style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="menu-icon">☰</div>
+        <a href="{% url 'scoreboard:scoreboard_list' %}" class="navbar-brand">Xcore</a>
+        <div class="search-bar">
+            <input type="text" placeholder="Cari pertandingan, tim, atau tanggal...">
+        </div>
+        <div class="user-icon">
+            <i class="fas fa-user-circle"></i>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    <!-- JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

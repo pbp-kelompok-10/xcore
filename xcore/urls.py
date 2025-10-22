@@ -1,7 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include  # ⬅️ tambahkan include di sini
+from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('statistik/', include('statistik.urls')),  # ⬅️ arahkan ke app statistik
+    path('statistik/', include('statistik.urls')),
+    path('scoreboard/', include('scoreboard.urls')),
+    # path('', include('prediction.urls')),
+    # path('statistics/', include('statistics.urls')),
 ]

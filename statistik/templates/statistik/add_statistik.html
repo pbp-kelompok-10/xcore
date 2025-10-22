@@ -1,44 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="page">
-  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">Tambah Statistik Pertandingan</h2>
+  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">
+    {% if match %}
+      Tambah Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
+    {% else %}
+      Tambah Statistik Pertandingan
+    {% endif %}
+  </h2>
+  
+  {% if match %}
+  <!-- INFO MATCH DARI SCOREBOARD -->
+  <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
+    <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <strong>Tim Home:</strong> {{ match.home_team }}<br>
+        <strong>Tim Away:</strong> {{ match.away_team }}
+      </div>
+      <div>
+        <strong>Skor:</strong> {{ match.home_score }} - {{ match.away_score }}<br>
+        <strong>Stadion:</strong> {{ match.stadium }}
+      </div>
+    </div>
+  </div>
+  {% endif %}
   
   <form method="POST">
     {% csrf_token %}
     
-    <div class="form-section">
-      <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Informasi Pertandingan</h3>
-      <div class="form-grid">
+    {% if match %}
+      <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
+      <input type="hidden" name="match" value="{{ match.id }}">
+    {% else %}
+      <!-- Tampilkan dropdown jika manual add -->
+      <div class="form-section">
+        <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Pilih Pertandingan</h3>
         <div class="form-group">
-          <label>Match ID</label>
-          {{ form.match_id }}
-        </div>
-        <div class="form-group">
-          <label>Stadion</label>
-          {{ form.stadium }}
+          <label>Pertandingan</label>
+          {{ form.match }}
         </div>
       </div>
-      
-      <div class="teams-grid">
-        <div class="team-input">
-          <label>Tim Home</label>
-          {{ form.team_home }}
-        </div>
-        <div class="score-input">
-          <label>Skor</label>
-          <div class="score-display">
-            {{ form.score_home }}
-            <span style="margin:0 10px;font-weight:bold;">-</span>
-            {{ form.score_away }}
-          </div>
-        </div>
-        <div class="team-input">
-          <label>Tim Away</label>
-          {{ form.team_away }}
-        </div>
-      </div>
-    </div>
+    {% endif %}
 
+    <!-- HANYA FORM STATISTIK -->
     <div class="form-section">
       <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Statistik Pertandingan</h3>
       
@@ -123,7 +128,7 @@
     </div>
 
     <button type="submit" class="btn" style="margin-top:30px;width:100%;padding:15px;font-size:1.1em;">
-      Simpan & Tampilkan Statistik
+      {% if match %}Simpan Statistik{% else %}Tambah Statistik{% endif %}
     </button>
   </form>
 </div>

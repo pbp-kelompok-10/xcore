@@ -7,27 +7,46 @@ def add_statistik(request):
         form = StatistikForm(request.POST)
         if form.is_valid():
             statistik = form.save()
-            return redirect('statistik:statistik_display', match_id=statistik.match_id)
+            return redirect('statistik:statistik_display', match_id=statistik.match.id)
     else:
         form = StatistikForm()
     
     return render(request, 'statistik/add_statistik.html', {'form': form})
 
-def statistik_display(request, match_id):
-    statistik = get_object_or_404(Statistik, match_id=match_id)
+def add_statistik_for_match(request, match_id):
+    """Add statistik untuk match tertentu dari scoreboard"""
+    from scoreboard.models import Match
+    match = get_object_or_404(Match, id=match_id)
     
-    # Hitung semua persentase di view
-    total_passes = statistik.pass_home + statistik.pass_away
-    total_shots = statistik.shoot_home + statistik.shoot_away
-    total_on_target = statistik.on_target_home + statistik.on_target_away
+    # Cek apakah sudah ada statistik
+    existing_statistik = Statistik.objects.filter(match=match).first()
+    if existing_statistik:
+        return redirect('statistik:statistik_display', match_id=match.id)
+    
+    if request.method == 'POST':
+        form = StatistikForm(request.POST)
+        if form.is_valid():
+            statistik = form.save(commit=False)
+            statistik.match = match  # Set match dari URL
+            statistik.save()
+            return redirect('statistik:statistik_display', match_id=match.id)
+    else:
+        # Pre-fill form dengan match
+        form = StatistikForm(initial={'match': match})
     
     context = {
+        'form': form,
+        'match': match
+    }
+    return render(request, 'statistik/add_statistik.html', context)
+
+def statistik_display(request, match_id):
+    from scoreboard.models import Match
+    match = get_object_or_404(Match, id=match_id)
+    statistik = get_object_or_404(Statistik, match=match)
+    
+    context = {
+        'match': match,
         'statistik': statistik,
-        'pass_home_percentage': (statistik.pass_home / total_passes * 100) if total_passes > 0 else 50,
-        'pass_away_percentage': (statistik.pass_away / total_passes * 100) if total_passes > 0 else 50,
-        'shoot_home_percentage': (statistik.shoot_home / total_shots * 100) if total_shots > 0 else 50,
-        'shoot_away_percentage': (statistik.shoot_away / total_shots * 100) if total_shots > 0 else 50,
-        'on_target_home_percentage': (statistik.on_target_home / total_on_target * 100) if total_on_target > 0 else 50,
-        'on_target_away_percentage': (statistik.on_target_away / total_on_target * 100) if total_on_target > 0 else 50,
     }
     return render(request, 'statistik/statistik_display.html', context)
