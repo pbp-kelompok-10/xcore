@@ -1,34 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ match.home_team }} vs {{ match.away_team }}</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h1 { font-size: 28px; }
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      gap: 40px;
-      margin-top: 20px;
-    }
-    .team {
-      width: 48%;
-    }
-    .team h2 {
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      padding: 4px 0;
-      font-size: 16px;
-    }
-  </style>
-</head>
-<body>
+<!-- lineup/templates/lineups/lineup_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ match.home_team }} vs {{ match.away_team }} - Lineup{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
   <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
   <h3>Match: {{ match.stadium }} — {{ match.match_date }}</h3>
 
@@ -68,5 +44,5 @@
 
   <br>
   <a href="{% url 'statistik:statistik_display' match.id %}">Back to Statistik</a>
-</body>
-</html>
+</div>
+{% endblock %}
