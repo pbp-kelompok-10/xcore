@@ -48,10 +48,7 @@ class Match(models.Model):
         ('tl', 'Timor-Leste'),
         ('mo', 'Macau'),
         ('sg', 'Singapore'),
-<<<<<<< HEAD
-=======
         ('in', 'India')
->>>>>>> db8652f941cd29d77e66c9c76f7bc7f76e6ed3c8
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
