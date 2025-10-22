@@ -240,26 +240,21 @@
             </div>
             
             {% for match in matches %}
-    <!-- CONDITIONAL LINK KE STATISTIK -->
-    {% if match.status == 'upcoming' %}
-        <a href="#" class="match-link" onclick="alert('Prediction coming soon')">
-    {% elif match.status == 'finished' %}
-        <!-- FINISHED: Link ke statistik -->
-        {% if match.statistics.all %}
-            <a href="{% url 'statistik:statistik_display' match.id %}" class="match-link">
-        {% else %}
-            <a href="{% url 'statistik:add_statistik_for_match' match.id %}" class="match-link">
-        {% endif %}
-    {% else %}
-        <!-- LIVE: Bisa ke highlight atau tetap alert -->
-        <a href="#" class="match-link" onclick="alert('Match is live! Check highlights later.')">
-    {% endif %}
-                <!-- CONDITIONAL -->
+                <!-- CONDITIONAL LINK KE STATISTIK -->
                 {% if match.status == 'upcoming' %}
                     <a href="#" class="match-link" onclick="alert('Prediction coming soon')">
+                {% elif match.status == 'finished' %}
+                    <!-- FINISHED: Link ke statistik -->
+                    {% if match.statistics.all %}
+                        <a href="{% url 'statistik:statistik_display' match.id %}" class="match-link">
+                    {% else %}
+                        <a href="{% url 'statistik:add_statistik' match.id %}" class="match-link">
+                    {% endif %}
                 {% else %}
-                    <a href="#" class="match-link" onclick="alert('Statistic coming soon')">
+                    <!-- LIVE: Bisa ke highlight atau tetap alert -->
+                    <a href="#" class="match-link" onclick="alert('Match is live! Check highlights later.')">
                 {% endif %}
+                
                     <div class="match-card">
                         <div class="team">
                             <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
@@ -317,8 +312,6 @@
 
 {% block extra_js %}
 <script>
-
-    
     document.querySelector('.search-bar input').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         const matchLinks = document.querySelectorAll('.match-link');
