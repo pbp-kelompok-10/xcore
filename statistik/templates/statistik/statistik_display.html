@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="page">
-  <!-- Header Pertandingan -->
+  <!-- Navigation Buttons - DIPINDAHKAN KE ATAS -->
+  <div class="action-buttons">
+    <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
+    <div class="feature-buttons">
+      <a href="/forum/" class="btn btn-feature">💬 Forum</a>
+      <a href="/highlights/test/" class="btn btn-feature">🎥 Highlight</a>
+      <a href="/prediction/" class="btn btn-feature">⚽ Prediction</a>
+    </div>
+  </div>
+
+  <!-- Header Pertandingan - GUNAKAN DATA DARI MATCH -->
   <div class="match-header">
     <h1 style="text-align:center;color:#3F6E7F;margin-bottom:10px;font-size:1.8em;">{{ statistik.stadium }}</h1>
     
