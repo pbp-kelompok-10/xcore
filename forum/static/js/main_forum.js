@@ -34,6 +34,32 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on('click', '.delete-post', function(e) {
+        e.preventDefault();
+        let postId = $(this).data('post-id');
+        deletePost(postId);
+    });
+
+    function deletePost(postId) {
+        $.ajax({
+            type: "POST",
+            url: `/forum/${forumId}/delete_post/${postId}/`,
+            data: {
+                'forum_id': forumId,
+                'post_id': postId,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()  // CSRF Token
+            },
+            success: function (data) {
+                displayPosts();  // Reload posts
+                console.log("Post deleted successfully!");
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                alert("Error deleting post.");
+            }
+        });
+    }
+
     // Fungsi untuk menampilkan posts
     function displayPosts() {
         $.ajax({
@@ -46,8 +72,11 @@ $(document).ready(function () {
                 
                 if (response.posts && response.posts.length > 0) {
                     response.posts.forEach(function(post) {
-                        console.log("Loading post by:", post.author_name); // Debug
-                        
+                        let deleteButton = '';
+                        if (response.user_is_authenticated && response.user_id == post.author_id) {
+                            deleteButton = `<button class="btn btn-danger btn-sm delete-post" data-post-id="${post.id}">Delete</button>`;
+                        }
+
                         var postHtml = `
                             <div class="match-card">
                                 
@@ -55,6 +84,9 @@ $(document).ready(function () {
                                     <div class="post-authorname">${post.author_name}</div>
                                     <div class="score">${post.message}</div>
                                     <div class="match-info">Posted on ${post.created_at}</div>
+                                    <div class="post-actions">
+                                        ${deleteButton}
+                                    </div>
                                 </div>
                             </div>
                         `;
