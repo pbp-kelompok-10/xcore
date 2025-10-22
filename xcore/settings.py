@@ -33,6 +33,11 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "https://alvin-christian-xcore.pbp.cs.ui.ac.id"
+]
+
 
 # Application definition
 
