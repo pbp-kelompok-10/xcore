@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ match.home_team }} vs {{ match.away_team }}</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { font-size: 28px; }
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      margin-top: 20px;
+    }
+    .team {
+      width: 48%;
+    }
+    .team h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 4px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+  <h3>Match: {{ match.stadium }} — {{ match.match_date }}</h3>
+
+  <div class="teams">
+    <!-- HOME TEAM -->
+    <div class="team">
+      {% if home_lineup %}
+        <h2>{{ home_lineup.team.name }}</h2>
+        <ul>
+          {% for player in home_lineup.players.all %}
+            <li>{{ player.nama }} ({{ player.nomor }})</li>
+          {% empty %}
+            <li>No players selected yet.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No lineup yet for home team.</p>
+      {% endif %}
+    </div>
+
+    <!-- AWAY TEAM -->
+    <div class="team">
+      {% if away_lineup %}
+        <h2>{{ away_lineup.team.name }}</h2>
+        <ul>
+          {% for player in away_lineup.players.all %}
+            <li>{{ player.nama }} ({{ player.nomor }})</li>
+          {% empty %}
+            <li>No players selected yet.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No lineup yet for away team.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <br>
+  <a href="{% url 'lineup:lineup-list' %}">Back</a>
+</body>
+</html>

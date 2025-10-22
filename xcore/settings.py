@@ -32,7 +32,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
-
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
 
 # Application definition
 
@@ -45,8 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'scoreboard',
-    # 'statistik',
-    # 'prediction',
+    'statistik',
+    'prediction',
+    'embed_video',
+    'highlights',
+    'lineup',
+    'landingpage',
 ]
 
 MIDDLEWARE = [
