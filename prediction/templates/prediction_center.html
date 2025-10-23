@@ -6,105 +6,126 @@
 
 {% block content %}
 
+<h2>Test Polling</h2>
+
+<h2>Prediction Center</h2>
+
+{% for prediction in upcoming_predictions %}
+  <div class="prediction-item">
+    <p><strong>{{ prediction.match.home_team }}</strong> vs <strong>{{ prediction.match.away_team }}</strong></p>
+    <button class="vote-btn" 
+        data-prediction-id="{{ prediction.id }}" 
+        data-match-title="{{ prediction.match.home_team }} vs {{ prediction.match.away_team }}"
+        data-home="{{ prediction.match.home_team }}"
+        data-away="{{ prediction.match.away_team }}">
+    Vote / Polling
+    </button>
+  </div>
+  <!-- 🟩 Tambahin bagian hasil vote di sini -->
+    <div class="vote-results" id="results-{{ prediction.id }}">
+        <p>{{ prediction.match.home_team }}: {{ prediction.votes_home_team }} votes ({{ prediction.home_percentage|floatformat:1 }}%)</p>
+        <p>{{ prediction.match.away_team }}: {{ prediction.votes_away_team }} votes ({{ prediction.away_percentage|floatformat:1 }}%)</p>
+    </div>
+  
+
+{% empty %}
+  <p>No upcoming predictions.</p>
+{% endfor %}
+
+<div id="polling-popup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close-btn">&times;</span>
+    <h3>Who will win this match?</h3>
+    <div class="vote-options">
+        <button class="team-btn" data-choice="home team"></button>
+        <button class="team-btn" data-choice="away team"></button>
+    </div>
+  </div>
+</div>
+
 <style>
-.popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.popup.hidden {
-  display: none;
-}
-.popup-content {
-  background: #fff;
-  color: #333;
-  padding: 30px;
-  border-radius: 12px;
-  text-align: center;
-  width: 300px;
-  position: relative;
-}
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 22px;
-  cursor: pointer;
-}
-.team-btn {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.team-btn:hover {
-  background: #45a049;
-}
+/* Copy style modal dari modal_poll.html */
+.popup { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.popup.hidden { display: none; }
+.popup-content { background: #fff; color: #333; padding: 30px; border-radius: 12px; text-align: center; width: 300px; position: relative; }
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 22px; cursor: pointer; }
+.team-btn { background: #4CAF50; color: white; border: none; padding: 10px 20px; margin: 8px; border-radius: 6px; cursor: pointer; }
+.team-btn:hover { background: #45a049; }
 </style>
 
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i=0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length+1) === (name+'=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length+1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
-<div class="prediction-header" style="text-align: center;">
-    <h2>Predict The Winner</h2>
-    <h4>You Predict, You Decide</h4>
-</div>
+const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
+const popup = document.getElementById("polling-popup");
+const closeBtn = document.querySelector(".close-btn");
 
-<br>
-<br>
-
-
-<h2>Upcoming Matches</h2>
-<!-- <div class="card-container">
-  {% for p in upcoming_predictions %}
-    <div class="prediction-card">
-      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
-      <button class="vote-btn">Vote</button>
-    </div>
-  {% empty %}
-    <p>No upcoming matches.</p>
-  {% endfor %}
-</div> -->
-<div class="prediction-card">
-  <h3>Argentina vs Brazil</h3>
-  <button class="vote-btn">Vote</button>
-</div>
+document.querySelectorAll(".vote-btn").forEach(voteBtn => {
+    voteBtn.addEventListener("click", () => {
+        if (!isLoggedIn) {
+            window.location.href = "/login/?next={{ request.path }}";
+        } else {
+            popup.querySelector("h3").textContent = `Who will win: ${voteBtn.dataset.matchTitle}?`;
+            popup.dataset.predictionId = voteBtn.dataset.predictionId;  // simpen id-nya
+            popup.classList.remove("hidden");
+            popup.querySelector('.team-btn[data-choice="home team"]').textContent = voteBtn.dataset.home;
+            popup.querySelector('.team-btn[data-choice="away team"]').textContent = voteBtn.dataset.away;
+        }
+    });
+});
 
 
+closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
 
-<br>
+document.querySelectorAll(".team-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const choice = btn.dataset.choice;
+        const predictionId = popup.dataset.predictionId;
 
-<h2>Live Matches</h2>
-<div class="card-container">
-  {% for p in live_predictions %}
-    <div class="prediction-card live">
-      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
-      <p>Live now!</p>
-    </div>
-  {% empty %}
-    <p>No live matches.</p>
-  {% endfor %}
-</div>
+        fetch("submit-vote/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: `prediction_id=${predictionId}&choice=${choice}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("Vote berhasil!");
+                popup.classList.add("hidden");
 
-<br>
+                // update hasil vote di halaman
+                const resultDiv = document.getElementById(`results-${predictionId}`);
+                if (resultDiv && data.home && data.away) {
+                    resultDiv.innerHTML = `
+                        <p>${data.home.team}: ${data.home.votes} votes (${data.home.percent}%)</p>
+                        <p>${data.away.team}: ${data.away.votes} votes (${data.away.percent}%)</p>
+                    `;
+}
 
-<h2>Finished Matches</h2>
-<div class="card-container">
-  {% for p in finished_predictions %}
-    <div class="prediction-card finished">
-      <h3>{{ p.match.home_team }} vs {{ p.match.away_team }}</h3>
-      <p>Final result: {{ p.match.score }}</p>
-    </div>
-  {% empty %}
-    <p>No finished matches.</p>
-  {% endfor %}
-</div>
+            } else {
+                alert(data.message || "Terjadi kesalahan");
+            }
+        });
+    });
+});
 
+</script>
 
 
 {% include 'modal_poll.html' %}

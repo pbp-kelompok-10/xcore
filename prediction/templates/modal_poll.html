@@ -1,14 +1,3 @@
-<div id="polling-popup" class="popup hidden">
-  <div class="popup-content">
-    <span class="close-btn">&times;</span>
-    <h3>Who will win this match?</h3>
-    <div class="vote-options">
-      <button class="team-btn">Home Team</button>
-      <button class="team-btn">Away Team</button>
-    </div>
-  </div>
-</div>
-
 <style>
 .popup {
   position: fixed;
@@ -66,9 +55,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
   document.querySelectorAll(".team-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      alert(`You voted for: ${btn.textContent}`);
-      popup.classList.add("hidden");
+        const choice = btn.textContent;
+        const predictionId = voteBtn.dataset.predictionId; // ambil dari tombol vote page
+
+        fetch("submit-vote/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: `prediction_id=${predictionId}&choice=${choice}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("Vote berhasil!");
+                popup.classList.add("hidden");
+            } else {
+                alert(data.message || "Terjadi kesalahan");
+                }
+            });
+        });
     });
-  });
+
 });
 </script>

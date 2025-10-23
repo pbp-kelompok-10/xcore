@@ -32,10 +32,13 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://alvin-christian-xcore.pbp.cs.ui.ac.id", 
+    "http://127.0.0.1:8000", 
+    "http://localhost:8000"
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,6 +48,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'prediction',
     'scoreboard',
+    #'forum',
+    'landingpage',
+    # 'statistik',
+    # 'prediction',
 ]
 
 MIDDLEWARE = [

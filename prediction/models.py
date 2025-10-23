@@ -22,17 +22,17 @@ class Prediction(models.Model):
 
     @property
     def total_votes(self):
-        return self.votes_team_home + self.votes_team_away
+        return self.votes_home_team + self.votes_away_team
 
     @property
     def home_percentage(self):
         total = self.total_votes
-        return (self.votes_team_home / total * 100) if total > 0 else 0
+        return (self.votes_home_team / total * 100) if total > 0 else 0
 
     @property
     def away_percentage(self):
         total = self.total_votes
-        return (self.votes_team_away / total * 100) if total > 0 else 0
+        return (self.votes_away_team / total * 100) if total > 0 else 0
 
 # menyimpan vote user untuk setiap Prediction
 class Vote(models.Model):
