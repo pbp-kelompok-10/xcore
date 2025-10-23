@@ -197,7 +197,6 @@ class LineupCreateView(CreateView):
             away_lineup.players.set(away_ids)
             away_lineup.save()
 
-        messages.success(request, "Lineups successfully created or updated!")
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 

@@ -251,6 +251,7 @@
                     <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' match.id %}'">
                 {% else %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
+                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
                 {% endif %}
                         <div class="match-card">
                             <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">✏️</a>

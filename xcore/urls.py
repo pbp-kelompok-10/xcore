@@ -10,5 +10,6 @@ urlpatterns = [
     path('lineup/', include('lineup.urls')),
     path('highlight/', include('highlights.urls', namespace='highlight')),
     path('', include('landingpage.urls')),
+    path('forum/', include('forum.urls', namespace='forum')),
 ]
 
