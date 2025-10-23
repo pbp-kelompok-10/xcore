@@ -17,7 +17,7 @@
     <div class="forum-container">
         <h1>{{ forum.title }}</h1>
         <div id="postsContainer" class="posts-container">
-            <!-- Posts will be dynamically loaded here -->
+            <!-- Posts loaded here -->
         </div>
 
         <form id="postForm" method="post" action="">  <!-- FIX: Tambah id="postForm" -->
@@ -28,6 +28,7 @@
 
     <!-- LOAD forumId DAN JS DI AKHIR -->
     <script>
+        window.STATIC_URL = "{% get_static_prefix %}";
         const forumId = "{{ forum.id }}";
     </script>
     <script src="{% static 'js/main_forum.js' %}"></script>

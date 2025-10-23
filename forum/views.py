@@ -68,4 +68,18 @@ def delete_post(request, forum_id, post_id):
         return JsonResponse({'error': 'Post not found or unauthorized.'}, status=404)
     
     
-    
+@require_POST
+def edit_post(request, forum_id, post_id):
+    try:
+        post = Post.objects.get(id=post_id, forum_id=forum_id, author=request.user)
+        new_message = request.POST.get('message')
+        
+        if not new_message:
+            return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
+        
+        post.message = new_message
+        post.save()
+        
+        return JsonResponse({'message': 'Post updated successfully!'})
+    except Post.DoesNotExist:
+        return JsonResponse({'error': 'Post not found or unauthorized.'}, status=404)

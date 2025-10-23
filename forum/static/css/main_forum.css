@@ -1,0 +1,194 @@
+/* ==== GLOBAL ==== */
+body {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    background-color: #f9f9fb;
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+
+.forum-container {
+    max-width: 720px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    padding: 24px 32px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+/* ==== POST CONTAINER ==== */
+.posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.match-card {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 10px;
+    padding: 16px 20px;
+    transition: background 0.2s ease;
+}
+
+.match-card:hover {
+    background-color: #fafafa;
+}
+
+.score-section {
+    flex: 1;
+}
+
+/* ==== AUTHOR INFO ==== */
+.post-authorname {
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 4px;
+}
+
+.match-info {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+/* ==== POST MESSAGE ==== */
+.score {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* ==== ACTION BUTTONS ==== */
+.post-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+}
+
+.btn-secondary {
+    background-color: #e4e6eb;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #d8dadf;
+}
+
+.btn-danger {
+    background-color: #ff4d4d;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #e63e3e;
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background-color: #43a047;
+}
+
+/* ==== EDIT MODE ==== */
+.edit-mode {
+    display: none;
+}
+
+.edit-mode.active {
+    display: block;
+}
+
+.post-display.editing {
+    display: none;
+}
+
+.edit-form textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 70px;
+    margin-bottom: 8px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ==== FORM INPUT ==== */
+#postForm {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#postContent {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+#submitPost {
+    align-self: flex-end;
+}
+
+/* ==== SMALL SCREEN ==== */
+@media (max-width: 600px) {
+    .forum-container {
+        padding: 16px;
+    }
+
+    .match-card {
+        padding: 12px 14px;
+    }
+
+    .btn {
+        font-size: 0.75rem;
+    }
+}
