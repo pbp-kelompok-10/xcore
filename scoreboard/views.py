@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import user_passes_test
 from collections import OrderedDict
 from .models import Match
 from .forms import MatchForm
+from forum.models import Forum
+from forum.models import Forum
 from django.utils import timezone
 from django.db.models.functions import TruncDate
 
@@ -31,7 +33,13 @@ def add_match(request):
     if request.method == 'POST':
         form = MatchForm(request.POST)
         if form.is_valid():
-            form.save()
+            match = form.save()
+            
+            Forum.objects.create(
+                match=match,
+                nama= "About " + match.home_team + " vs " + match.away_team,
+            )
+            
             return redirect('scoreboard:scoreboard_list')
     else:
         form = MatchForm()
