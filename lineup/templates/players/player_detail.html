@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ player.nama }}</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .player-card {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 2em;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .player-info {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px 10px;
+      margin-bottom: 25px;
+    }
+
+    .player-info strong {
+      color: #475569;
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .player-info p {
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    a, button {
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-edit {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #2563eb;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    .btn-back {
+      background: #94a3b8;
+      color: white;
+    }
+
+    .btn-back:hover {
+      background: #64748b;
+    }
+
+    form {
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <div class="player-card">
+    <h1>{{ player.nama }}</h1>
+
+    <div class="player-info">
+      <strong>Country of Origin:</strong>
+      <p>{{ player.asal }}</p>
+
+      <strong>Age:</strong>
+      <p>{{ player.umur }}</p>
+
+      <strong>Number:</strong>
+      <p>{{ player.nomor }}</p>
+
+      <strong>Team:</strong>
+      <p>{{ player.tim.name }}</p>
+    </div>
+
+    <div class="actions">
+      {% if request.user.is_superuser %}
+        <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
+
+        <form method="post"
+              action="{% url 'lineup:player-delete' player.pk %}"
+              onsubmit="return confirm('Are you sure you want to delete {{ player.nama }}?');">
+          {% csrf_token %}
+          <button type="submit" class="btn-delete">🗑 Delete</button>
+        </form>
+      {% endif %}
+
+      <button type="button" class="btn-back" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <script>
+    
+    function goBack() {
+      const ref = document.referrer;
+
+      {% if match %}
+        // ✅ Only redirect if we actually have a match UUID
+        if (ref && ref.includes('/lineup/players/') && ref.includes('/update/')) {
+          window.location.href = "{% url 'lineup:lineup-detail' match.id %}";
+        }
+        else if (ref && ref !== window.location.href) {
+          window.history.back();
+        }
+        else {
+          window.location.href = "{% url 'lineup:player-list' %}";
+        }
+      {% else %}
+        // ✅ Fallback when no match is linked
+        if (ref && ref !== window.location.href) {
+          window.history.back();
+        } else {
+          window.location.href = "{% url 'lineup:player-list' %}";
+        }
+      {% endif %}
+    }
+  </script>
+</body>
+</html>

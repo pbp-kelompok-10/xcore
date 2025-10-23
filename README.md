@@ -101,13 +101,14 @@ Pembagian :
 
 ## Sumber dataset
 https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers/afc
+https://www.transfermarkt.com/
+https://www.wikipedia.org/
 
 ## Deployment
 https://alvin-christian-xcore.pbp.cs.ui.ac.id/
 
 ## Design
 https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
-
 
 
 

@@ -2,17 +2,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from collections import OrderedDict
 from .models import Match
+from collections import OrderedDict
+from .models import Match
 from .forms import MatchForm
 from forum.models import Forum
 from forum.models import Forum
 from django.utils import timezone
 from django.db.models.functions import TruncDate
+from forum.models import Forum
+from django.contrib import messages
+from prediction.models import Prediction
 
 def scoreboard_list(request):
-    # Group matches by date
     matches = Match.objects.all().order_by('match_date')
     
-    # Group matches by date
     matches_by_date = OrderedDict()
     for match in matches:
         match_date = match.match_date.date() 
@@ -39,6 +42,10 @@ def add_match(request):
                 match=match,
                 nama= "About " + match.home_team + " vs " + match.away_team,
             )
+
+            Prediction.objects.create(
+                match=match,
+            )
             
             return redirect('scoreboard:scoreboard_list')
     else:
@@ -46,15 +53,28 @@ def add_match(request):
     
     return render(request, 'add_match.html', {'form': form})
 
+
 # @user_passes_test(admin_check)
 def update_score(request, match_id):
     match = get_object_or_404(Match, id=match_id)
-    if request.method == 'POST':
-        form = MatchForm(request.POST, instance=match)
-        if form.is_valid():
-            form.save()
-            return redirect('scoreboard:scoreboard_list')
-    else:
-        form = MatchForm(instance=match)
-        
-    return render(request, 'scoreboard/update_score.html', {'form': form, 'match': match})
+    
+    if request.method == "POST":
+        match.home_score = request.POST.get('home_score')
+        match.away_score = request.POST.get('away_score')
+        match.status = request.POST.get('status')
+        match.round = request.POST.get('round')
+        match.group = request.POST.get('group')
+        match.stadium = request.POST.get('stadium')
+        match.save()
+        return redirect('scoreboard:scoreboard_list')
+    
+    return render(request, 'update_score.html', {'match': match})
+
+def delete_match(request, match_id):
+    match = get_object_or_404(Match, id=match_id)
+
+    if request.method == "POST":
+        match.delete()
+        messages.success(request, "Pertandingan berhasil dihapus.")
+    
+    return redirect('scoreboard:scoreboard_list')

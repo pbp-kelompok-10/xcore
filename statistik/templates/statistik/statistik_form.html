@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page">
+  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">
+    {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
+  </h2>
+  
+  <!-- INFO MATCH -->
+  <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
+    <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <strong>Tim Home:</strong> {{ match.home_team }}<br>
+        <strong>Tim Away:</strong> {{ match.away_team }}
+      </div>
+      <div>
+        <strong>Skor:</strong> {{ match.home_score }} - {{ match.away_score }}<br>
+        <strong>Stadion:</strong> {{ match.stadium }}
+      </div>
+    </div>
+  </div>
+  
+  <form method="POST" id="statistik-form">
+    {% csrf_token %}
+    
+    <input type="hidden" name="match" value="{{ match.id }}">
+
+    <!-- FORM STATISTIK -->
+    <div class="form-section">
+      <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Statistik Pertandingan</h3>
+      
+      <div class="stats-grid">
+        <!-- Passes -->
+        <div class="stat-row">
+          <label>Passes</label>
+          <div class="stat-inputs">
+            {{ form.pass_home }}
+            <span>vs</span>
+            {{ form.pass_away }}
+          </div>
+        </div>
+        
+        <!-- Shots -->
+        <div class="stat-row">
+          <label>Total Shots</label>
+          <div class="stat-inputs">
+            {{ form.shoot_home }}
+            <span>vs</span>
+            {{ form.shoot_away }}
+          </div>
+        </div>
+        
+        <!-- Shots on Target -->
+        <div class="stat-row">
+          <label>Shots on Target</label>
+          <div class="stat-inputs">
+            {{ form.on_target_home }}
+            <span>vs</span>
+            {{ form.on_target_away }}
+          </div>
+        </div>
+        
+        <!-- Ball Possession -->
+        <div class="stat-row">
+          <label>Ball Possession (%)</label>
+          <div class="stat-inputs">
+            {{ form.ball_possession_home }}
+            <span>vs</span>
+            {{ form.ball_possession_away }}
+          </div>
+        </div>
+        
+        <!-- Cards & Others -->
+        <div class="stat-row">
+          <label>Yellow Cards</label>
+          <div class="stat-inputs">
+            {{ form.yellow_card_home }}
+            <span>vs</span>
+            {{ form.yellow_card_away }}
+          </div>
+        </div>
+        
+        <div class="stat-row">
+          <label>Red Cards</label>
+          <div class="stat-inputs">
+            {{ form.red_card_home }}
+            <span>vs</span>
+            {{ form.red_card_away }}
+          </div>
+        </div>
+        
+        <div class="stat-row">
+          <label>Offside</label>
+          <div class="stat-inputs">
+            {{ form.offside_home }}
+            <span>vs</span>
+            {{ form.offside_away }}
+          </div>
+        </div>
+        
+        <div class="stat-row">
+          <label>Corners</label>
+          <div class="stat-inputs">
+            {{ form.corner_home }}
+            <span>vs</span>
+            {{ form.corner_away }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
+      <button type="submit" class="btn" id="submit-btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
+        {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
+      </button>
+      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #6c757d; color: white; text-align: center; border-radius: 8px; text-decoration: none;">
+        Batal
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+/* Existing styles tetap sama */
+.form-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fb;
+  border-radius: 12px;
+}
+
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat-inputs {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-inputs input {
+  width: 80px;
+  text-align: center;
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.stat-inputs input:focus {
+  outline: none;
+  border-color: #56BDA9;
+}
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('statistik-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.innerHTML = 'Loading...';
+        submitBtn.classList.add('loading');
+        
+        // Collect form data
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        
+        // AJAX request
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': data.csrfmiddlewaretoken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                window.toast.show('Sukses', result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 1500);
+            } else {
+                window.toast.show('Error', result.message, 'error');
+                // Reset button
+                submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+                submitBtn.classList.remove('loading');
+            }
+        })
+        .catch(error => {
+            window.toast.show('Error', 'Terjadi kesalahan jaringan', 'error');
+            submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+            submitBtn.classList.remove('loading');
+        });
+    });
+});
+</script>
+{% endblock %}

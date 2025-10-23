@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Create Lineup</title>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e293b;
+      margin-bottom: 30px;
+      font-size: 1.8em;
+      font-weight: 700;
+    }
+
+    .team-section {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 20px 25px;
+      margin-top: 20px;
+    }
+
+    .team-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: #28574E;
+      margin-bottom: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    /* ✅ Shared button base style */
+    button,
+    .btn-link {
+      display: inline-block;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    /* ✅ Save button */
+    button[type="submit"] {
+      background: #10b981;
+      color: white;
+    }
+    button[type="submit"]:hover {
+      background: #059669;
+    }
+
+    /* ✅ Cancel button (now consistent) */
+    .btn-cancel {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-cancel:hover {
+      background: #dc2626;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="form-container">
+    <h1>Create Lineup for {{ match.home_team }} vs {{ match.away_team }}</h1>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" id="id_match" name="match" value="{{ match.id }}">
+
+      <div id="lineup-sections">
+        <div id="home-section" class="team-section">
+          <div class="team-name" id="home-label">Home Team</div>
+          <select id="home-dropdown" multiple></select>
+          <input type="hidden" name="home_players" id="home-players-hidden">
+        </div>
+
+        <div id="away-section" class="team-section">
+          <div class="team-name" id="away-label">Away Team</div>
+          <select id="away-dropdown" multiple></select>
+          <input type="hidden" name="away_players" id="away-players-hidden">
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="submit">💾 Save Lineup</button>
+        <a href="{% url 'lineup:lineup-detail' match.id %}" class="btn-cancel">← Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const matchId = document.querySelector("#id_match").value;
+
+      // Fetch both teams automatically
+      fetch(`/lineup/ajax/get-teams/?match=${matchId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.teams.length !== 2) {
+            alert("Could not find both teams for this match.");
+            return;
+          }
+
+          const [homeTeam, awayTeam] = data.teams;
+          document.querySelector("#home-label").textContent = `Home: ${homeTeam.name}`;
+          document.querySelector("#away-label").textContent = `Away: ${awayTeam.name}`;
+
+          setupDropdown(homeTeam.id, "#home-dropdown", "#home-players-hidden");
+          setupDropdown(awayTeam.id, "#away-dropdown", "#away-players-hidden");
+        });
+
+    function setupDropdown(teamId, dropdownSelector, hiddenInputSelector) {
+      const dropdown = document.querySelector(dropdownSelector);
+      const hiddenInput = document.querySelector(hiddenInputSelector);
+
+      fetch(`/lineup/ajax/get-players/?team=${teamId}`)
+        .then(res => res.json())
+        .then(data => {
+          data.players.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.name;
+            dropdown.appendChild(opt);
+          });
+
+          const select = new TomSelect(dropdown, {
+            plugins: ['remove_button'],
+            maxItems: 11,
+            onChange: (values) => hiddenInput.value = values.join(',')
+          });
+
+          // ✅ Add this part — handle preselected players when editing
+          if (isEdit) {
+            const preselected = (teamId === homeTeamId)
+              ? homePreselected
+              : (teamId === awayTeamId ? awayPreselected : []);
+            if (preselected.length > 0) {
+              select.setValue(preselected.map(String));  // set selected players
+              hiddenInput.value = preselected.join(','); // sync hidden field
+            }
+          }
+        });
+    }
+
+    });
+  </script>
+</body>
+</html>

@@ -32,6 +32,11 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "https://alvin-christian-xcore.pbp.cs.ui.ac.id"
+]
 
 
 # Application definition
@@ -42,11 +47,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'forum',
     'scoreboard',
+    'statistik',
+    'prediction',
+    'embed_video',
+    'highlights',
+    'lineup',
     'landingpage',
-    # 'statistik',
-    # 'prediction',
+    'forum',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +159,6 @@ else:
     STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 import os
 
 # Default primary key field type

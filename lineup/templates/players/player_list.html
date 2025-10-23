@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Players List</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #10b981;
+      --success-hover: #059669;
+      --gray: #94a3b8;
+      --gray-hover: #64748b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: var(--text);
+    }
+
+    .btn-back {
+      background: var(--gray);
+      color: white;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s ease;
+      display: inline-block;
+    }
+
+    .btn-back:hover {
+      background: var(--gray-hover);
+    }
+
+    .add-btn, .upload-btn {
+      background: var(--success);
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+
+    .add-btn:hover, .upload-btn:hover {
+      background: var(--success-hover);
+    }
+
+    .upload-btn {
+      background: var(--primary);
+    }
+
+    .upload-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .team-card {
+      background: #f1f5f9;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .team-header {
+      background: #e2e8f0;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .team-header:hover {
+      background: #cbd5e1;
+    }
+
+    .team-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-list {
+      display: none;
+      padding: 10px 18px 18px 18px;
+      background: var(--card-bg);
+    }
+
+    .player-card {
+      background: #f8fafc;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+
+    .player-card:hover {
+      background: #e0f2fe;
+    }
+
+    .player-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .player-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .player-number {
+      font-size: 0.9em;
+      color: var(--muted);
+    }
+
+    .action-buttons a {
+      border: none;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: white;
+      transition: all 0.2s ease;
+      background: var(--primary);
+    }
+
+    .action-buttons a:hover {
+      background: var(--primary-hover);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 20px;
+      font-style: italic;
+    }
+
+    /* --- Upload Modal --- */
+    #uploadModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .modal-content input[type="file"] {
+      display: block;
+      margin: 15px auto;
+    }
+
+    .modal-content button {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    .modal-content button:hover {
+      background: var(--success-hover);
+    }
+
+    .close-btn {
+      background: var(--danger);
+    }
+
+    .close-btn:hover {
+      background: var(--danger-hover);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <a href="javascript:history.back()" class="btn-back">← Back</a>
+        <h1>Players</h1>
+      </div>
+
+      {% if request.user.is_superuser %}
+      <div style="display: flex; gap: 10px;">
+        <a href="{% url 'lineup:player-create' %}" class="add-btn">+ Add Player</a>
+        <button class="upload-btn" onclick="openModal()">⬆️ Upload ZIP</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <input type="text" id="search" class="search-bar" placeholder="🔍 Search player by name or number...">
+
+    {% if grouped_teams %}
+      {% for team, players in grouped_teams.items %}
+        <div class="team-card">
+          <div class="team-header" onclick="toggleTeam('{{ team.id }}')">
+            <div class="team-name">
+              <img src="https://flagcdn.com/24x18/{{ team.code }}.png" alt="{{ team.name }} flag">
+              {{ team.name }} ({{ players|length }} players)
+            </div>
+            <span>▼</span>
+          </div>
+
+          <div id="team-{{ team.id }}" class="player-list">
+            {% for player in players %}
+              <div class="player-card" 
+                   data-player="{{ player.nama|lower }} {{ player.nomor }}"
+                   onclick="goToDetail(event, '{{ player.pk }}')">
+                <div class="player-info">
+                  <span class="player-name">{{ player.nama }}</span>
+                  <span class="player-number">#{{ player.nomor }}</span>
+                </div>
+                
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">No players available.</p>
+    {% endif %}
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal">
+    <div class="modal-content">
+      <h2>Upload Players (ZIP)</h2>
+      <form id="uploadForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="zipFile" name="file" accept=".zip" required>
+        <div>
+          <button type="submit">Upload</button>
+          <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </form>
+      <p id="uploadStatus" style="margin-top: 10px; color: var(--muted);"></p>
+    </div>
+  </div>
+
+  <script>
+    // --- Expand/Collapse Teams ---
+    function toggleTeam(teamId) {
+      const list = document.getElementById(`team-${teamId}`);
+      list.style.display = (list.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // --- Navigate to player detail ---
+    function goToDetail(event, playerId) {
+      if (event.target.closest('.action-buttons')) return;
+      window.location.href = `/lineup/players/${playerId}/`;
+    }
+
+    // --- Search Filter ---
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', function() {
+      const term = this.value.toLowerCase();
+      const teamCards = document.querySelectorAll('.team-card');
+
+      teamCards.forEach(card => {
+        const players = card.querySelectorAll('.player-card');
+        let matchFound = false;
+
+        players.forEach(p => {
+          const text = p.getAttribute('data-player');
+          const visible = text.includes(term);
+          p.style.display = visible ? 'flex' : 'none';
+          if (visible) matchFound = true;
+        });
+
+        const list = card.querySelector('.player-list');
+        if (term && matchFound) {
+          list.style.display = 'block';
+        } else if (!term) {
+          list.style.display = 'none';
+        }
+
+        card.style.display = matchFound || !term ? 'block' : 'none';
+      });
+    });
+
+    // --- Upload Modal ---
+    function openModal() {
+      document.getElementById("uploadModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("uploadModal").style.display = "none";
+      document.getElementById("uploadStatus").textContent = "";
+    }
+
+    // --- Handle Upload ---
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("zipFile");
+      const status = document.getElementById("uploadStatus");
+
+      if (!fileInput.files.length) {
+        status.textContent = "Please select a file first.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      status.textContent = "Uploading...";
+
+      const response = await fetch("{% url 'lineup:upload-players' %}", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === "ok") {
+        status.style.color = "green";
+        status.textContent = `✅ Uploaded ${result.added_players.length} players successfully.`;
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        status.style.color = "red";
+        status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
+      }
+    });
+  </script>
+</body>
+</html>
