@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from .models import Statistik
 from .forms import StatistikForm
 
@@ -10,6 +11,7 @@ def add_statistik(request, match_id):
     # Cek apakah sudah ada statistik
     existing_statistik = Statistik.objects.filter(match=match).first()
     if existing_statistik:
+        messages.warning(request, 'Statistik untuk pertandingan ini sudah ada!')
         return redirect('statistik:statistik_display', match_id=match.id)
     
     if request.method == 'POST':
@@ -18,7 +20,10 @@ def add_statistik(request, match_id):
             statistik = form.save(commit=False)
             statistik.match = match
             statistik.save()
+            messages.success(request, 'Statistik berhasil ditambahkan!')
             return redirect('statistik:statistik_display', match_id=match.id)
+        else:
+            messages.error(request, 'Terjadi kesalahan. Periksa data Anda!')
     else:
         form = StatistikForm(initial={'match': match})
     
@@ -39,7 +44,10 @@ def update_statistik(request, match_id):
         form = StatistikForm(request.POST, instance=statistik)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Statistik berhasil diupdate!')
             return redirect('statistik:statistik_display', match_id=match.id)
+        else:
+            messages.error(request, 'Terjadi kesalahan. Periksa data Anda!')
     else:
         form = StatistikForm(instance=statistik)
     
@@ -59,6 +67,7 @@ def delete_statistik(request, match_id):
     
     if request.method == 'POST':
         statistik.delete()
+        messages.success(request, 'Statistik berhasil dihapus!')
         return redirect('scoreboard:scoreboard_list')
     
     context = {
