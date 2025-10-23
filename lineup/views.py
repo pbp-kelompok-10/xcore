@@ -3,11 +3,11 @@ import json
 import zipfile
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Team, Player, Lineup, COUNTRY_CHOICES
 from .forms import LineupForm, TeamForm, PlayerInlineFormSet
 from scoreboard.models import Match
@@ -66,42 +66,59 @@ class PlayerDetailView(DetailView):
     template_name = 'players/player_detail.html'
     context_object_name = 'player'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        player = self.object
+
+        # Try to find the latest match the player appeared in (if any lineup exists)
+        lineup = player.lineups.first()
+        context['match'] = lineup.match if lineup else None
+        return context
+
 
 class PlayerCreateView(CreateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
-    success_url = reverse_lazy('player-list')
+    def get_success_url(self):
+        return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
 class PlayerUpdateView(UpdateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
-    success_url = reverse_lazy('player-list')
+
+    def get_success_url(self):
+        return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
 class PlayerDeleteView(DeleteView):
     model = Player
-    success_url = reverse_lazy('player-list')
 
-class LineupListView(ListView):
-    model = Lineup
-    template_name = 'lineups/lineup_list.html'
-    context_object_name = 'lineups'
+    # ✅ If user tries to GET the delete URL directly, redirect to player list
+    def get(self, request, *args, **kwargs):
+        return redirect(reverse('lineup:player-list'))
+
+    # ✅ Handle POST deletes (from your inline form)
+    def post(self, request, *args, **kwargs):
+        player = get_object_or_404(Player, pk=self.kwargs['pk'])
+        player.delete()
+        return redirect(reverse('lineup:player-list'))
+    
+class PlayerListView(TemplateView):
+    template_name = 'players/player_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        teams = Team.objects.all().order_by('name')
         grouped = {}
-        for lineup in context['lineups']:
-            match = lineup.match
-            if match not in grouped:
-                grouped[match] = []
-            grouped[match].append(lineup)
-        context['grouped_lineups'] = grouped
+        for team in teams:
+            players = team.players.all().order_by('nomor')
+            if players.exists():
+                grouped[team] = players
+        context['grouped_teams'] = grouped
         return context
-
-
 
 class LineupDetailView(DetailView):
     model = Match
@@ -128,7 +145,7 @@ class LineupCreateView(CreateView):
     template_name = 'lineups/lineup_form.html'
 
     def get_success_url(self):
-        return reverse_lazy('lineup-detail', kwargs={'match_id': self.kwargs['match_id']})
+        return reverse_lazy('lineup:lineup-detail', kwargs={'match_id': self.kwargs['match_id']})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -156,19 +173,33 @@ class LineupCreateView(CreateView):
 
         if home_team:
             if len(home_ids) != 11:
-                return JsonResponse({'error': f'{home_team.name} must have 11 players'}, status=400)
-            Lineup.objects.update_or_create(match=match, team=home_team, defaults={})
-            home_lineup = Lineup.objects.get(match=match, team=home_team)
+                messages.error(request, f"{home_team.name} must have 11 players in the starting lineup.")
+                return redirect(request.path)
+
+            home_lineup, created = Lineup.objects.get_or_create(
+                match=match,
+                team=home_team,
+                defaults={'team': home_team, 'match': match}
+            )
             home_lineup.players.set(home_ids)
+            home_lineup.save()
 
         if away_team:
             if len(away_ids) != 11:
-                return JsonResponse({'error': f'{away_team.name} must have 11 players'}, status=400)
-            Lineup.objects.update_or_create(match=match, team=away_team, defaults={})
-            away_lineup = Lineup.objects.get(match=match, team=away_team)
-            away_lineup.players.set(away_ids)
+                messages.error(request, f"{away_team.name} must have 11 players in the starting lineup.")
+                return redirect(request.path)
 
-        return redirect(self.get_success_url())
+            away_lineup, created = Lineup.objects.get_or_create(
+                match=match,
+                team=away_team,
+                defaults={'team': away_team, 'match': match}
+            )
+            away_lineup.players.set(away_ids)
+            away_lineup.save()
+
+        messages.success(request, "Lineups successfully created or updated!")
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
+
 
 class LineupUpdateView(UpdateView):
     model = Lineup
@@ -217,7 +248,7 @@ class LineupUpdateView(UpdateView):
             away_lineup, _ = Lineup.objects.get_or_create(match=match, team=away_team)
             away_lineup.players.set(away_ids)
 
-        return redirect(reverse_lazy('lineup-detail', kwargs={'match_id': match.id}))
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 
 class LineupDeleteView(DeleteView):
@@ -231,7 +262,7 @@ class LineupDeleteView(DeleteView):
     def post(self, request, *args, **kwargs):
         match = Match.objects.get(pk=self.kwargs['match_id'])
         Lineup.objects.filter(match=match).delete()
-        return redirect(reverse_lazy('lineup-list'))
+        return redirect(reverse_lazy('lineup:lineup-list'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

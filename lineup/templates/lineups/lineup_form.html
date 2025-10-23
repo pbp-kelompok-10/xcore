@@ -1,64 +1,230 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Lineup Form</title>
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    .team-section { margin-bottom: 40px; }
-    .team-name { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
-    .section-title { font-weight: bold; margin-top: 15px; }
-    ul { list-style-type: none; padding: 0; }
-    .player-item { background: #f0f0f0; padding: 6px 10px; border-radius: 5px; margin: 4px 0; }
-    button { margin-top: 10px; }
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --secondary: #10b981;
+      --secondary-hover: #059669;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .form-container {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 30px;
+      font-size: 1.8em;
+      font-weight: 700;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 1em;
+    }
+
+    .team-section {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 20px 25px;
+      margin-top: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .team-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 15px;
+      margin-bottom: 6px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .player-item {
+      background: var(--card);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin: 5px 0;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    button,
+    .btn-link {
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-size: 15px;
+    }
+
+    button[type="submit"] {
+      background: var(--secondary);
+      color: white;
+    }
+
+    button[type="submit"]:hover {
+      background: var(--secondary-hover);
+    }
+
+    .btn-insert {
+      background: var(--primary);
+      color: white;
+      margin-top: 8px;
+    }
+
+    .btn-insert:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-cancel {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: var(--danger-hover);
+    }
+
+    /* TomSelect integration */
+    .ts-wrapper.multi .ts-control {
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+    }
+
+    .ts-wrapper.multi .item {
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      margin: 3px;
+      padding: 3px 8px;
+      font-size: 14px;
+    }
+
+    .ts-dropdown {
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+    }
   </style>
 </head>
 <body>
-  <h1>Lineup Form</h1>
+  <div class="form-container">
+    <h1>{{ is_edit|yesno:"Edit Lineup,Create Lineup" }}</h1>
 
-  <form method="post">
-    {% csrf_token %}
-    <p>{{ form.match.label_tag }} {{ form.match }}</p>
+    <form method="post">
+      {% csrf_token %}
+      <label>{{ form.match.label }}:</label>
+      {{ form.match }}
 
-    <div id="lineup-sections" style="display:none;">
-      <!-- HOME TEAM -->
-      <div id="home-section" class="team-section">
-        <div class="team-name" id="home-label">Home Team</div>
-        <select id="home-dropdown" multiple></select>
-        <button type="button" id="home-insert">Insert Lineup</button>
+      <div id="lineup-sections" style="display:none;">
+        <div id="home-section" class="team-section">
+          <div class="team-name" id="home-label">Home Team</div>
+          <select id="home-dropdown" multiple></select>
+          <button type="button" id="home-insert" class="btn-insert">Insert Lineup</button>
 
-        <div class="section-title">Starting XI</div>
-        <ul id="home-lineup" class="lineup-list"></ul>
+          <div class="section-title">Starting XI</div>
+          <ul id="home-lineup" class="lineup-list"></ul>
 
-        <div class="section-title">Substitutes</div>
-        <ul id="home-subs" class="subs-list"></ul>
+          <div class="section-title">Substitutes</div>
+          <ul id="home-subs" class="subs-list"></ul>
+        </div>
+
+        <div id="away-section" class="team-section">
+          <div class="team-name" id="away-label">Away Team</div>
+          <select id="away-dropdown" multiple></select>
+          <button type="button" id="away-insert" class="btn-insert">Insert Lineup</button>
+
+          <div class="section-title">Starting XI</div>
+          <ul id="away-lineup" class="lineup-list"></ul>
+
+          <div class="section-title">Substitutes</div>
+          <ul id="away-subs" class="subs-list"></ul>
+        </div>
       </div>
 
-      <!-- AWAY TEAM -->
-      <div id="away-section" class="team-section">
-        <div class="team-name" id="away-label">Away Team</div>
-        <select id="away-dropdown" multiple></select>
-        <button type="button" id="away-insert">Insert Lineup</button>
+      <input type="hidden" name="home_players" id="home-players-hidden">
+      <input type="hidden" name="away_players" id="away-players-hidden">
 
-        <div class="section-title">Starting XI</div>
-        <ul id="away-lineup" class="lineup-list"></ul>
-
-        <div class="section-title">Substitutes</div>
-        <ul id="away-subs" class="subs-list"></ul>
+      <div class="button-row">
+        <button type="submit">💾 Save Lineup</button>
+        <a href="{% url 'lineup:lineup-detail' match.id %}" class="btn-cancel btn-link">← Cancel</a>
       </div>
-    </div>
+    </form>
+  </div>
 
-    <input type="hidden" name="home_players" id="home-players-hidden">
-    <input type="hidden" name="away_players" id="away-players-hidden">
-
-    <button type="submit">Save</button>
-  </form>
-
-  <a href="{% url 'lineup:lineup-list' %}">Cancel</a>
-
-  <!-- ✅ Django-safe JS variables -->
+  <!-- Django variables -->
   <script>
     const homePreselected = JSON.parse('{{ home_selected|default:"[]"|escapejs }}');
     const awayPreselected = JSON.parse('{{ away_selected|default:"[]"|escapejs }}');
@@ -94,7 +260,6 @@
       allPlayers: []
     };
 
-    // --- load match data
     matchSelect.addEventListener("change", function() {
       const matchId = this.value;
       if (!matchId) {
@@ -102,7 +267,7 @@
         return;
       }
 
-      fetch(`/ajax/get-teams/?match=${matchId}`)
+      fetch(`/lineup/ajax/get-teams/?match=${matchId}`)
         .then(res => res.json())
         .then(data => {
           const teams = data.teams;
@@ -128,7 +293,7 @@
       subsList.innerHTML = "";
       hiddenInput.value = "";
 
-      fetch(`/ajax/get-players/?team=${teamId}`)
+      fetch(`/lineup/ajax/get-players/?team=${teamId}`)
         .then(res => res.json())
         .then(data => {
           teamObj.allPlayers = data.players;
@@ -149,7 +314,6 @@
           });
           teamObj.tomselect = select;
 
-          // --- Preselect when editing
           if (isEdit) {
             const preselected = (teamId === homeTeamId) ? homePreselected : (teamId === awayTeamId ? awayPreselected : []);
             if (preselected.length > 0) {
@@ -209,7 +373,6 @@
       hiddenInput.value = selectedIds.join(",");
     }
 
-    // --- Auto-trigger match on edit
     if (isEdit && matchSelect.value) {
       matchSelect.dispatchEvent(new Event("change"));
     }
