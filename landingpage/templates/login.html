@@ -1,10 +1,4 @@
-{% extends 'base.html' %}
 
-{% block meta %}
-<title>Login</title>
-{% endblock meta %}
-
-{% block content %}
 <div class="login">
   <h1>Login</h1>
 
@@ -28,5 +22,3 @@
   {% endif %} Don't have an account yet?
   <a href="{% url 'landingpage:register' %}">Register Now</a>
 </div>
-
-{% endblock content %}

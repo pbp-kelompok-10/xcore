@@ -47,3 +47,15 @@ def login_user(request):
       form = AuthenticationForm(request)
    context = {'form': form}
    return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    response = HttpResponseRedirect(reverse('landingpage:home'))
+    response.delete_cookie('last_login')
+    return response
+
+def profile_user(request):
+    context = {
+        'name': request.user.username,
+    }
+    return render(request, 'profile.html', context)
