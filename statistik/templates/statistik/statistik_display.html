@@ -5,8 +5,8 @@
   <div class="action-buttons">
     <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
     <div class="feature-buttons">
-      <a href="/forum/" class="btn btn-feature">💬 Forum</a>
-      <a href="/highlights/test/" class="btn btn-feature">🎥 Highlight</a>
+      <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">💬 Forum</a>
+      <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">🎥 Highlight</a>
       <a href="/prediction/" class="btn btn-feature">⚽ Prediction</a>
       <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">👥 Lineup</a>
     </div>
