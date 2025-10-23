@@ -80,7 +80,9 @@ def get_posts(request, forum_id):
                 'author_id': post.author.id,
                 'author_name': User.objects.get(id=post.author.id).username,
                 'message': post.message,
-                'created_at': post.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                'created_at': post.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'is_edited': post.is_edited,
+                'edited_at': post.edited_at.strftime('%Y-%m-%d %H:%M:%S') if post.edited_at else None,
             }
             for post in posts
         ]
@@ -113,7 +115,7 @@ def edit_post(request, forum_id, post_id):
             return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
         
         post.message = new_message
-        post.created_at = new_date
+        post.edited_at = new_date
         post.is_edited = True
         post.save()
         

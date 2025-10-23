@@ -21,20 +21,13 @@ body {
     color: var(--text-dark);
 }
 
-.forum-container {
-    max-width: 800px;
-    margin: 40px auto;
-    margin-top: 20px;
-    padding: 20px;
-    text-align: center;
-}
-
 /* Action Buttons */
 .action-buttons {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 30px auto;
+    margin-bottom: 0px;
     max-width: 800px;
     padding: 10px 20px;
 }
@@ -163,7 +156,6 @@ body {
 }
 
 .post-actions .btn:hover {
-    color: var(--primary-color);
     text-decoration: underline;
 }
 
@@ -236,12 +228,12 @@ body {
 }
 
 .btn-danger {
-    color: #d93025;
-    background: transparent;
+    color: #d93025;;
 }
 
 .btn-danger:hover {
     color: #b92b22;
+    background-color: #d9312511;
 }
 
 /* ========== POST FORM ========== */
@@ -320,3 +312,129 @@ body {
     }
 }
 
+/* ========== CONTAINER FORUM ========== */
+/* Container utama forum */
+.forum-container {
+    max-width: 800px;
+    margin: 20px auto;
+    margin-bottom: 0px;
+    padding: 20px;
+    padding-bottom: 0px;
+    text-align: center;
+    min-height: calc(100vh - 150px); /* Sesuaikan dengan tinggi header dan footer */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Wrapper konten forum */
+.forum-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0px;
+    margin-bottom: 0px;
+}
+
+/* Container posts dengan scroll */
+.posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Form post yang lebih kompak */
+#postForm {
+    margin-top: 20px;
+    background-color: var(--white);
+    border-radius: var(--radius);
+    padding: 15px; /* Kurangi padding */
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    position: sticky; /* Tetap di bawah saat scroll */
+    bottom: 20px; /* Jarak dari bawah */
+    align-self: flex-end; /* Pastikan berada di kanan bawah */
+}
+
+/* Textarea yang lebih kecil */
+#postContent {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    padding: 8px; /* Kurangi padding */
+    font-size: 14px;
+    resize: vertical; /* Tetap bisa diubah vertikal */
+    height: 60px; /* Tinggi tetap untuk mengurangi kebutuhan scroll */
+    font-family: var(--font-main);
+    transition: border 0.2s;
+}
+
+#postContent:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+/* Tombol submit */
+#submitPost {
+    align-self: flex-end;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px; /* Kurangi padding */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    box-shadow: var(--shadow-soft);
+}
+
+#submitForm:hover {
+    background-color: var(--primary-color);
+}
+
+/* Post card responsif */
+.match-card {
+    display: flex;
+    align-items: flex-start;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    padding: 15px;
+    text-align: left;
+    gap: 12px; 
+    max-width: 100%;
+}
+
+/* Edit mode textarea */
+.edit-form textarea {
+    width: 100%;
+    min-height: 80px; /* Kurangi tinggi */
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px;
+    font-family: var(--font-main);
+    resize: vertical;
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+    .forum-container {
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    #postForm {
+        bottom: 10px; /* Sesuaikan jarak di mobile */
+    }
+
+    #postContent {
+        height: 50px; /* Lebih kecil di mobile */
+    }
+}
