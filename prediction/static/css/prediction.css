@@ -1,0 +1,132 @@
+:root {
+    --primary-color: #28574E;
+    --secondary-color: #56BDA9;
+    --light-bg: #f4f6f7;
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-light: #888888;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+}
+
+/* === HEADER === */
+.polling-header {
+    text-align: center;
+    margin: 40px 0 25px 0;
+}
+
+.polling-header h2 {
+    font-size: 28px;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.polling-header h4 {
+    font-size: 16px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+/* === POLLING CONTAINER === */
+.polling-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto 50px auto;
+}
+
+/* === POLLING CARD === */
+.polling-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px 25px;
+    margin-bottom: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.polling-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+.polling-card p {
+    margin: 6px 0;
+    font-size: 16px;
+}
+
+/* === MATCH INFO === */
+.polling-card .match {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.match-team {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.match-team img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+/* === VOTE BUTTONS === */
+.vote-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    gap: 10px;
+}
+
+.vote-button {
+    flex: 1;
+    padding: 10px;
+    background: var(--secondary-color);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.vote-button:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* === EMPTY STATE === */
+.no-polling {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .polling-card {
+        padding: 15px;
+    }
+
+    .vote-buttons {
+        flex-direction: column;
+    }
+
+    .vote-button {
+        width: 100%;
+    }
+}

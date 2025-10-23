@@ -1,0 +1,208 @@
+<!-- Modal Polling -->
+<div id="polling-popup" class="popup-overlay hidden">
+  <div class="popup-content">
+    <!-- Close Button -->
+    <button class="popup-close-btn">✖</button>
+    
+    <!-- Title -->
+    <h3 class="popup-title">Who will win?</h3>
+    
+    <!-- Teams (Only 2 options: Home vs Away) -->
+    <div class="popup-teams">
+      <!-- Home Team Button -->
+      <button class="team-btn team-home" data-team="home">
+        <div class="team-icon">🏠</div>
+        <span class="team-label">Home Team</span>
+      </button>
+      
+      <!-- VS Badge -->
+      <div class="vs-divider">VS</div>
+      
+      <!-- Away Team Button -->
+      <button class="team-btn team-away" data-team="away">
+        <div class="team-icon">✈️</div>
+        <span class="team-label">Away Team</span>
+      </button>
+    </div>
+
+    <!-- Info Text -->
+    <p class="vote-info-text">Choose the team you think will win!</p>
+  </div>
+</div>
+
+<style>
+/* ============================================
+   MODAL POLL STYLES (2 OPTIONS ONLY)
+   ============================================ */
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-overlay.hidden {
+  display: none;
+}
+
+.popup-content {
+  position: relative;
+  background: var(--white-light);
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: popupSlideIn 0.3s ease;
+}
+
+@keyframes popupSlideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.popup-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--white-dark);
+  color: var(--green-darker);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-close-btn:hover {
+  background: var(--green-light);
+  transform: rotate(90deg);
+}
+
+.popup-title {
+  color: var(--green-darker);
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.popup-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.team-btn {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: 3px solid var(--green-light);
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.team-btn:hover:not(:disabled) {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 24px rgba(86, 189, 169, 0.4);
+  border-color: var(--green-normal);
+}
+
+.team-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.team-icon {
+  font-size: 3.5rem;
+}
+
+.team-label {
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.vs-divider {
+  text-align: center;
+  font-weight: 700;
+  color: var(--green-normal);
+  font-size: 1.8rem;
+  background: var(--green-light);
+  padding: 1rem;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote-info-text {
+  text-align: center;
+  color: var(--blue-normal);
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .popup-teams {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .vs-divider {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .popup-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .popup-title {
+    font-size: 1.5rem;
+  }
+
+  .team-btn {
+    padding: 2rem 1rem;
+  }
+
+  .team-icon {
+    font-size: 2.5rem;
+  }
+
+  .team-label {
+    font-size: 1.1rem;
+  }
+}
+</style>
+</style>

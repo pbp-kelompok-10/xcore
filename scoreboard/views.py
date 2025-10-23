@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.db.models.functions import TruncDate
 from forum.models import Forum
 from django.contrib import messages
+from prediction.models import Prediction
 
 def scoreboard_list(request):
     matches = Match.objects.all().order_by('match_date')
@@ -38,6 +39,10 @@ def add_match(request):
             Forum.objects.create(
                 match=match,
                 nama= "About " + match.home_team + " vs " + match.away_team,
+            )
+
+            Prediction.objects.create(
+                match=match,
             )
             
             return redirect('scoreboard:scoreboard_list')

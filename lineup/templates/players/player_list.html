@@ -285,12 +285,7 @@
                   <span class="player-name">{{ player.nama }}</span>
                   <span class="player-number">#{{ player.nomor }}</span>
                 </div>
-
-                {% if request.user.is_superuser %}
-                <div class="action-buttons" onclick="event.stopPropagation()">
-                  <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
-                </div>
-                {% endif %}
+                
               </div>
             {% endfor %}
           </div>

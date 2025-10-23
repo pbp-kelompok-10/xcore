@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.forms import modelform_factory
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-
+from django import forms
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict access to superusers only."""
     def test_func(self):
@@ -143,8 +143,9 @@ class LineupDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        match = self.object
+        match = self.get_object()
 
+        # Safely get home and away lineups
         home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
         away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
 
@@ -154,18 +155,29 @@ class LineupDetailView(DetailView):
         })
         return context
 
-class LineupCreateView(SuperuserRequiredMixin,CreateView):
+
+class LineupCreateView(SuperuserRequiredMixin, CreateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
 
-    def get_success_url(self):
-        return reverse_lazy('lineup:lineup-detail', kwargs={'match_id': self.kwargs['match_id']})
+    def get_initial(self):
+        """Automatically prefill the match field from the URL."""
+        initial = super().get_initial()
+        match = Match.objects.get(pk=self.kwargs['match_id'])
+        initial['match'] = match
+        return initial
+
+    def get_form(self, form_class=None):
+        """Hide the match field so user can’t change it."""
+        form = super().get_form(form_class)
+        form.fields['match'].widget = forms.HiddenInput()
+        return form
 
     def get_context_data(self, **kwargs):
+        """Pass match and team info to the template."""
         context = super().get_context_data(**kwargs)
-        match_id = self.kwargs['match_id']
-        match = Match.objects.get(pk=match_id)
+        match = Match.objects.get(pk=self.kwargs['match_id'])
         context.update({
             'match': match,
             'is_edit': False,
@@ -173,6 +185,7 @@ class LineupCreateView(SuperuserRequiredMixin,CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """Handle lineup creation and player assignment."""
         match = Match.objects.get(pk=self.kwargs['match_id'])
         home_players_raw = request.POST.get('home_players', '')
         away_players_raw = request.POST.get('away_players', '')
@@ -188,27 +201,19 @@ class LineupCreateView(SuperuserRequiredMixin,CreateView):
 
         if home_team:
             if len(home_ids) != 11:
-                messages.error(request, f"{home_team.name} must have 11 players in the starting lineup.")
+                messages.error(request, f"{home_team.name} must have 11 players.")
                 return redirect(request.path)
 
-            home_lineup, created = Lineup.objects.get_or_create(
-                match=match,
-                team=home_team,
-                defaults={'team': home_team, 'match': match}
-            )
+            home_lineup, _ = Lineup.objects.get_or_create(match=match, team=home_team)
             home_lineup.players.set(home_ids)
             home_lineup.save()
 
         if away_team:
             if len(away_ids) != 11:
-                messages.error(request, f"{away_team.name} must have 11 players in the starting lineup.")
+                messages.error(request, f"{away_team.name} must have 11 players.")
                 return redirect(request.path)
 
-            away_lineup, created = Lineup.objects.get_or_create(
-                match=match,
-                team=away_team,
-                defaults={'team': away_team, 'match': match}
-            )
+            away_lineup, _ = Lineup.objects.get_or_create(match=match, team=away_team)
             away_lineup.players.set(away_ids)
             away_lineup.save()
 

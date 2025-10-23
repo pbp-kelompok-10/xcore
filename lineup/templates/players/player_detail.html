@@ -136,12 +136,13 @@
   </div>
 
   <script>
+    
     function goBack() {
       const ref = document.referrer;
 
       {% if match %}
         // ✅ Only redirect if we actually have a match UUID
-        if (ref && /\/lineup\/players\/\d+\/update\/?$/.test(ref)) {
+        if (ref && ref.includes('/lineup/players/') && ref.includes('/update/')) {
           window.location.href = "{% url 'lineup:lineup-detail' match.id %}";
         }
         else if (ref && ref !== window.location.href) {
