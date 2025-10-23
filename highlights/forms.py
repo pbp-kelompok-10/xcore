@@ -13,16 +13,3 @@ class HighlightForm(forms.ModelForm):
             }),
         }
 
-class HighlightCreateForm(forms.ModelForm):
-    class Meta:
-        model = Highlight
-        fields = ['match', 'video']
-        widgets = {
-            'match': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'video': forms.URLInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Paste YouTube/Vimeo embed URL here',
-            }),
-        }

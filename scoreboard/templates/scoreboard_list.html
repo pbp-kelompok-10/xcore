@@ -202,6 +202,24 @@
         border-top: 1px solid #e0e0e0;
     }
 
+    /* === FORUM BUTTON === */
+    .forum-button {
+        display: inline-block;
+        color: #28574E;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        margin: 5px 0 20px auto;
+        text-align: right;
+        display: block;
+        width: fit-content;
+    }
+
+    .forum-button:hover {
+        text-decoration: underline;
+        color: #1e4039;
+    }
+
     /* === RESPONSIVE === */
     @media (max-width: 768px) {
         .match-card {
@@ -238,6 +256,7 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="container">
     <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
 
@@ -249,9 +268,10 @@
             {% for match in matches %}
                 {% if match.status == 'upcoming' %}
                     <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' match.id %}'">
-                {% else %}
+                {% elif match.statistics.all %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
-                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
+                {% else %}
+                    <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
                 {% endif %}
                         <div class="match-card">
                             <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">✏️</a>
@@ -293,6 +313,10 @@
                             </div>
                         </div>
                     </div>
+
+                {% if match.status != 'upcoming' %}
+                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
+                {% endif %}
             {% endfor %}
         </div>
         {% endfor %}
