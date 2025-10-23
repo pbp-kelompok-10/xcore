@@ -1,5 +1,5 @@
 from django.urls import path
-from scoreboard.views import scoreboard_list, admin_check, add_match, update_score
+from scoreboard.views import scoreboard_list, admin_check, add_match, update_score, delete_match
 from prediction.views import show_main
 from statistik.views import statistik_display
 
@@ -10,5 +10,7 @@ urlpatterns = [
     path('add_match/', add_match, name='add_match'),
     path('update/<uuid:match_id>/', update_score, name='update_score'),
     path('prediction/<uuid:match_id>/', show_main, name='prediction'),
-    path('statistik/<uuid:match_id>/', statistik_display, name='statistik_display')
+    path('statistik/<uuid:match_id>/', statistik_display, name='statistik_display'),
+    path('delete/<uuid:match_id>/', delete_match, name='delete_match'),
+
 ]

@@ -1,0 +1,207 @@
+/* ========== GENERAL LAYOUT ========== */
+.forum-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-family: "Inter", sans-serif;
+}
+
+/* ========== POST CARD (MATCH-CARD) ========== */
+.match-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.score-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* ========== PROFILE PICTURE ========== */
+.profile-post {
+    margin-right: 12px;
+}
+
+.profile-post img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+
+/* ========== DISPLAY MODE ========== */
+.post-display {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.post-authorname {
+    font-weight: 600;
+    font-size: 14px;
+    color: #111;
+}
+
+.score {
+    font-size: 15px;
+    color: #222;
+    line-height: 1.4;
+}
+
+.match-info {
+    font-size: 12px;
+    color: #777;
+}
+
+.post-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.post-actions button {
+    background: none;
+    border: none;
+    color: #065fd4;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.post-actions button:hover {
+    color: #0049a8;
+    text-decoration: underline;
+}
+
+/* ========== EDIT MODE ========== */
+.edit-mode {
+    display: none;
+    margin-top: 8px;
+}
+
+.edit-mode.active {
+    display: block;
+}
+
+.edit-form textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.edit-form textarea:focus {
+    outline: none;
+    border-color: #065fd4;
+}
+
+.edit-actions {
+    margin-top: 6px;
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+.btn-success {
+    background: #0f9d58;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: #0b7c46;
+}
+
+.btn-secondary {
+    background: #ddd;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #ccc;
+}
+
+.btn-danger {
+    color: #d93025;
+}
+
+.btn-danger:hover {
+    color: #b92b22;
+}
+
+/* ========== FORM AREA ========== */
+#postForm {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#postContent {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+#postContent:focus {
+    outline: none;
+    border-color: #065fd4;
+}
+
+#submitPost {
+    align-self: flex-end;
+    background: #065fd4;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+#submitPost:hover {
+    background: #0049a8;
+}
+
+/* ========== EMPTY STATE ========== */
+.posts-container p {
+    text-align: center;
+    color: #888;
+    padding: 30px 0;
+    font-size: 15px;
+}

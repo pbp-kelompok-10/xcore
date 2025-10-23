@@ -1,44 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="page">
-  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">Tambah Statistik Pertandingan</h2>
+  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">
+    {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
+  </h2>
+  
+  <!-- INFO MATCH DARI SCOREBOARD -->
+  <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
+    <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <strong>Tim Home:</strong> {{ match.home_team }}<br>
+        <strong>Tim Away:</strong> {{ match.away_team }}
+      </div>
+      <div>
+        <strong>Skor:</strong> {{ match.home_score }} - {{ match.away_score }}<br>
+        <strong>Stadion:</strong> {{ match.stadium }}
+      </div>
+    </div>
+  </div>
   
   <form method="POST">
     {% csrf_token %}
     
-    <div class="form-section">
-      <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Informasi Pertandingan</h3>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Match ID</label>
-          {{ form.match_id }}
-        </div>
-        <div class="form-group">
-          <label>Stadion</label>
-          {{ form.stadium }}
-        </div>
-      </div>
-      
-      <div class="teams-grid">
-        <div class="team-input">
-          <label>Tim Home</label>
-          {{ form.team_home }}
-        </div>
-        <div class="score-input">
-          <label>Skor</label>
-          <div class="score-display">
-            {{ form.score_home }}
-            <span style="margin:0 10px;font-weight:bold;">-</span>
-            {{ form.score_away }}
-          </div>
-        </div>
-        <div class="team-input">
-          <label>Tim Away</label>
-          {{ form.team_away }}
-        </div>
-      </div>
-    </div>
+    <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
+    <input type="hidden" name="match" value="{{ match.id }}">
 
+    <!-- FORM STATISTIK -->
     <div class="form-section">
       <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Statistik Pertandingan</h3>
       
@@ -122,9 +110,14 @@
       </div>
     </div>
 
-    <button type="submit" class="btn" style="margin-top:30px;width:100%;padding:15px;font-size:1.1em;">
-      Simpan & Tampilkan Statistik
-    </button>
+    <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
+      <button type="submit" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
+        {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
+      </button>
+      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #6c757d; color: white; text-align: center; border-radius: 8px; text-decoration: none;">
+        Batal
+      </a>
+    </div>
   </form>
 </div>
 
@@ -134,32 +127,6 @@
   padding: 20px;
   background: #f8f9fb;
   border-radius: 12px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.teams-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  gap: 20px;
-  align-items: end;
-}
-
-.team-input, .score-input {
-  display: flex;
-  flex-direction: column;
-}
-
-.score-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .stats-grid {
@@ -184,16 +151,6 @@
 .stat-inputs input {
   width: 80px;
   text-align: center;
-}
-
-.form-group label, .team-input label, .score-input label, .stat-row label {
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 5px;
-  display: block;
-}
-
-input, select {
   padding: 10px 12px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
@@ -201,9 +158,37 @@ input, select {
   transition: border-color 0.2s;
 }
 
-input:focus, select:focus {
+.stat-inputs input:focus {
   outline: none;
   border-color: #56BDA9;
+}
+
+.stat-row label {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  transition: all 0.2s;
+}
+
+@media (max-width: 768px) {
+  .stat-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-inputs {
+    justify-content: center;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
 }
 </style>
 {% endblock %}

@@ -33,6 +33,11 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
 
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME','admin')
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "https://alvin-christian-xcore.pbp.cs.ui.ac.id"
+]
+
 
 # Application definition
 
@@ -51,10 +56,12 @@ INSTALLED_APPS = [
     'highlights',
     'lineup',
     'landingpage',
+    'forum',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -145,7 +152,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static' # merujuk ke /static root project pada mode development
+    ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 import os
 
 # Default primary key field type

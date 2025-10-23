@@ -1,11 +1,11 @@
 from django.urls import path
 from . import views
-from highlights.views import highlight_detail
 
 app_name = 'statistik'
 
 urlpatterns = [
-    path('', views.add_statistik, name='add_statistik'),  # Root langsung ke form add
-    path('<int:match_id>/', views.statistik_display, name='statistik_display'),
-    path('<uuid:match_id>/highlights/', highlight_detail, name='match_highlights'),
+    path('add/<uuid:match_id>/', views.add_statistik, name='add_statistik'),
+    path('update/<uuid:match_id>/', views.update_statistik, name='update_statistik'),  
+    path('delete/<uuid:match_id>/', views.delete_statistik, name='delete_statistik'),  
+    path('<uuid:match_id>/', views.statistik_display, name='statistik_display'),
 ]

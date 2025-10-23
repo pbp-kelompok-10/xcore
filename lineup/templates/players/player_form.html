@@ -112,23 +112,9 @@
       {{ form.as_p }}
       <div class="actions">
         <button type="submit">💾 Save</button>
-        <a href="{% url 'lineup:player-list' %}" class="btn-cancel">← Cancel</a>
+        <a href="{% url 'lineup:player-detail' player.id %}" class="btn-cancel">← Cancel</a>
       </div>
     </form>
   </div>
-<html>
-<head>
-  <title>Player Form</title>
-</head>
-<body>
-  <h1>{{ view.object|default:"New Player" }}</h1>
-
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-  </form>
-
-  <a href="{% url 'lineup:player-list' %}">Cancel</a>
 </body>
 </html>

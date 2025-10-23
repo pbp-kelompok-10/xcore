@@ -98,6 +98,15 @@
         background: #aaa;
         transform: translateY(-2px);
     }
+
+        .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
 </style>
 {% endblock %}
 
@@ -157,5 +166,32 @@
             <a href="{% url 'scoreboard:scoreboard_list' %}" class="btn btn-cancel">Batal</a>
         </div>
     </form>
+
+        <form id="delete-form-{{ match.id }}" action="{% url 'scoreboard:delete_match' match.id %}" method="POST" style="margin-top: 15px; text-align:center;">
+        {% csrf_token %}
+        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ match.id }}')">
+            Hapus Pertandingan
+        </button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    function confirmDelete(matchId) {
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: "Pertandingan ini akan dihapus secara permanen.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${matchId}`).submit();
+            }
+        });
+    }
+    </script>
 </div>
 {% endblock %}

@@ -57,7 +57,6 @@ class Team(models.Model):
     name = models.CharField(max_length=100, unique=True, editable=False)
 
     def save(self, *args, **kwargs):
-        # Automatically set team name from the country choice label
         for code, country in COUNTRY_CHOICES:
             if self.code == code:
                 self.name = country

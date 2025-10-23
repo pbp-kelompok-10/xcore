@@ -35,6 +35,13 @@
             opacity: 0.9;
         }
         
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
         .cta-button {
             display: inline-block;
             padding: 15px 30px;
@@ -51,6 +58,15 @@
             transform: translateY(-3px);
             background: #ff5252;
         }
+
+        .cta-button.alt {
+            background: #28574E;
+            border: 2px solid white;
+        }
+
+        .cta-button.alt:hover {
+            background: #1e403a;
+        }
         
         footer {
             text-align: center;
@@ -64,7 +80,16 @@
     <section class="hero">
         <h1>Welcome to Xcore!</h1>
         <p>{{ tagline }}</p>
-        <a href="scoreboard/" class="cta-button">Get Started</a>
+
+        <div class="cta-buttons">
+            {% if user.is_authenticated %}
+                <a href="/scoreboard" class="cta-button">Go to Dashboard</a>
+                <a href="{% url 'landingpage:logout' %}" class="cta-button alt">Logout</a>
+            {% else %}
+                <a href="{% url 'landingpage:login' %}" class="cta-button">Login</a>
+                <a href="{% url 'landingpage:register' %}" class="cta-button alt">Register</a>
+            {% endif %}
+        </div>
     </section>
 
     <!-- Footer -->
