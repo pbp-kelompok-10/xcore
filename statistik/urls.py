@@ -4,7 +4,8 @@ from . import views
 app_name = 'statistik'
 
 urlpatterns = [
-    path('', views.add_statistik, name='add_statistik'),
-    path('add/<uuid:match_id>/', views.add_statistik_for_match, name='add_statistik_for_match'),  # TAMBAH INI
-    path('<uuid:match_id>/', views.statistik_display, name='statistik_display'),  # GANTI int jadi uuid
+    path('add/<uuid:match_id>/', views.add_statistik, name='add_statistik'),
+    path('update/<uuid:match_id>/', views.update_statistik, name='update_statistik'),  # ✅ TAMBAH
+    path('delete/<uuid:match_id>/', views.delete_statistik, name='delete_statistik'),  # ✅ TAMBAH
+    path('<uuid:match_id>/', views.statistik_display, name='statistik_display'),
 ]

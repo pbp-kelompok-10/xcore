@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page">
+  <div style="max-width: 500px; margin: 50px auto; text-align: center; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h2 style="color: #e74c3c; margin-bottom: 20px;">Hapus Statistik</h2>
+    
+    <div style="background: #ffeaea; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+      <h4 style="color: #c0392b; margin-top: 0;">Apakah Anda yakin ingin menghapus statistik ini?</h4>
+      <p style="color: #7f8c8d; margin-bottom: 0;">
+        <strong>Pertandingan:</strong> {{ match.home_team }} vs {{ match.away_team }}<br>
+        <strong>Tanggal:</strong> {{ match.match_date|date:"d F Y" }}
+      </p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button type="submit" style="padding: 12px 30px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+          Ya, Hapus
+        </button>
+        <a href="{% url 'statistik:statistik_display' match.id %}" style="padding: 12px 30px; background: #95a5a6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+          Batal
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

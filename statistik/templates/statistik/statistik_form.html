@@ -2,14 +2,9 @@
 {% block content %}
 <div class="page">
   <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">
-    {% if match %}
-      Tambah Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
-    {% else %}
-      Tambah Statistik Pertandingan
-    {% endif %}
+    {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
   </h2>
   
-  {% if match %}
   <!-- INFO MATCH DARI SCOREBOARD -->
   <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
     <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
@@ -24,26 +19,14 @@
       </div>
     </div>
   </div>
-  {% endif %}
   
   <form method="POST">
     {% csrf_token %}
     
-    {% if match %}
-      <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
-      <input type="hidden" name="match" value="{{ match.id }}">
-    {% else %}
-      <!-- Tampilkan dropdown jika manual add -->
-      <div class="form-section">
-        <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Pilih Pertandingan</h3>
-        <div class="form-group">
-          <label>Pertandingan</label>
-          {{ form.match }}
-        </div>
-      </div>
-    {% endif %}
+    <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
+    <input type="hidden" name="match" value="{{ match.id }}">
 
-    <!-- HANYA FORM STATISTIK -->
+    <!-- FORM STATISTIK -->
     <div class="form-section">
       <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Statistik Pertandingan</h3>
       
@@ -127,9 +110,14 @@
       </div>
     </div>
 
-    <button type="submit" class="btn" style="margin-top:30px;width:100%;padding:15px;font-size:1.1em;">
-      {% if match %}Simpan Statistik{% else %}Tambah Statistik{% endif %}
-    </button>
+    <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
+      <button type="submit" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
+        {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
+      </button>
+      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #6c757d; color: white; text-align: center; border-radius: 8px; text-decoration: none;">
+        Batal
+      </a>
+    </div>
   </form>
 </div>
 
@@ -139,32 +127,6 @@
   padding: 20px;
   background: #f8f9fb;
   border-radius: 12px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.teams-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  gap: 20px;
-  align-items: end;
-}
-
-.team-input, .score-input {
-  display: flex;
-  flex-direction: column;
-}
-
-.score-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .stats-grid {
@@ -189,16 +151,6 @@
 .stat-inputs input {
   width: 80px;
   text-align: center;
-}
-
-.form-group label, .team-input label, .score-input label, .stat-row label {
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 5px;
-  display: block;
-}
-
-input, select {
   padding: 10px 12px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
@@ -206,9 +158,37 @@ input, select {
   transition: border-color 0.2s;
 }
 
-input:focus, select:focus {
+.stat-inputs input:focus {
   outline: none;
   border-color: #56BDA9;
+}
+
+.stat-row label {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  transition: all 0.2s;
+}
+
+@media (max-width: 768px) {
+  .stat-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .stat-inputs {
+    justify-content: center;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
 }
 </style>
 {% endblock %}
