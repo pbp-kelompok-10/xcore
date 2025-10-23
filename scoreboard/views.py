@@ -5,8 +5,7 @@ from .models import Match
 from collections import OrderedDict
 from .models import Match
 from .forms import MatchForm
-from forum.models import Forum
-from forum.models import Forum
+from forum.views import create_forum_for_match, delete_forum
 from django.utils import timezone
 from django.db.models.functions import TruncDate
 from forum.models import Forum
@@ -38,10 +37,7 @@ def add_match(request):
         if form.is_valid():
             match = form.save()
             
-            Forum.objects.create(
-                match=match,
-                nama= "About " + match.home_team + " vs " + match.away_team,
-            )
+            create_forum_for_match(match)
 
             Prediction.objects.create(
                 match=match,
@@ -76,5 +72,7 @@ def delete_match(request, match_id):
     if request.method == "POST":
         match.delete()
         messages.success(request, "Pertandingan berhasil dihapus.")
+        
+    delete_forum(request, match_id)
     
     return redirect('scoreboard:scoreboard_list')

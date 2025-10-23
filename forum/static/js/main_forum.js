@@ -81,9 +81,20 @@ $(document).ready(function () {
         e.preventDefault();
         let postId = $(this).data('post-id');
         
-        if (confirm('Are you sure you want to delete this post?')) {
-            deletePost(postId);
-        }
+        Swal.fire({ // kenapa swall nya ga terdefinisi
+            title: 'Yakin ingin menghapus?',
+            text: "Postingan ini akan dihapus secara permanen.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deletePost(postId);
+            }
+        });
     });
     
 
@@ -111,13 +122,13 @@ $(document).ready(function () {
         });
     }
 
-    // **DELETE POST FUNCTION**
+    // Delete Post Function
     function deletePost(postId) {
         $.ajax({
             type: "POST",
             url: `/forum/${forumId}/delete_post/${postId}/`,
             data: {
-                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()  // **HAPUS forum_id & post_id**
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()  // Menghapus forum id dan post id dari data
             },
             success: function (data) {
                 displayPosts();
@@ -146,6 +157,12 @@ $(document).ready(function () {
                             editButton = `<button class="btn btn-secondary btn-sm edit-post" data-post-id="${post.id}">Edit</button>`;
                         }
 
+                        if (post.is_edited) { 
+                            post_info = `<div class="match-info">Posted on ${post.created_at}</div>`;
+                        } else {
+                            post_info = `<div class="match-info">Edited at ${post.created_at}</div>`;
+                        }
+
                         var postHtml = `
                             <div class="match-card">
                                 <div class="profile-post">
@@ -157,7 +174,7 @@ $(document).ready(function () {
                                     <div class="post-display">
                                         <div class="post-authorname">${post.author_name}</div>
                                         <div class="score">${post.message}</div>
-                                        <div class="match-info">Posted on ${post.created_at}</div>
+                                        ${post_info}
                                         <div class="post-actions">
                                             ${editButton}
                                             ${deleteButton}
