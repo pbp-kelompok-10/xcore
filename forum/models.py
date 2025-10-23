@@ -23,4 +23,4 @@ class Post(models.Model):
     is_edited = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.id + "-" + self.forum.id
+        return f"{str(self.id)}-{str(self.forum.id)}"
