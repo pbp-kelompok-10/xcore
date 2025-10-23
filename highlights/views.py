@@ -26,10 +26,7 @@ def highlight_detail(request, match_id):
 
 # @login_required
 def highlight_create(request, match_id):
-    """
-    Create operation: Create a new highlight for a specific match
-    Only superusers can create highlights
-    """
+
     # Superuser permission check
     # if not request.user.is_superuser:
     #     return HttpResponseForbidden("You do not have permission to create highlights.")
@@ -60,14 +57,9 @@ def highlight_create(request, match_id):
     return render(request, 'highlight_form.html', context)
 
 
-# ============ UPDATE OPERATIONS ============
-
 # @login_required
 def highlight_update(request, match_id):
-    """
-    Update operation: Update an existing highlight
-    Only superusers can update highlights
-    """
+
     # Superuser permission check
     # if not request.user.is_superuser:
     #     return HttpResponseForbidden("You do not have permission to update highlights.")
@@ -92,15 +84,9 @@ def highlight_update(request, match_id):
     
     return render(request, 'highlight_form.html', context)
 
-
-# ============ DELETE OPERATIONS ============
-
 # @login_required
 def highlight_delete(request, match_id):
-    """
-    Delete operation: Delete a highlight
-    Only superusers can delete highlights
-    """
+
     # Superuser permission check
     # if not request.user.is_superuser:
     #     return HttpResponseForbidden("You do not have permission to delete highlights.")

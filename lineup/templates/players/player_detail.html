@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,12 +57,15 @@
       margin-top: 30px;
     }
 
-    a {
+    a, button {
       text-decoration: none;
       font-weight: 600;
       padding: 10px 20px;
       border-radius: 8px;
       transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
     }
 
     .btn-edit {
@@ -92,6 +94,10 @@
     .btn-back:hover {
       background: #64748b;
     }
+
+    form {
+      display: inline;
+    }
   </style>
 </head>
 <body>
@@ -114,9 +120,37 @@
 
     <div class="actions">
       <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
-      <a href="{% url 'lineup:player-delete' player.pk %}" class="btn-delete">🗑 Delete</a>
-      <a href="{% url 'lineup:player-list' %}" class="btn-back">← Back</a>
+
+      <form method="post"
+            action="{% url 'lineup:player-delete' player.pk %}"
+            onsubmit="return confirm('Are you sure you want to delete {{ player.nama }}?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete">🗑 Delete</button>
+      </form>
+
+      <button type="button" class="btn-back" onclick="goBack()">← Back</button>
     </div>
   </div>
+
+  <script>
+    function goBack() {
+      const ref = document.referrer;
+
+      // Detect if user came from player edit form
+      if (ref && ref.includes('/lineup/players/') && ref.includes('/update/')) {
+        // Redirect to the lineup detail for the match (UUID)
+        window.location.href = "{% url 'lineup:lineup-detail' match.id %}";
+      }
+      // Normal history navigation
+      else if (ref && ref !== window.location.href) {
+        window.history.back();
+      }
+      // Fallback to player list
+      else {
+        window.location.href = "{% url 'lineup:player-list' %}";
+      }
+    }
+  </script>
+
 </body>
 </html>

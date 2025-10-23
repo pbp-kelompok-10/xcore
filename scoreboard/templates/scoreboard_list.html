@@ -75,38 +75,27 @@
     }
 
     .edit-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background-color: var(--secondary-color);
-    color: white;
-    text-decoration: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 14px;
-    z-index: 10;
-    transition: background-color 0.3s, transform 0.2s;
-}
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background-color: var(--secondary-color);
+        color: white;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        z-index: 10;
+        transition: background-color 0.3s, transform 0.2s;
+    }
 
-.edit-button:hover {
-    background-color: var(--primary-color);
-    transform: scale(1.05);
-}
-
+    .edit-button:hover {
+        background-color: var(--primary-color);
+        transform: scale(1.05);
+    }
 
     .match-card:hover {
         background-color: #f8f9fa;
-    }
-
-    .match-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: url('https://upload.wikimedia.org/wikipedia/commons/5/5c/Portugal_logo.png') no-repeat center;
-        background-size: 40%;
-        opacity: 0.03;
-        z-index: 0;
     }
 
     .team {
@@ -249,32 +238,28 @@
 {% endblock %}
 
 {% block content %}
-<!-- SCOREBOARD CONTENT -->
 <div class="container">
     <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
 
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
         <div class="date-section">
-            <div class="date-header">
-                {{ match_date|date:"l, d F Y" }}
-            </div>
-            
+            <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
+
             {% for match in matches %}
-                <!-- CONDITIONAL -->
                 {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='prediction/{{match.id}}'">
+                    <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' match.id %}'">
                 {% else %}
-                    <div class="match-link" onclick="window.location.href='statistik/{{match.id}}'">
+                    <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
+                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
                 {% endif %}
                         <div class="match-card">
-                            <!-- Tombol Edit di kanan atas -->
                             <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">✏️</a>
 
                             <div class="team">
-                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
-                                    alt="{{ match.home_team }}"
-                                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
+                                     alt="{{ match.home_team }}"
+                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
                                 <div class="team-name">{{ match.home_team }}</div>
                             </div>
 
@@ -302,12 +287,12 @@
 
                             <div class="team" style="justify-content: flex-end;">
                                 <div class="team-name">{{ match.away_team }}</div>
-                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
-                                    alt="{{ match.away_team }}"
-                                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png"
+                                     alt="{{ match.away_team }}"
+                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
                             </div>
                         </div>
-                </a>
+                    </div>
             {% endfor %}
         </div>
         {% endfor %}
@@ -319,7 +304,6 @@
     {% endif %}
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
     &copy; 2024 Xcore Scoreboard. All rights reserved.
 </div>
@@ -327,52 +311,11 @@
 
 {% block extra_js %}
 <script>
-
-    
-    document.querySelector('.search-bar input').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const matchLinks = document.querySelectorAll('.match-link');
-        const dateSections = document.querySelectorAll('.date-section');
-        
-        let hasVisibleMatches = false;
-        
-        dateSections.forEach(section => {
-            const linksInSection = section.querySelectorAll('.match-link');
-            let sectionHasVisibleMatches = false;
-            
-            linksInSection.forEach(link => {
-                const teamNames = link.querySelectorAll('.team-name');
-                let found = false;
-                
-                teamNames.forEach(name => {
-                    if (name.textContent.toLowerCase().includes(searchTerm)) {
-                        found = true;
-                    }
-                });
-                
-                const matchInfo = link.querySelector('.match-info').textContent.toLowerCase();
-                if (matchInfo.includes(searchTerm)) {
-                    found = true;
-                }
-                
-                if (found || searchTerm === '') {
-                    link.style.display = 'block';
-                    sectionHasVisibleMatches = true;
-                    hasVisibleMatches = true;
-                } else {
-                    link.style.display = 'none';
-                }
-            });
-            
-            section.style.display = sectionHasVisibleMatches ? 'block' : 'none';
+    // Prevent edit-button click from triggering parent card click
+    document.querySelectorAll('.edit-button').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     });
-
-    document.querySelectorAll('.edit-button').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation(); // biar klik edit gak ikut klik card
-    });
-});
-
 </script>
 {% endblock %}
