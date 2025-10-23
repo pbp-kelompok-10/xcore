@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.contrib import messages
+from scoreboard.models import Match
 from .models import Prediction, Vote
 
 # ============================================
@@ -26,9 +28,7 @@ def prediction_list(request):
 
 @login_required(login_url='/login')
 def submit_vote(request):
-    """
-    CREATE - User vote pertama kali
-    """
+    """CREATE - User vote pertama kali"""
     if request.method == "POST":
         prediction_id = request.POST.get("prediction_id")
         choice = request.POST.get("choice")
@@ -83,9 +83,7 @@ def submit_vote(request):
 
 @login_required
 def my_votes(request):
-    """
-    READ - User lihat history vote sendiri
-    """
+    """READ - User lihat history vote sendiri"""
     votes = Vote.objects.filter(user=request.user).select_related('prediction__match').order_by('-voted_at')
     
     context = {
@@ -96,9 +94,7 @@ def my_votes(request):
 
 @login_required
 def update_vote(request, vote_id):
-    """
-    UPDATE - User ubah vote sendiri (sebelum deadline)
-    """
+    """UPDATE - User ubah vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
     
     # Check apakah masih bisa diubah
@@ -141,13 +137,18 @@ def update_vote(request, vote_id):
 
 @login_required
 def delete_vote(request, vote_id):
-    """
-    DELETE - User hapus vote sendiri (sebelum deadline)
-    """
+    """DELETE - User hapus vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
     
     # Check apakah masih bisa dihapus
     if not vote.can_modify():
+        # Return JSON for AJAX
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Voting sudah ditutup! Tidak bisa hapus vote lagi.'
+            })
+        # Fallback for regular request
         messages.error(request, "Voting sudah ditutup! Tidak bisa hapus vote lagi.")
         return redirect('prediction:my_votes')
     
@@ -166,9 +167,18 @@ def delete_vote(request, vote_id):
         # Delete vote
         vote.delete()
         
+        # Return JSON for AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Vote berhasil dihapus!'
+            })
+        
+        # Fallback for regular form submission
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
     
+    # GET request - show confirmation page (fallback)
     context = {
         'vote': vote
     }

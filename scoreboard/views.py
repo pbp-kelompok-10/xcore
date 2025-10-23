@@ -49,12 +49,15 @@ def add_match(request):
 # @user_passes_test(admin_check)
 def update_score(request, match_id):
     match = get_object_or_404(Match, id=match_id)
-    if request.method == 'POST':
-        form = MatchForm(request.POST, instance=match)
-        if form.is_valid():
-            form.save()
-            return redirect('scoreboard:scoreboard_list')
-    else:
-        form = MatchForm(instance=match)
-        
-    return render(request, 'scoreboard/update_score.html', {'form': form, 'match': match})
+    
+    if request.method == "POST":
+        match.home_score = request.POST.get('home_score')
+        match.away_score = request.POST.get('away_score')
+        match.status = request.POST.get('status')
+        match.round = request.POST.get('round')
+        match.group = request.POST.get('group')
+        match.stadium = request.POST.get('stadium')
+        match.save()
+        return redirect('scoreboard:scoreboard_list')
+    
+    return render(request, 'update_score.html', {'match': match})

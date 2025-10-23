@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit {{ team.name }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e293b;
+    }
+
+    form {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .player-card {
+      background: #f1f5f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #475569;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .delete-checkbox {
+      display: inline-block;
+      margin-top: 10px;
+      color: red;
+    }
+
+    .add-row {
+      background: #10b981;
+      margin-top: 10px;
+    }
+
+    .add-row:hover {
+      background: #059669;
+    }
+  </style>
+</head>
+<body>
+  <h1>Edit {{ team.name }}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h2>Players</h2>
+    {{ player_formset.management_form }}
+
+    {% for form in player_formset %}
+      <div class="player-card">
+        {{ form.id }}
+        <p>{{ form.nama.label_tag }} {{ form.nama }}</p>
+        <p>{{ form.asal.label_tag }} {{ form.asal }}</p>
+        <p>{{ form.umur.label_tag }} {{ form.umur }}</p>
+        <p>{{ form.nomor.label_tag }} {{ form.nomor }}</p>
+        {% if form.DELETE %}
+          <label class="delete-checkbox">Delete: {{ form.DELETE }}</label>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit">Save Changes</button>
+    <a href="{% url 'lineup:team-list' %}" style="margin-left:10px;">Cancel</a>
+  </form>
+</body>
+</html>

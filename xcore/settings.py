@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'scoreboard',
     'forum',
     'landingpage',
-    # 'statistik',
+    'statistik',
 ]
 
 MIDDLEWARE = [

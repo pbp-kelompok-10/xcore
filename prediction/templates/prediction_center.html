@@ -204,7 +204,7 @@
 </div>
 
 <!-- Include Modal -->
-{% include 'prediction/modal_poll.html' %}
+{% include 'modal/modal_poll.html' %}
 
 <style>
 /* ============================================
@@ -538,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const predictionId = popup.dataset.predictionId;
 
             if (!predictionId) {
-                alert("Prediction ID tidak ditemukan!");
+                showToast('Prediction ID tidak ditemukan!', 'error');
                 return;
             }
 
@@ -556,18 +556,18 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("Vote berhasil! 🎉");
+                    showToast('Vote berhasil! 🎉', 'success');
                     popup.classList.add("hidden");
                     
                     // Reload page to show updated results
                     window.location.reload();
                 } else {
-                    alert(data.message || "Terjadi kesalahan");
+                    showToast(data.message || "Terjadi kesalahan", 'error');
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("Terjadi kesalahan saat mengirim vote");
+                showToast('Terjadi kesalahan saat mengirim vote', 'error');
             })
             .finally(() => {
                 // Re-enable buttons
