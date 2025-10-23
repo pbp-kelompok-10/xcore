@@ -1,0 +1,56 @@
+{% load static %}
+<style>
+/* === Toast Base Styles === */
+#toast-component {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 260px;
+  max-width: 420px;
+  padding: 16px 20px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  pointer-events: none;                /* not clickable when hidden */
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === Visible State === */
+#toast-component.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* === Typography === */
+#toast-title {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+#toast-message {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+</style>
+
+<div id="toast-component">
+  <div>
+    <h3 id="toast-title"></h3>
+    <p id="toast-message"></p>
+  </div>
+</div>
+
+<script src="{% static 'js/toast.js' %}"></script>

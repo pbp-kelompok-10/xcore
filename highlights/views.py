@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.utils import timezone
 from scoreboard.models import Match
-from .forms import HighlightForm, HighlightCreateForm
+from .forms import HighlightForm
 from .models import Highlight
 
 def highlight_detail(request, match_id):
@@ -24,45 +24,37 @@ def highlight_detail(request, match_id):
     return render(request, 'highlight.html', context)
 
 
-# @login_required
 def highlight_create(request, match_id):
-
-    # Superuser permission check
-    # if not request.user.is_superuser:
-    #     return HttpResponseForbidden("You do not have permission to create highlights.")
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to update highlights.")
     
     match = get_object_or_404(Match, id=match_id)
-    
-    # Prevent duplicate highlights for the same match
-    if hasattr(match, 'highlight'):
-        return redirect('highlights:match_highlights', match_id=match.id)
-    
+
+    # Prevent duplicate highlight per match (since OneToOneField)
+    if hasattr(match, "highlight"):
+        return redirect("highlights:match_highlights", match_id=match.id)
+
     if request.method == "POST":
-        form = HighlightCreateForm(request.POST)
+        form = HighlightForm(request.POST)
         if form.is_valid():
-            # Create the highlight for this match
             highlight = form.save(commit=False)
-            highlight.match = match
+            highlight.match = match  # ✅ automatically attach the match
             highlight.save()
-            return redirect('highlights:match_highlights', match_id=match.id)
+            return redirect("highlights:match_highlights", match_id=match.id)
     else:
-        form = HighlightCreateForm()
-    
+        form = HighlightForm()
+
     context = {
-        'form': form,
-        'match': match,
-        'action': 'Create',
+        "form": form,
+        "match": match,
     }
-    
-    return render(request, 'highlight_form.html', context)
+    return render(request, "highlight_form.html", context)
 
 
-# @login_required
 def highlight_update(request, match_id):
 
-    # Superuser permission check
-    # if not request.user.is_superuser:
-    #     return HttpResponseForbidden("You do not have permission to update highlights.")
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to update highlights.")
     
     match = get_object_or_404(Match, id=match_id)
     highlight = get_object_or_404(Highlight, match=match)
@@ -84,12 +76,11 @@ def highlight_update(request, match_id):
     
     return render(request, 'highlight_form.html', context)
 
-# @login_required
+
 def highlight_delete(request, match_id):
 
-    # Superuser permission check
-    # if not request.user.is_superuser:
-    #     return HttpResponseForbidden("You do not have permission to delete highlights.")
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to delete highlights.")
     
     match = get_object_or_404(Match, id=match_id)
     highlight = get_object_or_404(Highlight, match=match)

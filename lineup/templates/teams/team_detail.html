@@ -184,7 +184,9 @@
     {% endif %}
 
     <div class="actions">
-      <a href="{% url 'lineup:team-update' team.pk %}" class="btn btn-edit">Edit Team</a>
+      {% if request.user.is_superuser %}
+        <a href="{% url 'lineup:team-update' team.pk %}" class="btn btn-edit">Edit Team</a>
+      {% endif %}
       <a href="{% url 'lineup:team-list' %}" class="btn btn-back">← Back to Teams</a>
     </div>
   </div>

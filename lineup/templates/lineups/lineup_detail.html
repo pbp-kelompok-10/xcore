@@ -240,14 +240,18 @@
     </div>
 
     <!-- Edit Lineup button -->
-    <div class="action-buttons">
-      <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
-    </div>
+    {% if request.user.is_superuser %}
+      <div class="action-buttons">
+        <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
+      </div>
+    {% endif %}
 
   {% else %}
     <div class="no-lineup">
       <p>No lineup has been created for this match yet.</p>
-      <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
+      {% if request.user.is_superuser %}
+        <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
+      {% endif %}
     </div>
   {% endif %}
 </div>

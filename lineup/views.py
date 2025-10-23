@@ -13,6 +13,21 @@ from .forms import LineupForm, TeamForm, PlayerInlineFormSet
 from scoreboard.models import Match
 from django.contrib import messages
 from django.forms import modelform_factory
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django import forms
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Restrict access to superusers only."""
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            # Redirect unauthenticated users to login page
+            return redirect('login')
+        # Authenticated but not superuser → 403 Forbidden
+        raise PermissionDenied("You do not have permission to access this page.")
+
 class TeamListView(ListView):
     model = Team
     template_name = 'teams/team_list.html'
@@ -25,14 +40,14 @@ class TeamDetailView(DetailView):
     context_object_name = 'team'
 
 
-class TeamCreateView(CreateView):
+class TeamCreateView(SuperuserRequiredMixin, CreateView):
     model = Team
     fields = ['code']
     template_name = 'teams/team_form.html'
     success_url = reverse_lazy('team-list')
 
 
-class TeamUpdateView(UpdateView):
+class TeamUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Team
     form_class = TeamForm
     template_name = 'teams/team_form.html'
@@ -73,10 +88,11 @@ class PlayerDetailView(DetailView):
         # Try to find the latest match the player appeared in (if any lineup exists)
         lineup = player.lineups.first()
         context['match'] = lineup.match if lineup else None
+        context['match_id_safe'] = lineup.match.id if lineup else None
         return context
 
 
-class PlayerCreateView(CreateView):
+class PlayerCreateView(SuperuserRequiredMixin, CreateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
@@ -84,7 +100,7 @@ class PlayerCreateView(CreateView):
         return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
-class PlayerUpdateView(UpdateView):
+class PlayerUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
@@ -93,10 +109,9 @@ class PlayerUpdateView(UpdateView):
         return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
-class PlayerDeleteView(DeleteView):
+class PlayerDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Player
 
-    # ✅ If user tries to GET the delete URL directly, redirect to player list
     def get(self, request, *args, **kwargs):
         return redirect(reverse('lineup:player-list'))
 
@@ -128,8 +143,9 @@ class LineupDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        match = self.object
+        match = self.get_object()
 
+        # Safely get home and away lineups
         home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
         away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
 
@@ -139,18 +155,29 @@ class LineupDetailView(DetailView):
         })
         return context
 
-class LineupCreateView(CreateView):
+
+class LineupCreateView(SuperuserRequiredMixin, CreateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
 
-    def get_success_url(self):
-        return reverse_lazy('lineup:lineup-detail', kwargs={'match_id': self.kwargs['match_id']})
+    def get_initial(self):
+        """Automatically prefill the match field from the URL."""
+        initial = super().get_initial()
+        match = Match.objects.get(pk=self.kwargs['match_id'])
+        initial['match'] = match
+        return initial
+
+    def get_form(self, form_class=None):
+        """Hide the match field so user can’t change it."""
+        form = super().get_form(form_class)
+        form.fields['match'].widget = forms.HiddenInput()
+        return form
 
     def get_context_data(self, **kwargs):
+        """Pass match and team info to the template."""
         context = super().get_context_data(**kwargs)
-        match_id = self.kwargs['match_id']
-        match = Match.objects.get(pk=match_id)
+        match = Match.objects.get(pk=self.kwargs['match_id'])
         context.update({
             'match': match,
             'is_edit': False,
@@ -158,6 +185,7 @@ class LineupCreateView(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """Handle lineup creation and player assignment."""
         match = Match.objects.get(pk=self.kwargs['match_id'])
         home_players_raw = request.POST.get('home_players', '')
         away_players_raw = request.POST.get('away_players', '')
@@ -173,34 +201,26 @@ class LineupCreateView(CreateView):
 
         if home_team:
             if len(home_ids) != 11:
-                messages.error(request, f"{home_team.name} must have 11 players in the starting lineup.")
+                messages.error(request, f"{home_team.name} must have 11 players.")
                 return redirect(request.path)
 
-            home_lineup, created = Lineup.objects.get_or_create(
-                match=match,
-                team=home_team,
-                defaults={'team': home_team, 'match': match}
-            )
+            home_lineup, _ = Lineup.objects.get_or_create(match=match, team=home_team)
             home_lineup.players.set(home_ids)
             home_lineup.save()
 
         if away_team:
             if len(away_ids) != 11:
-                messages.error(request, f"{away_team.name} must have 11 players in the starting lineup.")
+                messages.error(request, f"{away_team.name} must have 11 players.")
                 return redirect(request.path)
 
-            away_lineup, created = Lineup.objects.get_or_create(
-                match=match,
-                team=away_team,
-                defaults={'team': away_team, 'match': match}
-            )
+            away_lineup, _ = Lineup.objects.get_or_create(match=match, team=away_team)
             away_lineup.players.set(away_ids)
             away_lineup.save()
 
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 
-class LineupUpdateView(UpdateView):
+class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
@@ -250,7 +270,7 @@ class LineupUpdateView(UpdateView):
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 
-class LineupDeleteView(DeleteView):
+class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Lineup
     template_name = 'lineups/lineup_confirm_delete.html'
 
@@ -272,7 +292,7 @@ COUNTRY_MAP = {name: code for code, name in COUNTRY_CHOICES}
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadTeamsView(View):
+class UploadTeamsView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -314,7 +334,7 @@ class UploadTeamsView(View):
 
 # ---------- Upload Players ZIP ----------
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadPlayersView(View):
+class UploadPlayersView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -389,15 +409,6 @@ class UploadPlayersView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
-# ---------- Upload Page (HTML Form) ----------
-def upload_page(request):
-    return render(request, 'upload.html')
-
-
-# ============================================
-#   AJAX HELPERS
-# ============================================
 
 def get_teams_for_match(request):
     match_id = request.GET.get('match')

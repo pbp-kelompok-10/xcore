@@ -8,11 +8,12 @@ from .forms import MatchForm
 from django.utils import timezone
 from django.db.models.functions import TruncDate
 from forum.models import Forum
+from django.contrib import messages
+from prediction.models import Prediction
+
 def scoreboard_list(request):
-    # Group matches by date
     matches = Match.objects.all().order_by('match_date')
     
-    # Group matches by date
     matches_by_date = OrderedDict()
     for match in matches:
         match_date = match.match_date.date() 
@@ -39,6 +40,10 @@ def add_match(request):
                 match=match,
                 nama= "About " + match.home_team + " vs " + match.away_team,
             )
+
+            Prediction.objects.create(
+                match=match,
+            )
             
             return redirect('scoreboard:scoreboard_list')
     else:
@@ -62,3 +67,12 @@ def update_score(request, match_id):
         return redirect('scoreboard:scoreboard_list')
     
     return render(request, 'update_score.html', {'match': match})
+
+def delete_match(request, match_id):
+    match = get_object_or_404(Match, id=match_id)
+
+    if request.method == "POST":
+        match.delete()
+        messages.success(request, "Pertandingan berhasil dihapus.")
+    
+    return redirect('scoreboard:scoreboard_list')

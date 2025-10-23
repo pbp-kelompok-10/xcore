@@ -1,9 +1,15 @@
 from django.urls import path
-from prediction.views import show_main
+from .views import prediction_list, submit_vote, my_votes, update_vote, delete_vote
 
-app_name = 'main'
+app_name = 'prediction'
 
 urlpatterns = [
-    path('prediction/', show_main, name='show_main'),
+    # User Voting
+    path('', prediction_list, name='list'),
+    path('submit-vote/', submit_vote, name='submit_vote'),
+    
+    # USER CRUD
+    path('my-votes/', my_votes, name='my_votes'),                    # READ
+    path('my-votes/update/<uuid:vote_id>/', update_vote, name='update_vote'),  # UPDATE
+    path('my-votes/delete/<uuid:vote_id>/', delete_vote, name='delete_vote'),  # DELETE
 ]
-
