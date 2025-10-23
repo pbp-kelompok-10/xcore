@@ -1,5 +1,3 @@
-
-console.log("Static URL:", window.STATIC_URL);
 $(document).ready(function () {
     displayPosts();
 
@@ -150,6 +148,10 @@ $(document).ready(function () {
 
                         var postHtml = `
                             <div class="match-card">
+                                <div class="profile-post">
+                                    <img src="${post.author_picture || defaultProfilePic}" alt="User Picture">
+                                </div>
+
                                 <div class="score-section">
                                     <!-- DISPLAY MODE -->
                                     <div class="post-display">

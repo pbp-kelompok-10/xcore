@@ -28,7 +28,7 @@
 
     <!-- LOAD forumId DAN JS DI AKHIR -->
     <script>
-        window.STATIC_URL = "{% get_static_prefix %}";
+        const defaultProfilePic = "{% static 'image/default_pp.jpg' %}"; //kenapa ga nge catch, padahal di main_forum.css bisa
         const forumId = "{{ forum.id }}";
     </script>
     <script src="{% static 'js/main_forum.js' %}"></script>
