@@ -71,7 +71,7 @@
       background: var(--gray-hover);
     }
 
-    .add-btn {
+    .add-btn, .upload-btn {
       background: var(--success);
       color: white;
       text-decoration: none;
@@ -79,10 +79,19 @@
       border-radius: 8px;
       font-weight: 600;
       transition: background 0.2s ease;
+      cursor: pointer;
     }
 
-    .add-btn:hover {
+    .add-btn:hover, .upload-btn:hover {
       background: var(--success-hover);
+    }
+
+    .upload-btn {
+      background: var(--primary);
+    }
+
+    .upload-btn:hover {
+      background: var(--primary-hover);
     }
 
     .search-bar {
@@ -161,8 +170,7 @@
       color: var(--muted);
     }
 
-    .action-buttons a,
-    .action-buttons form button {
+    .action-buttons a {
       border: none;
       text-decoration: none;
       font-weight: 600;
@@ -172,24 +180,11 @@
       font-size: 13px;
       color: white;
       transition: all 0.2s ease;
-    }
-
-    .btn-edit {
       background: var(--primary);
     }
-    .btn-edit:hover {
+
+    .action-buttons a:hover {
       background: var(--primary-hover);
-    }
-
-    .btn-delete {
-      background: var(--danger);
-    }
-    .btn-delete:hover {
-      background: var(--danger-hover);
-    }
-
-    form {
-      display: inline;
     }
 
     .empty {
@@ -199,16 +194,73 @@
       font-style: italic;
     }
 
+    /* --- Upload Modal --- */
+    #uploadModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .modal-content input[type="file"] {
+      display: block;
+      margin: 15px auto;
+    }
+
+    .modal-content button {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    .modal-content button:hover {
+      background: var(--success-hover);
+    }
+
+    .close-btn {
+      background: var(--danger);
+    }
+
+    .close-btn:hover {
+      background: var(--danger-hover);
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <div class="header-left">
-        <a href="{% url 'lineup:team-list' %}" class="btn-back">← Back to Teams</a>
+        <a href="javascript:history.back()" class="btn-back">← Back</a>
         <h1>Players</h1>
       </div>
-      <a href="{% url 'lineup:player-create' %}" class="add-btn">+ Add Player</a>
+
+      {% if request.user.is_superuser %}
+      <div style="display: flex; gap: 10px;">
+        <a href="{% url 'lineup:player-create' %}" class="add-btn">+ Add Player</a>
+        <button class="upload-btn" onclick="openModal()">⬆️ Upload ZIP</button>
+      </div>
+      {% endif %}
     </div>
 
     <input type="text" id="search" class="search-bar" placeholder="🔍 Search player by name or number...">
@@ -233,14 +285,12 @@
                   <span class="player-name">{{ player.nama }}</span>
                   <span class="player-number">#{{ player.nomor }}</span>
                 </div>
-                <div class="action-buttons">
-                  <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit" onclick="event.stopPropagation();">✏️ Edit</a>
-                  <form method="post" action="{% url 'lineup:player-delete' player.pk %}" 
-                        onsubmit="event.stopPropagation(); return confirm('Are you sure you want to delete {{ player.nama }}?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-delete">🗑 Delete</button>
-                  </form>
+
+                {% if request.user.is_superuser %}
+                <div class="action-buttons" onclick="event.stopPropagation()">
+                  <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
                 </div>
+                {% endif %}
               </div>
             {% endfor %}
           </div>
@@ -251,6 +301,22 @@
     {% endif %}
   </div>
 
+  <!-- Upload Modal -->
+  <div id="uploadModal">
+    <div class="modal-content">
+      <h2>Upload Players (ZIP)</h2>
+      <form id="uploadForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="zipFile" name="file" accept=".zip" required>
+        <div>
+          <button type="submit">Upload</button>
+          <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </form>
+      <p id="uploadStatus" style="margin-top: 10px; color: var(--muted);"></p>
+    </div>
+  </div>
+
   <script>
     // --- Expand/Collapse Teams ---
     function toggleTeam(teamId) {
@@ -258,12 +324,13 @@
       list.style.display = (list.style.display === 'block') ? 'none' : 'block';
     }
 
-    // --- Navigate to player detail when card clicked ---
+    // --- Navigate to player detail ---
     function goToDetail(event, playerId) {
+      if (event.target.closest('.action-buttons')) return;
       window.location.href = `/lineup/players/${playerId}/`;
     }
 
-    // --- Search Filter with Auto-expand ---
+    // --- Search Filter ---
     const searchInput = document.getElementById('search');
     searchInput.addEventListener('input', function() {
       const term = this.value.toLowerCase();
@@ -282,14 +349,55 @@
 
         const list = card.querySelector('.player-list');
         if (term && matchFound) {
-          list.style.display = 'block';  // auto expand matching teams
+          list.style.display = 'block';
         } else if (!term) {
-          list.style.display = 'none';   // collapse all if search cleared
+          list.style.display = 'none';
         }
 
-        // hide whole team card if no matches
         card.style.display = matchFound || !term ? 'block' : 'none';
       });
+    });
+
+    // --- Upload Modal ---
+    function openModal() {
+      document.getElementById("uploadModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("uploadModal").style.display = "none";
+      document.getElementById("uploadStatus").textContent = "";
+    }
+
+    // --- Handle Upload ---
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("zipFile");
+      const status = document.getElementById("uploadStatus");
+
+      if (!fileInput.files.length) {
+        status.textContent = "Please select a file first.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      status.textContent = "Uploading...";
+
+      const response = await fetch("{% url 'lineup:upload-players' %}", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === "ok") {
+        status.style.color = "green";
+        status.textContent = `✅ Uploaded ${result.added_players.length} players successfully.`;
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        status.style.color = "red";
+        status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
+      }
     });
   </script>
 </body>

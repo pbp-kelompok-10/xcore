@@ -4,7 +4,6 @@ from .views import *
 app_name = 'lineup'
 
 urlpatterns = [
-    path('upload/', upload_page, name='upload-page'),
     path('upload/teams/', UploadTeamsView.as_view(), name='upload-teams'),
     path('upload/players/', UploadPlayersView.as_view(), name='upload-players'),
 

@@ -55,6 +55,7 @@
       justify-content: center;
       gap: 15px;
       margin-top: 30px;
+      flex-wrap: wrap;
     }
 
     a, button {
@@ -119,14 +120,16 @@
     </div>
 
     <div class="actions">
-      <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
+      {% if request.user.is_superuser %}
+        <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
 
-      <form method="post"
-            action="{% url 'lineup:player-delete' player.pk %}"
-            onsubmit="return confirm('Are you sure you want to delete {{ player.nama }}?');">
-        {% csrf_token %}
-        <button type="submit" class="btn-delete">🗑 Delete</button>
-      </form>
+        <form method="post"
+              action="{% url 'lineup:player-delete' player.pk %}"
+              onsubmit="return confirm('Are you sure you want to delete {{ player.nama }}?');">
+          {% csrf_token %}
+          <button type="submit" class="btn-delete">🗑 Delete</button>
+        </form>
+      {% endif %}
 
       <button type="button" class="btn-back" onclick="goBack()">← Back</button>
     </div>
@@ -136,21 +139,26 @@
     function goBack() {
       const ref = document.referrer;
 
-      // Detect if user came from player edit form
-      if (ref && ref.includes('/lineup/players/') && ref.includes('/update/')) {
-        // Redirect to the lineup detail for the match (UUID)
-        window.location.href = "{% url 'lineup:lineup-detail' match.id %}";
-      }
-      // Normal history navigation
-      else if (ref && ref !== window.location.href) {
-        window.history.back();
-      }
-      // Fallback to player list
-      else {
-        window.location.href = "{% url 'lineup:player-list' %}";
-      }
+      {% if match %}
+        // ✅ Only redirect if we actually have a match UUID
+        if (ref && /\/lineup\/players\/\d+\/update\/?$/.test(ref)) {
+          window.location.href = "{% url 'lineup:lineup-detail' match.id %}";
+        }
+        else if (ref && ref !== window.location.href) {
+          window.history.back();
+        }
+        else {
+          window.location.href = "{% url 'lineup:player-list' %}";
+        }
+      {% else %}
+        // ✅ Fallback when no match is linked
+        if (ref && ref !== window.location.href) {
+          window.history.back();
+        } else {
+          window.location.href = "{% url 'lineup:player-list' %}";
+        }
+      {% endif %}
     }
   </script>
-
 </body>
 </html>

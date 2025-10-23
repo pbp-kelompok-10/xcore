@@ -5,7 +5,7 @@
     {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
   </h2>
   
-  <!-- INFO MATCH DARI SCOREBOARD -->
+  <!-- INFO MATCH -->
   <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
     <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -20,10 +20,9 @@
     </div>
   </div>
   
-  <form method="POST">
+  <form method="POST" id="statistik-form">
     {% csrf_token %}
     
-    <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
     <input type="hidden" name="match" value="{{ match.id }}">
 
     <!-- FORM STATISTIK -->
@@ -111,7 +110,7 @@
     </div>
 
     <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
-      <button type="submit" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
+      <button type="submit" class="btn" id="submit-btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
         {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
       </button>
       <a href="{% url 'statistik:statistik_display' match.id %}" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #6c757d; color: white; text-align: center; border-radius: 8px; text-decoration: none;">
@@ -122,6 +121,7 @@
 </div>
 
 <style>
+/* Existing styles tetap sama */
 .form-section {
   margin-bottom: 30px;
   padding: 20px;
@@ -163,32 +163,61 @@
   border-color: #56BDA9;
 }
 
-.stat-row label {
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  transition: all 0.2s;
-}
-
-@media (max-width: 768px) {
-  .stat-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .stat-inputs {
-    justify-content: center;
-  }
-  
-  .button-group {
-    flex-direction: column;
-  }
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('statistik-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.innerHTML = 'Loading...';
+        submitBtn.classList.add('loading');
+        
+        // Collect form data
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        
+        // AJAX request
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': data.csrfmiddlewaretoken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                window.toast.show('Sukses', result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 1500);
+            } else {
+                window.toast.show('Error', result.message, 'error');
+                // Reset button
+                submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+                submitBtn.classList.remove('loading');
+            }
+        })
+        .catch(error => {
+            window.toast.show('Error', 'Terjadi kesalahan jaringan', 'error');
+            submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+            submitBtn.classList.remove('loading');
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -13,6 +13,21 @@ from .forms import LineupForm, TeamForm, PlayerInlineFormSet
 from scoreboard.models import Match
 from django.contrib import messages
 from django.forms import modelform_factory
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Restrict access to superusers only."""
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            # Redirect unauthenticated users to login page
+            return redirect('login')
+        # Authenticated but not superuser → 403 Forbidden
+        raise PermissionDenied("You do not have permission to access this page.")
+
 class TeamListView(ListView):
     model = Team
     template_name = 'teams/team_list.html'
@@ -25,14 +40,14 @@ class TeamDetailView(DetailView):
     context_object_name = 'team'
 
 
-class TeamCreateView(CreateView):
+class TeamCreateView(SuperuserRequiredMixin, CreateView):
     model = Team
     fields = ['code']
     template_name = 'teams/team_form.html'
     success_url = reverse_lazy('team-list')
 
 
-class TeamUpdateView(UpdateView):
+class TeamUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Team
     form_class = TeamForm
     template_name = 'teams/team_form.html'
@@ -73,10 +88,11 @@ class PlayerDetailView(DetailView):
         # Try to find the latest match the player appeared in (if any lineup exists)
         lineup = player.lineups.first()
         context['match'] = lineup.match if lineup else None
+        context['match_id_safe'] = lineup.match.id if lineup else None
         return context
 
 
-class PlayerCreateView(CreateView):
+class PlayerCreateView(SuperuserRequiredMixin, CreateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
@@ -84,7 +100,7 @@ class PlayerCreateView(CreateView):
         return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
-class PlayerUpdateView(UpdateView):
+class PlayerUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Player
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
@@ -93,10 +109,9 @@ class PlayerUpdateView(UpdateView):
         return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
 
 
-class PlayerDeleteView(DeleteView):
+class PlayerDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Player
 
-    # ✅ If user tries to GET the delete URL directly, redirect to player list
     def get(self, request, *args, **kwargs):
         return redirect(reverse('lineup:player-list'))
 
@@ -139,7 +154,7 @@ class LineupDetailView(DetailView):
         })
         return context
 
-class LineupCreateView(CreateView):
+class LineupCreateView(SuperuserRequiredMixin,CreateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
@@ -200,7 +215,7 @@ class LineupCreateView(CreateView):
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 
-class LineupUpdateView(UpdateView):
+class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
@@ -250,7 +265,7 @@ class LineupUpdateView(UpdateView):
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
 
-class LineupDeleteView(DeleteView):
+class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Lineup
     template_name = 'lineups/lineup_confirm_delete.html'
 
@@ -272,7 +287,7 @@ COUNTRY_MAP = {name: code for code, name in COUNTRY_CHOICES}
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadTeamsView(View):
+class UploadTeamsView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -314,7 +329,7 @@ class UploadTeamsView(View):
 
 # ---------- Upload Players ZIP ----------
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadPlayersView(View):
+class UploadPlayersView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -389,15 +404,6 @@ class UploadPlayersView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
-# ---------- Upload Page (HTML Form) ----------
-def upload_page(request):
-    return render(request, 'upload.html')
-
-
-# ============================================
-#   AJAX HELPERS
-# ============================================
 
 def get_teams_for_match(request):
     match_id = request.GET.get('match')

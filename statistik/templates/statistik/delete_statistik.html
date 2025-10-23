@@ -1,28 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="page">
-  <div style="max-width: 500px; margin: 50px auto; text-align: center; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-    <h2 style="color: #e74c3c; margin-bottom: 20px;">Hapus Statistik</h2>
+    <h2 style="text-align:center;color:#e74c3c;margin-bottom:20px;">Hapus Statistik</h2>
     
-    <div style="background: #ffeaea; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-      <h4 style="color: #c0392b; margin-top: 0;">Apakah Anda yakin ingin menghapus statistik ini?</h4>
-      <p style="color: #7f8c8d; margin-bottom: 0;">
-        <strong>Pertandingan:</strong> {{ match.home_team }} vs {{ match.away_team }}<br>
-        <strong>Tanggal:</strong> {{ match.match_date|date:"d F Y" }}
-      </p>
+    <div style="background:#fef2f2; padding:20px; border-radius:12px; border-left:4px solid #e74c3c; margin-bottom:25px;">
+        <h4 style="color:#dc2626;margin-top:0;">Konfirmasi Penghapusan</h4>
+        <p>Anda yakin ingin menghapus statistik untuk pertandingan:</p>
+        <p><strong>{{ match.home_team }} vs {{ match.away_team }}</strong></p>
+        <p style="color:#ef4444;font-size:14px;">Tindakan ini tidak dapat dibatalkan!</p>
     </div>
 
-    <form method="POST">
-      {% csrf_token %}
-      <div style="display: flex; gap: 15px; justify-content: center;">
-        <button type="submit" style="padding: 12px 30px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
-          Ya, Hapus
-        </button>
-        <a href="{% url 'statistik:statistik_display' match.id %}" style="padding: 12px 30px; background: #95a5a6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
-          Batal
-        </a>
-      </div>
+    <form method="POST" id="delete-form">
+        {% csrf_token %}
+        <div style="display:flex;gap:15px;justify-content:center;">
+            <button type="submit" class="btn-delete-confirm" style="padding:12px 24px;background:#e74c3c;color:white;border:none;border-radius:6px;cursor:pointer;">
+                Ya, Hapus Statistik
+            </button>
+            <a href="{% url 'statistik:statistik_display' match.id %}" class="btn-cancel" style="padding:12px 24px;background:#6c757d;color:white;text-decoration:none;border-radius:6px;">
+                Batal
+            </a>
+        </div>
     </form>
-  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('delete-form');
+    const btn = document.querySelector('.btn-delete-confirm');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading
+        btn.innerHTML = 'Menghapus...';
+        btn.style.opacity = '0.7';
+        btn.disabled = true;
+        
+        // AJAX request
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                window.toast.show('Sukses', result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 1500);
+            } else {
+                window.toast.show('Error', result.message, 'error');
+                // Reset button
+                btn.innerHTML = 'Ya, Hapus Statistik';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            window.toast.show('Error', 'Terjadi kesalahan jaringan', 'error');
+            btn.innerHTML = 'Ya, Hapus Statistik';
+            btn.style.opacity = '1';
+            btn.disabled = false;
+        });
+    });
+});
+</script>
 {% endblock %}

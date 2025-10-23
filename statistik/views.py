@@ -1,4 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 from .models import Statistik
 from .forms import StatistikForm
 
@@ -10,15 +14,51 @@ def add_statistik(request, match_id):
     # Cek apakah sudah ada statistik
     existing_statistik = Statistik.objects.filter(match=match).first()
     if existing_statistik:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Statistik untuk pertandingan ini sudah ada!'
+            })
+        messages.warning(request, 'Statistik untuk pertandingan ini sudah ada!')
         return redirect('statistik:statistik_display', match_id=match.id)
     
     if request.method == 'POST':
-        form = StatistikForm(request.POST)
-        if form.is_valid():
-            statistik = form.save(commit=False)
-            statistik.match = match
-            statistik.save()
-            return redirect('statistik:statistik_display', match_id=match.id)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # AJAX request
+            try:
+                data = json.loads(request.body)
+                form = StatistikForm(data)
+                if form.is_valid():
+                    statistik = form.save(commit=False)
+                    statistik.match = match
+                    statistik.save()
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Statistik berhasil ditambahkan!',
+                        'redirect_url': f'/statistik/{match.id}/'
+                    })
+                else:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Data tidak valid!',
+                        'errors': form.errors
+                    })
+            except Exception as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Terjadi kesalahan: {str(e)}'
+                })
+        else:
+            # Normal form submission
+            form = StatistikForm(request.POST)
+            if form.is_valid():
+                statistik = form.save(commit=False)
+                statistik.match = match
+                statistik.save()
+                messages.success(request, 'Statistik berhasil ditambahkan!')
+                return redirect('statistik:statistik_display', match_id=match.id)
+            else:
+                messages.error(request, 'Terjadi kesalahan. Periksa data Anda!')
     else:
         form = StatistikForm(initial={'match': match})
     
@@ -36,10 +76,38 @@ def update_statistik(request, match_id):
     statistik = get_object_or_404(Statistik, match=match)
     
     if request.method == 'POST':
-        form = StatistikForm(request.POST, instance=statistik)
-        if form.is_valid():
-            form.save()
-            return redirect('statistik:statistik_display', match_id=match.id)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # AJAX request
+            try:
+                data = json.loads(request.body)
+                form = StatistikForm(data, instance=statistik)
+                if form.is_valid():
+                    form.save()
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Statistik berhasil diupdate!',
+                        'redirect_url': f'/statistik/{match.id}/'
+                    })
+                else:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Data tidak valid!',
+                        'errors': form.errors
+                    })
+            except Exception as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Terjadi kesalahan: {str(e)}'
+                })
+        else:
+            # Normal form submission
+            form = StatistikForm(request.POST, instance=statistik)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Statistik berhasil diupdate!')
+                return redirect('statistik:statistik_display', match_id=match.id)
+            else:
+                messages.error(request, 'Terjadi kesalahan. Periksa data Anda!')
     else:
         form = StatistikForm(instance=statistik)
     
@@ -58,8 +126,25 @@ def delete_statistik(request, match_id):
     statistik = get_object_or_404(Statistik, match=match)
     
     if request.method == 'POST':
-        statistik.delete()
-        return redirect('scoreboard:scoreboard_list')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # AJAX request
+            try:
+                statistik.delete()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Statistik berhasil dihapus!',
+                    'redirect_url': '/scoreboard/'
+                })
+            except Exception as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Terjadi kesalahan: {str(e)}'
+                })
+        else:
+            # Normal form submission
+            statistik.delete()
+            messages.success(request, 'Statistik berhasil dihapus!')
+            return redirect('scoreboard:scoreboard_list')
     
     context = {
         'match': match,

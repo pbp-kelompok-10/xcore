@@ -24,8 +24,10 @@ def highlight_detail(request, match_id):
     return render(request, 'highlight.html', context)
 
 
-# @login_required
 def highlight_create(request, match_id):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to update highlights.")
+    
     match = get_object_or_404(Match, id=match_id)
 
     # Prevent duplicate highlight per match (since OneToOneField)
@@ -49,12 +51,10 @@ def highlight_create(request, match_id):
     return render(request, "highlight_form.html", context)
 
 
-# @login_required
 def highlight_update(request, match_id):
 
-    # Superuser permission check
-    # if not request.user.is_superuser:
-    #     return HttpResponseForbidden("You do not have permission to update highlights.")
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to update highlights.")
     
     match = get_object_or_404(Match, id=match_id)
     highlight = get_object_or_404(Highlight, match=match)
@@ -76,12 +76,11 @@ def highlight_update(request, match_id):
     
     return render(request, 'highlight_form.html', context)
 
-# @login_required
+
 def highlight_delete(request, match_id):
 
-    # Superuser permission check
-    # if not request.user.is_superuser:
-    #     return HttpResponseForbidden("You do not have permission to delete highlights.")
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("You do not have permission to delete highlights.")
     
     match = get_object_or_404(Match, id=match_id)
     highlight = get_object_or_404(Highlight, match=match)
