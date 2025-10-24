@@ -57,51 +57,51 @@
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.pass_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.pass_home }}</div>
           <div class="stat-name">Passes</div>
-          <div class="team-stat">{{ statistik.pass_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.pass_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.shoot_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.shoot_home }}</div>
           <div class="stat-name">Shoot</div>
-          <div class="team-stat">{{ statistik.shoot_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.shoot_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.on_target_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.on_target_home }}</div>
           <div class="stat-name">Shoot on Target</div>
-          <div class="team-stat">{{ statistik.on_target_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.on_target_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.ball_possession_home }}%</div>
+          <div class="team-stat home-stat">{{ statistik.ball_possession_home }}%</div>
           <div class="stat-name">Ball Possession</div>
-          <div class="team-stat">{{ statistik.ball_possession_away }}%</div>
+          <div class="team-stat away-stat">{{ statistik.ball_possession_away }}%</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.red_card_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.red_card_home }}</div>
           <div class="stat-name">Red Card</div>
-          <div class="team-stat">{{ statistik.red_card_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.red_card_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.yellow_card_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.yellow_card_home }}</div>
           <div class="stat-name">Yellow Card</div>
-          <div class="team-stat">{{ statistik.yellow_card_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.yellow_card_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.offside_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.offside_home }}</div>
           <div class="stat-name">Offside</div>
-          <div class="team-stat">{{ statistik.offside_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.offside_away }}</div>
         </div>
 
         <div class="stat-row">
-          <div class="team-stat">{{ statistik.corner_home }}</div>
+          <div class="team-stat home-stat">{{ statistik.corner_home }}</div>
           <div class="stat-name">Corners</div>
-          <div class="team-stat">{{ statistik.corner_away }}</div>
+          <div class="team-stat away-stat">{{ statistik.corner_away }}</div>
         </div>
       </div>
 
@@ -190,7 +190,7 @@
   color: #64748b;
 }
 
-/* Team Statistics */
+/* Team Statistics - FIXED */
 .team-statistics {
   padding: 0 20px 30px;
 }
@@ -203,48 +203,78 @@
   text-align: center;
 }
 
-.stats-table {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 400px;
+.stats-comparison {
+  max-width: 600px;
   margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.stats-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 20px;
+  background: #1e293b;
+  color: white;
+  text-align: center;
+}
+
+.stats-header .team-name {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.stats-header .stat-label {
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .stat-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 15px 20px;
-  background: white;
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
 }
 
-.stat-row:hover {
-  background: #f8fafc;
+.stat-row:last-child {
+  border-bottom: none;
 }
 
 .stat-row:nth-child(even) {
   background: #f8fafc;
 }
 
-.stat-row:nth-child(even):hover {
-  background: #f1f5f9;
+.team-stat {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #1e293b;
+}
+
+.home-stat {
+  text-align: right;
+  padding-right: 20px;
+}
+
+.away-stat {
+  text-align: left;
+  padding-left: 20px;
 }
 
 .stat-name {
   color: #475569;
   font-weight: 500;
   font-size: 0.95em;
+  padding: 0 15px;
 }
 
-.stat-value {
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 1em;
+.stat-row:hover {
+  background: #f1f5f9 !important;
+  transition: background-color 0.2s ease;
 }
 
 /* Action Buttons */
@@ -307,6 +337,7 @@
   gap: 15px;
   justify-content: center;
   align-items: center;
+  margin-top: 20px;
 }
 
 .btn-edit {
@@ -365,6 +396,12 @@
   transform: translateY(-2px);
 }
 
+.no-statistik {
+  text-align: center;
+  padding: 30px;
+  color: #64748b;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .action-buttons {
@@ -376,7 +413,7 @@
     justify-content: center;
   }
   
-  .stats-table {
+  .stats-comparison {
     max-width: 100%;
   }
   
@@ -394,6 +431,22 @@
     flex-direction: column;
     gap: 10px;
   }
+
+  .stats-header {
+    padding: 15px;
+  }
+
+  .stat-row {
+    padding: 12px 15px;
+  }
+
+  .home-stat {
+    padding-right: 10px;
+  }
+
+  .away-stat {
+    padding-left: 10px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -402,7 +455,7 @@
   }
   
   .stat-row {
-    padding: 12px 15px;
+    padding: 10px 12px;
   }
   
   .score-number {
@@ -433,6 +486,19 @@
   .btn-add {
     padding: 8px 16px;
     font-size: 0.85em;
+  }
+
+  .stats-header .team-name {
+    font-size: 1em;
+  }
+
+  .stat-name {
+    font-size: 0.85em;
+    padding: 0 10px;
+  }
+
+  .team-stat {
+    font-size: 1em;
   }
 }
 </style>
