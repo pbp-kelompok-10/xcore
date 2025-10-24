@@ -1,4 +1,3 @@
-<!-- Delete Confirmation Modal -->
 <div id="delete-modal" class="delete-modal hidden">
   <div class="delete-modal-overlay"></div>
   <div class="delete-modal-content">
@@ -33,9 +32,6 @@
 </div>
 
 <style>
-/* ============================================
-   DELETE MODAL STYLES
-   ============================================ */
 
 .delete-modal {
   position: fixed;
@@ -184,7 +180,6 @@
   background: var(--green-light);
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .delete-modal-content {
     padding: 1.5rem;
@@ -267,7 +262,6 @@ function confirmDelete() {
     deleteBtn.disabled = true;
     deleteBtn.textContent = '⏳ Deleting...';
 
-    // Send DELETE request
     fetch(`/prediction/my-votes/delete/${currentVoteId}/`, {
         method: 'POST',
         headers: {
@@ -278,13 +272,10 @@ function confirmDelete() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // Show success message
             showToast('Vote deleted successfully!', 'success');
             
-            // Close modal
             closeDeleteModal();
             
-            // Remove the vote card from DOM with animation
             const voteCard = document.querySelector(`[data-vote-id="${currentVoteId}"]`);
             if (voteCard) {
                 voteCard.style.transition = 'all 0.3s ease';
@@ -294,15 +285,12 @@ function confirmDelete() {
                 setTimeout(() => {
                     voteCard.remove();
                     
-                    // Check if no votes left
                     const votesGrid = document.querySelector('.votes-grid');
                     if (votesGrid && votesGrid.children.length === 0) {
-                        // Show empty state
                         window.location.reload();
                     }
                 }, 300);
             } else {
-                // If can't find card, just reload
                 window.location.reload();
             }
         } else {
@@ -319,7 +307,6 @@ function confirmDelete() {
     });
 }
 
-// Close modal when clicking outside
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('delete-modal');
     if (e.target === modal || e.target.classList.contains('delete-modal-overlay')) {
@@ -327,7 +314,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Close modal with ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeDeleteModal();

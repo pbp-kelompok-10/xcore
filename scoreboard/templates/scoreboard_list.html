@@ -149,6 +149,7 @@
         }
     }
 
+<<<<<<< HEAD
     /* === HEADER & CONTAINER === */
     .container-xcore {
         width: 80%;
@@ -157,6 +158,13 @@
         padding-top: var(--navbar-height);
         padding-bottom: 60px;
         min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+=======
+    .container {
+        width: 90%;
+        max-width: 1000px;
+        margin: 30px auto;
+        position: relative;
+>>>>>>> 3d30af5d81c0fae1a95d59bcb9d6b8e74479e68d
     }
 
     .prediction-header {
@@ -215,7 +223,6 @@
         background: linear-gradient(to bottom, var(--green-normal), var(--green-dark));
     }
 
-    /* === ADD BUTTON === */
     .add-button-container {
         text-align: center;
         margin: 40px 0;
@@ -243,7 +250,6 @@
         box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    /* === MATCH CARDS === */
     .match-link {
         text-decoration: none;
         color: inherit;
@@ -397,7 +403,6 @@
         100% { opacity: 1; }
     }
 
-    /* === FORUM BUTTON === */
     .forum-button {
         display: inline-flex;
         align-items: center;
@@ -422,7 +427,6 @@
         box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
     }
 
-    /* === NO MATCHES === */
     .no-matches {
         text-align: center;
         padding: 60px 40px;
@@ -447,7 +451,6 @@
         font-size: 1.5rem;
     }
 
-    /* === RESPONSIVE === */
     @media (max-width: 768px) {
         .container-xcore {
             width: 90%;
@@ -542,7 +545,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Minimal Football Background Elements -->
 <div class="football-elements">
     <div class="field-pattern"></div>
     <div class="football-element element-1 hexagon"></div>

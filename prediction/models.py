@@ -32,11 +32,10 @@ class Prediction(models.Model):
         total = self.total_votes
         return (self.votes_away_team / total * 100) if total > 0 else 0
     
-    # TAMBAHIN INI - Check apakah voting masih bisa (deadline 2 jam sebelum match)
     def is_voting_open(self):
         """Check apakah voting masih bisa dilakukan"""
         now = timezone.now()
-        match_time = self.match.match_date  # Asumsi ini DateTime field
+        match_time = self.match.match_date 
         deadline = match_time - timezone.timedelta(hours=2)
         return now < deadline
 

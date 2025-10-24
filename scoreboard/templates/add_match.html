@@ -35,7 +35,6 @@
       min-height: 100vh;
     }
 
-    /* Toast Notification */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -106,7 +105,6 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Simple background pattern */
     .field-pattern {
       position: fixed;
       top: 0;
@@ -217,7 +215,6 @@
       background-color: #e6f5f2;
     }
 
-    /* Error states */
     .form-group.error input,
     .form-group.error select {
       border-color: var(--error-color);
@@ -433,7 +430,6 @@
       </div>
       {% endif %}
 
-      <!-- Check for success message from Django -->
       {% if messages %}
         {% for message in messages %}
           {% if message.tags == 'success' %}
@@ -537,12 +533,10 @@
       
       toastContainer.appendChild(toast);
       
-      // Show toast with animation
       setTimeout(() => {
         toast.classList.add('show');
       }, 100);
       
-      // Auto hide after 5 seconds
       setTimeout(() => {
         hideToast(toastId);
       }, 5000);
@@ -554,31 +548,26 @@
         toast.classList.remove('show');
         toast.classList.add('hide');
         
-        // Remove from DOM after animation
         setTimeout(() => {
           toast.remove();
         }, 400);
       }
     }
     
-    // Show success toast after form submission if URL has success parameter
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('success') === 'true') {
         showToast('Berhasil!', 'Pertandingan berhasil ditambahkan', 'success');
         
-        // Remove success parameter from URL without reloading
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
     });
 
-    // Form validation and handling
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('matchForm');
       const submitButton = document.getElementById('submitButton');
       
-      // Field validation functions
       const validators = {
         home_team_code: (value) => {
           if (!value) return 'Pilih negara tuan rumah';
@@ -632,7 +621,6 @@
         }
       };
       
-      // Real-time validation for each field
       Object.keys(validators).forEach(fieldName => {
         const field = document.getElementById('id_' + fieldName);
         const errorElement = document.getElementById(fieldName + 'Error');
@@ -641,7 +629,6 @@
         if (field) {
           field.addEventListener('blur', () => validateField(fieldName));
           field.addEventListener('input', () => {
-            // Clear error when user starts typing/selecting
             if (groupElement.classList.contains('error')) {
               const error = validators[fieldName](field.value);
               if (!error) {
@@ -712,7 +699,6 @@
       }
       
       form.addEventListener('submit', function(e) {
-        // Validate all fields before submission untuk UX
         let hasErrors = false;
         
         Object.keys(validators).forEach(fieldName => {
@@ -735,7 +721,6 @@
           return false;
         }
         
-        // Jika semua valid, biarkan form submit normal
         return true;
       });
       

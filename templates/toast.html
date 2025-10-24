@@ -1,6 +1,5 @@
 {% load static %}
 <style>
-/* === Toast Base Styles === */
 #toast-component {
   position: fixed;
   bottom: 24px;
@@ -21,18 +20,16 @@
 
   opacity: 0;
   transform: translateY(40px) scale(0.95);
-  pointer-events: none;                /* not clickable when hidden */
+  pointer-events: none;               
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* === Visible State === */
 #toast-component.show {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
-/* === Typography === */
 #toast-title {
   margin: 0;
   font-weight: 600;

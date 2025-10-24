@@ -33,7 +33,6 @@ def highlight_create(request, match_id):
 
     match = get_object_or_404(Match, id=match_id)
 
-    # Prevent duplicate highlight for the same match
     if hasattr(match, "highlight"):
         messages.warning(request, "Highlight untuk pertandingan ini sudah ada.")
         return redirect("highlights:match_highlights", match_id=match.id)

@@ -3,7 +3,6 @@ from .views import landing_home, register, login_user, logout_user, profile
 
 app_name = 'landingpage'
 
-
 urlpatterns = [
     path('', landing_home, name='home'),
     path('register/', register, name='register'),

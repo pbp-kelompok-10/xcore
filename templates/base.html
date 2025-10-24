@@ -19,7 +19,6 @@
     {% include 'components/footer.html' %}
     {% include 'toast.html' %}
 
-    <!-- Django Messages as Toasts -->
     <div id="django-messages"
          data-messages='[
             {% for message in messages %}
@@ -29,7 +28,6 @@
          style="display: none;">
     </div>
 
-    <!-- Script to Show Toasts -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const messagesEl = document.getElementById("django-messages");
