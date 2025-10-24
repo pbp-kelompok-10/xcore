@@ -1,11 +1,13 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import Forum, Post
 from .forms import PostForm, ForumForm
 from scoreboard.models import Match
 import uuid
+
+User = get_user_model()
 from datetime import datetime, timedelta
 
 class ForumTestCase(TestCase):

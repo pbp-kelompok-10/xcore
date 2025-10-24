@@ -16,6 +16,7 @@ from django.forms import modelform_factory
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django import forms
+from django.shortcuts import get_object_or_404
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict access to superusers only."""
     def test_func(self):
@@ -281,7 +282,7 @@ class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
     def post(self, request, *args, **kwargs):
         match = Match.objects.get(pk=self.kwargs['match_id'])
         Lineup.objects.filter(match=match).delete()
-        return redirect(reverse_lazy('lineup:lineup-list'))
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

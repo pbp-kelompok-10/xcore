@@ -135,6 +135,7 @@ def update_vote(request, vote_id):
 
 
 @login_required
+@require_post
 def delete_vote(request, vote_id):
     """DELETE - User hapus vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
@@ -176,9 +177,3 @@ def delete_vote(request, vote_id):
         # Fallback for regular form submission
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
-    
-    # GET request - show confirmation page (fallback)
-    context = {
-        'vote': vote
-    }
-    return render(request, 'delete_vote.html', context)
