@@ -572,7 +572,7 @@
 
             {% for match in matches %}
                 {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' %}'">
+                    <div class="match-link" onclick="window.location.href='{% url 'prediction:list' %}'">
                 {% elif match.statistics.all %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
                 {% else %}
