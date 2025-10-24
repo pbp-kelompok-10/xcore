@@ -89,7 +89,7 @@ body {
 .navbar-container {
     display: flex;
     align-items: center;
-    padding: 1rem 2rem; /* Ubah dari 12px 20px jadi 1rem 2rem biar lebih tinggi dan lebar */
+    padding: 1rem 4rem; /* Ubah dari 12px 20px jadi 1rem 2rem biar lebih tinggi dan lebar */
     gap: 2rem; /* Ubah dari 15px jadi 2rem biar spacing lebih lebar */
     max-width: 100%; /* Pastikan full width */
     margin: 0 auto;
