@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
+  {% include 'components/navbar.html' %}
+{% include 'components/footer.html' %}
 <div class="page">
   <!-- Navigation Buttons -->
   <div class="action-buttons">
     <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
     <div class="feature-buttons">
-      <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">💬 Forum</a>
-      <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">🎥 Highlight</a>
-      <a href="/prediction/" class="btn btn-feature">⚽ Prediction</a>
+      <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">💬 Forum</a>
+      <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn btn-feature">🎥 Highlight</a>
+      <a href="{% url 'prediction:list' %}" class="btn btn-feature">⚽ Prediction</a>
       <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">👥 Lineup</a>
     </div>
   </div>
@@ -47,52 +49,68 @@
 
   <!-- Team Statistics -->
   <div class="team-statistics">
-    <h3>Team Statistic</h3>
+    <h3>Team Statistics</h3>
     
     {% if statistik %}
-      <div class="stats-table">
+      <div class="stats-comparison">
+        <!-- HEADER -->
+        <div class="stats-header">
+            <div class="team-name">{{ match.home_team }}</div>
+            <div class="stat-label">Statistic</div>
+            <div class="team-name">{{ match.away_team }}</div>
+        </div>
+        
+        <!-- STATS ROWS -->
         <div class="stat-row">
-          <div class="stat-name">Passes</div>
-          <div class="stat-value">{{ statistik.pass_home }}</div>
+            <div class="team-stat">{{ statistik.pass_home }}</div>
+            <div class="stat-name">Passes</div>
+            <div class="team-stat">{{ statistik.pass_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Shoot</div>
-          <div class="stat-value">{{ statistik.shoot_home }}</div>
+            <div class="team-stat">{{ statistik.shoot_home }}</div>
+            <div class="stat-name">Shoot</div>
+            <div class="team-stat">{{ statistik.shoot_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Shoot on Target</div>
-          <div class="stat-value">{{ statistik.on_target_home }}</div>
+            <div class="team-stat">{{ statistik.on_target_home }}</div>
+            <div class="stat-name">Shoot on Target</div>
+            <div class="team-stat">{{ statistik.on_target_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Ball Possession</div>
-          <div class="stat-value">{{ statistik.ball_possession_home }}%</div>
+            <div class="team-stat">{{ statistik.ball_possession_home }}%</div>
+            <div class="stat-name">Ball Possession</div>
+            <div class="team-stat">{{ statistik.ball_possession_away }}%</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Red Card</div>
-          <div class="stat-value">{{ statistik.red_card_home }}</div>
+            <div class="team-stat">{{ statistik.red_card_home }}</div>
+            <div class="stat-name">Red Card</div>
+            <div class="team-stat">{{ statistik.red_card_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Yellow Card</div>
-          <div class="stat-value">{{ statistik.yellow_card_home }}</div>
+            <div class="team-stat">{{ statistik.yellow_card_home }}</div>
+            <div class="stat-name">Yellow Card</div>
+            <div class="team-stat">{{ statistik.yellow_card_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Offside</div>
-          <div class="stat-value">{{ statistik.offside_home }}</div>
+            <div class="team-stat">{{ statistik.offside_home }}</div>
+            <div class="stat-name">Offside</div>
+            <div class="team-stat">{{ statistik.offside_away }}</div>
         </div>
         
         <div class="stat-row">
-          <div class="stat-name">Corners</div>
-          <div class="stat-value">{{ statistik.corner_home }}</div>
+            <div class="team-stat">{{ statistik.corner_home }}</div>
+            <div class="stat-name">Corners</div>
+            <div class="team-stat">{{ statistik.corner_away }}</div>
         </div>
       </div>
 
-      <!-- ✅ TOMBOL EDIT & DELETE DI BAWAH STATISTIK -->
+      <!-- TOMBOL EDIT & DELETE -->
       <div class="crud-buttons" style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
         <a href="{% url 'statistik:update_statistik' match.id %}" class="btn-edit">✏️ Edit Statistik</a>
         <a href="{% url 'statistik:delete_statistik' match.id %}" class="btn-delete">🗑️ Hapus Statistik</a>
@@ -189,20 +207,43 @@
   text-align: center;
 }
 
-.stats-table {
+/* STATISTICS COMPARISON LAYOUT */
+.stats-comparison {
   display: flex;
   flex-direction: column;
   gap: 1px;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  max-width: 400px;
+  max-width: 600px;
   margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stats-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 20px;
+  background: #1e293b;
+  color: white;
+  font-weight: 600;
+}
+
+.team-name {
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.stat-label {
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.9em;
 }
 
 .stat-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 15px 20px;
   background: white;
@@ -221,16 +262,19 @@
   background: #f1f5f9;
 }
 
+.team-stat {
+  text-align: center;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
 .stat-name {
+  text-align: center;
   color: #475569;
   font-weight: 500;
   font-size: 0.95em;
-}
-
-.stat-value {
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 1em;
+  padding: 0 15px;
 }
 
 /* Action Buttons */
@@ -287,7 +331,7 @@
   transform: translateY(-2px);
 }
 
-/* ✅ TOMBOL CRUD DI BAWAH - SIMPLE & CLEAN */
+/* TOMBOL CRUD */
 .crud-buttons {
   display: flex;
   gap: 15px;
@@ -362,7 +406,7 @@
     justify-content: center;
   }
   
-  .stats-table {
+  .stats-comparison {
     max-width: 100%;
   }
   
@@ -380,15 +424,32 @@
     flex-direction: column;
     gap: 10px;
   }
+
+  .stats-header {
+    padding: 15px;
+  }
+
+  .stat-row {
+    padding: 12px 15px;
+  }
+
+  .team-name {
+    font-size: 1em;
+  }
+
+  .team-stat {
+    font-size: 1em;
+  }
+
+  .stat-name {
+    font-size: 0.9em;
+    padding: 0 10px;
+  }
 }
 
 @media (max-width: 480px) {
   .match-header h1 {
     font-size: 1.8em;
-  }
-  
-  .stat-row {
-    padding: 12px 15px;
   }
   
   .score-number {
@@ -419,6 +480,23 @@
   .btn-add {
     padding: 8px 16px;
     font-size: 0.85em;
+  }
+
+  .stats-header {
+    padding: 12px 10px;
+  }
+
+  .stat-row {
+    padding: 10px 12px;
+  }
+
+  .team-stat {
+    font-size: 0.95em;
+  }
+
+  .stat-name {
+    font-size: 0.85em;
+    padding: 0 8px;
   }
 }
 </style>

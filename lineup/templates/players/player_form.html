@@ -104,6 +104,8 @@
   </style>
 </head>
 <body>
+  {% include 'components/navbar.html' %}
+{% include 'components/footer.html' %}
   <div class="form-container">
     <h1>{{ view.object|default:"New Player" }}</h1>
 
@@ -112,7 +114,13 @@
       {{ form.as_p }}
       <div class="actions">
         <button type="submit">💾 Save</button>
-        <a href="{% url 'lineup:player-detail' player.id %}" class="btn-cancel">← Cancel</a>
+        {% if view.object %}
+          <!-- Editing an existing player -->
+          <a href="{% url 'lineup:player-detail' view.object.id %}" class="btn-cancel">← Cancel</a>
+        {% else %}
+          <!-- Creating a new player -->
+          <a href="{% url 'lineup:player-list' %}" class="btn-cancel">← Cancel</a>
+        {% endif %}
       </div>
     </form>
   </div>

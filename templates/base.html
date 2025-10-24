@@ -160,23 +160,10 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="menu-icon">☰</div>
-        <a href="{% url 'scoreboard:scoreboard_list' %}" class="navbar-brand">Xcore</a>
-        <div class="search-bar">
-            <input type="text" placeholder="Cari pertandingan, tim, atau tanggal...">
-        </div>
-        <div class="user-icon">
-            <i class="fas fa-user-circle"></i>
-        </div>
-    </nav>
-
     {% block content %}
     {% endblock %}
     {% include 'toast.html' %}
 
-    <!-- Toast Component -->
     <div id="toast-component">
         <div style="flex: 1;">
             <h3 id="toast-title"></h3>

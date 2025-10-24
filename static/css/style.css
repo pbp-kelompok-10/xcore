@@ -60,7 +60,8 @@ body {
     padding-top: var(--navbar-height); /* Supaya ga ketutupan navbar fixed */
     min-height: 100vh;
     display: flex;          
-    flex-direction: column;  
+    flex-direction: column;
+    margin-bottom: 48px;   
 }
 
 /* Background Gradient Utilities */
@@ -78,10 +79,11 @@ body {
 .navbar-xcore {
     background: linear-gradient(90deg, var(--green-darker), var(--green-light-active), var(--green-normal));
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed; 
     top: 0;
-    z-index: 100;
+    left: 0;
     width: 100%;
+    z-index: 1000; 
 }
 
 .navbar-container {
@@ -577,20 +579,25 @@ h3 {
     background: var(--blue-dark-hover);
 }
 
-footer{
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    margin-top: auto;
     background: var(--green-dark);
     color: var(--white-light);
-    padding: 48px;
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    font-size: 16px;
+    padding: 8px 16px;
+    font-size: 13px;
     font-weight: 500;
-    line-height: normal;
+    line-height: 1.4;
+    text-align: center;
+    z-index: 100;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);      
 }
 
-.row{
+
+.row {
     width: 85%;
     margin: auto;
     display: flex;
