@@ -1,299 +1,380 @@
 {% extends 'base.html' %}
-{% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Teams</title>
-  <style>
+{% block title %}Teams - Xcore{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --green-light: #eef8f6;
+        --green-normal: #56bda9;
+        --green-dark: #418e7f;
+        --green-darker: #1e423b;
+        --white-light: #ffffff;
+        --white-normal: #fcfdfd;
+        --white-dark: #f9fafb;
+        --blue-normal: #546881;
+        --blue-dark: #1d242d;
+        --navbar-height: 64px;
+    }
 
     .page {
-      max-width: 800px;
-      margin: 0 auto;
-      background: var(-);
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        width: 80%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: var(--navbar-height);
+        padding-bottom: 60px;
+        font-family: 'Poppins', sans-serif;
+        animation: fade-in 0.5s ease-in;
+        min-height: 100vh;
     }
 
     h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #3F6E7F;
-      text-align: center;
+        font-size: 2.5rem;
+        color: var(--green-darker);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-align: center;
     }
 
     .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      gap: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+        animation: fade-in 0.5s ease-in;
     }
 
     .btn {
-      display: inline-block;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background-color 0.2s, transform 0.15s;
-      border: none;
-      cursor: pointer;
-      font-size: 0.95rem;
-      color: white;
+        display: inline-block;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        color: var(--white-light);
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        border: none;
     }
 
     .btn:hover {
-      transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
     }
 
     .btn-add {
-      background-color: #56BDA9;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
     }
 
     .btn-add:hover {
-      background-color: #48a692;
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal));
     }
 
     .btn-upload {
-      background-color: #2563eb;
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
     }
 
     .btn-upload:hover {
-      background-color: #1e40af;
+        background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal));
     }
 
     .btn-back {
-      background-color: #3F6E7F;
+        background: linear-gradient(135deg, var(--green-darker), var(--blue-dark));
     }
 
     .btn-back:hover {
-      background-color: #2d5566;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    li {
-      background: #f8fafc;
-      padding: 18px 20px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s, transform 0.15s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    li:hover {
-      background: #f1f5f9;
-      transform: translateY(-1px);
-    }
-
-    li a.card-link {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-    }
-
-    .team-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 2;
-    }
-
-    .team-name {
-      font-weight: 600;
-      color: #1e293b;
-      font-size: 1.05rem;
-    }
-
-    .team-actions {
-      display: flex;
-      gap: 8px;
-      z-index: 2;
+        background: linear-gradient(135deg, var(--blue-dark), var(--green-darker));
     }
 
     .btn-edit {
-      background-color: #2563eb;
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
     }
 
     .btn-edit:hover {
-      background-color: #1e40af;
+        background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal));
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        background: var(--white-light);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        animation: fade-in 0.5s ease-in;
+    }
+
+    li:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    li a.card-link {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .team-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 2;
+    }
+
+    .team-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--green-darker);
+    }
+
+    .team-actions {
+        display: flex;
+        gap: 8px;
+        z-index: 2;
     }
 
     .empty {
-      text-align: center;
-      color: #64748b;
-      margin-top: 40px;
-      font-style: italic;
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--blue-normal);
+        font-size: 1.2rem;
+        background: var(--white-light);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin: 2rem 0;
+        animation: fade-in 0.5s ease-in;
     }
 
-    /* --- Upload Modal --- */
     #uploadModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fade-in 0.3s ease-in;
     }
 
     .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 400px;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        background: var(--white-light);
+        padding: 2rem;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        font-family: 'Poppins', sans-serif;
+        animation: fade-in 0.5s ease-in;
+    }
+
+    .modal-content h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 1rem;
     }
 
     .modal-content input[type="file"] {
-      display: block;
-      margin: 15px auto;
+        display: block;
+        margin: 1rem auto;
+        color: var(--blue-dark);
     }
 
     .modal-content button {
-      background: #56BDA9;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.2s;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
     }
 
     .modal-content button:hover {
-      background: #48a692;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
     .close-btn {
-      background: #ef4444;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
     }
 
     .close-btn:hover {
-      background: #dc2626;
+        background: linear-gradient(135deg, #dc2626, #ef4444);
     }
 
     #uploadStatus {
-      margin-top: 10px;
-      color: #64748b;
-      font-size: 0.9rem;
+        margin-top: 1rem;
+        color: var(--blue-normal);
+        font-size: 0.9rem;
     }
-  </style>
-</head>
 
-<body>
-  
-  <div class="page">
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .page {
+            width: 90%;
+            padding: var(--navbar-height) 1rem 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        li {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+
+        .team-actions {
+            margin-top: 0.5rem;
+        }
+
+        .modal-content {
+            padding: 1.5rem;
+        }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+        }
+
+        .modal-content button {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page">
     <h1>Teams</h1>
 
     <div class="actions">
-      {% if request.user.is_admin %}
+        {% if request.user.is_admin %}
         <div style="display: flex; gap: 10px;">
-          <a href="{% url 'lineup:team-create' %}" class="btn btn-add">+ Add New Team</a>
-          <button class="btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
+            <a href="{% url 'lineup:team-create' %}" class="btn btn-add">+ Add New Team</a>
+            <button class="btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
         </div>
-      {% endif %}
-      <a href="/" class="btn btn-back">← Back</a>
+        {% endif %}
+        <a href="/" class="btn btn-back">← Back</a>
     </div>
 
     {% if teams %}
-      <ul>
+    <ul>
         {% for team in teams %}
         <li>
-          <a href="{% url 'lineup:team-detail' team.pk %}" class="card-link" aria-label="Open team details"></a>
-          <div class="team-info">
-            <div class="team-name">{{ team.name }}</div>
-          </div>
-          {% if request.user.is_admin %}
-          <div class="team-actions">
-            <a href="{% url 'lineup:team-update' team.pk %}" class="btn btn-edit">Edit</a>
-          </div>
-          {% endif %}
+            <a href="{% url 'lineup:team-detail' team.pk %}" class="card-link" aria-label="Open team details"></a>
+            <div class="team-info">
+                <div class="team-name">{{ team.name }}</div>
+            </div>
+            {% if request.user.is_admin %}
+            <div class="team-actions">
+                <a href="{% url 'lineup:team-update' team.pk %}" class="btn btn-edit">Edit</a>
+            </div>
+            {% endif %}
         </li>
         {% endfor %}
-      </ul>
+    </ul>
     {% else %}
-      <p class="empty">No teams found.</p>
+    <p class="empty">No teams found.</p>
     {% endif %}
-  </div>
+</div>
 
-  <!-- Upload Modal -->
-  <div id="uploadModal">
+<!-- Upload Modal -->
+<div id="uploadModal">
     <div class="modal-content">
-      <h2>Upload Teams (ZIP)</h2>
-      <form id="uploadForm" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" id="zipFile" name="file" accept=".zip" required>
-        <div>
-          <button type="submit">Upload</button>
-          <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
-        </div>
-      </form>
-      <p id="uploadStatus"></p>
+        <h2>Upload Teams (ZIP)</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="zipFile" name="file" accept=".zip" required>
+            <div>
+                <button type="submit">Upload</button>
+                <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+        <p id="uploadStatus"></p>
     </div>
-  </div>
+</div>
+{% endblock %}
 
-  <script>
+{% block extra_js %}
+<script>
     // --- Modal handlers ---
     function openModal() {
-      document.getElementById("uploadModal").style.display = "flex";
+        document.getElementById("uploadModal").style.display = "flex";
     }
 
     function closeModal() {
-      document.getElementById("uploadModal").style.display = "none";
-      document.getElementById("uploadStatus").textContent = "";
+        document.getElementById("uploadModal").style.display = "none";
+        document.getElementById("uploadStatus").textContent = "";
     }
 
     // --- Handle upload via AJAX ---
     document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById("zipFile");
-      const status = document.getElementById("uploadStatus");
+        e.preventDefault();
+        const fileInput = document.getElementById("zipFile");
+        const status = document.getElementById("uploadStatus");
 
-      if (!fileInput.files.length) {
-        status.textContent = "Please select a ZIP file first.";
-        return;
-      }
+        if (!fileInput.files.length) {
+            status.textContent = "Please select a ZIP file first.";
+            return;
+        }
 
-      const formData = new FormData();
-      formData.append("file", fileInput.files[0]);
-      status.textContent = "Uploading...";
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        status.textContent = "Uploading...";
 
-      const response = await fetch("{% url 'lineup:upload-teams' %}", {
-        method: "POST",
-        body: formData,
-      });
+        const response = await fetch("{% url 'lineup:upload-teams' %}", {
+            method: "POST",
+            body: formData,
+        });
 
-      const result = await response.json();
-      if (result.status === "ok") {
-        status.style.color = "green";
-        status.textContent = `✅ Uploaded ${result.created.length} new teams. Skipped ${result.skipped.length}.`;
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        status.style.color = "red";
-        status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
-      }
+        const result = await response.json();
+        if (result.status === "ok") {
+            status.style.color = "green";
+            status.textContent = `✅ Uploaded ${result.created.length} new teams. Skipped ${result.skipped.length}.`;
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            status.style.color = "red";
+            status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
+        }
     });
-  </script>
-</body>
-</html>
-
+</script>
 {% endblock %}

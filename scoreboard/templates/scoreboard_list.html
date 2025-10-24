@@ -5,7 +5,6 @@
 {% block extra_css %}
 <style>
     :root {
-        /* Menggunakan Xcore Brand Colors */
         --green-light: #eef8f6;
         --green-normal: #56bda9;
         --green-dark: #418e7f;
@@ -28,50 +27,48 @@
         min-height: 100vh;
     }
 
-    /* Container */
     .container {
         width: 80%;
-        max-width: none;
-        margin: 24px auto;
-        padding-top: calc(var(--navbar-height));
-        padding-bottom: calc(var(--navbar-height) + 20px);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--navbar-height) 1rem 60px;
+        box-sizing: border-box;
+        animation: fade-in 0.5s ease-in;
+        min-height: 100vh;
     }
 
-    /* Date Section Wrapper */
     .date-section-wrapper {
         background: var(--white-light);
-        border-radius: 12px;
+        border-radius: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-bottom: 20px;
-        padding: 20px;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        animation: fade-in 0.5s ease-in;
     }
 
-    /* Date Section */
     .date-section {
-        margin: 0 0 15px;
+        margin: 0 0 1rem;
     }
 
-    /* Date Header Container */
     .date-header-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 1rem;
     }
 
     .date-header {
         text-align: left;
-        color: var(--white-dark);
+        color: var(--green-darker);
         font-weight: 600;
-        font-size: 18px;
-        background-color: var(--green-dark);
-        padding: 12px 24px;
-        border-radius: 8px;
+        font-size: 1.8rem;
+        background-color: var(--white-normal);
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        wi
+        flex: 1;
     }
 
-    /* Match Card */
     .match-link {
         text-decoration: none;
         color: inherit;
@@ -79,24 +76,25 @@
     }
 
     .match-link:hover .match-card {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 
     .match-card {
-        background: var(--green-light);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 15px;
-        padding: 18px 25px;
+        background: var(--white-normal);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1rem;
+        padding: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: all 0.3s ease;
+        animation: fade-in 0.5s ease-in;
     }
 
     .match-card:hover {
-        background-color: var(--green-light-hover);
+        background-color: var(--white-dark);
     }
 
     .team {
@@ -115,9 +113,9 @@
     }
 
     .team-name {
-        font-weight: 600;
-        font-size: 16px;
-        color: var(--blue-dark);
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--green-darker);
     }
 
     .score-section {
@@ -126,116 +124,128 @@
     }
 
     .score {
-        font-size: 24px;
-        font-weight: bold;
+        font-size: 2rem;
+        font-weight: 700;
         color: var(--green-darker);
-        margin-bottom: 5px;
+        margin-bottom: 0.5rem;
     }
 
     .ft {
-        font-size: 12px;
+        font-size: 0.85rem;
         color: var(--blue-normal);
-        margin: 0 5px;
+        margin: 0 0.5rem;
     }
 
     .match-info {
-        font-size: 13px;
+        font-size: 0.9rem;
         color: var(--blue-normal);
-        margin-top: 5px;
+        margin-top: 0.5rem;
     }
 
     .status-upcoming {
         display: inline-block;
-        background-color: #e67e22; /* biru */
-        color: white;
+        background-color: #e67e22;
+        color: var(--white-light);
         font-weight: 600;
-        font-size: 12px;
-        padding: 4px 10px; /* kasih ruang biar kayak badge */
-        border-radius: 8px; /* sudut tumpul */
-        margin: 8px 0;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 16px;
+        margin: 0.5rem 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .status-live {
         display: inline-block;
-        background-color: #e74c3c; 
-        color: white;
+        background-color: #e74c3c;
+        color: var(--white-light);
         font-weight: 600;
-        font-size: 12px;
-        padding: 4px 10px; /* kasih ruang biar kayak badge */
-        border-radius: 8px; /* sudut tumpul */
-        margin: 8px 0;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 16px;
+        margin: 0.5rem 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        animation: pulse 2s infinite;
     }
-
 
     .status-finished {
         display: inline-block;
-        background-color: #007bff; /* biru */
-        color: white;
+        background-color: #27ae60;
+        color: var(--white-light);
         font-weight: 600;
-        font-size: 12px;
-        padding: 4px 10px; /* kasih ruang biar kayak badge */
-        border-radius: 8px; /* sudut tumpul */
-        margin: 8px 0;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 16px;
+        margin: 0.5rem 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-
-    /* Add Button */
     .add-button {
         display: block;
         width: 220px;
-        margin: 25px auto;
-        padding: 12px;
-        background-color: var(--green-normal);
+        margin: 2rem auto;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
         color: var(--white-light);
         text-decoration: none;
         text-align: center;
         border-radius: 8px;
         font-weight: 600;
-        transition: background-color 0.3s, transform 0.2s;   
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .add-button:hover {
-        background-color: var(--green-dark);
         transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    /* Forum Button */
     .feature-button {
-        color: var(--white-dark);
+        color: var(--white-light);
         font-weight: 600;
         text-decoration: none;
-        font-size: 14px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: color 0.3s, background-color 0.3s;
-        background-color: var(--green-dark);
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .feature-button:hover {
-        color: var(--green-dark);
-        background-color: var(--green-light);
-        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(84, 104, 129, 0.4);
     }
 
-    /* No Matches */
     .no-matches {
         text-align: center;
-        padding: 40px;
+        padding: 4rem 2rem;
         color: var(--blue-normal);
-        font-style: italic;
+        font-size: 1.2rem;
         background: var(--white-light);
-        border-radius: 12px;
+        border-radius: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin: 20px 0;
+        margin: 2rem 0;
+        animation: fade-in 0.5s ease-in;
     }
 
-    /* Responsive */
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
     @media (max-width: 768px) {
+        .container {
+            width: 90%;
+            padding: var(--navbar-height) 1rem 2rem;
+        }
+
         .date-section-wrapper {
-            padding: 15px;
+            padding: 1rem;
         }
 
         .date-header-container {
@@ -246,28 +256,32 @@
         .date-header {
             width: 100%;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            padding: 0.75rem;
         }
 
         .feature-button {
             align-self: flex-end;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
         }
 
         .match-card {
             flex-direction: column;
-            padding: 15px;
+            padding: 1rem;
         }
 
         .team {
             width: 100%;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
         }
 
         .score-section {
             width: 100%;
             order: -1;
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
         }
 
         .team:last-child {
@@ -278,12 +292,31 @@
             width: 32px;
             height: 32px;
         }
+
+        .team-name {
+            font-size: 1rem;
+        }
+
+        .score {
+            font-size: 1.8rem;
+        }
+
+        .status-upcoming,
+        .status-live,
+        .status-finished {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .add-button {
+            width: 100%;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container px-6 lg:px-8">
+<div class="container">
     <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
 
     {% if matches_by_date %}
