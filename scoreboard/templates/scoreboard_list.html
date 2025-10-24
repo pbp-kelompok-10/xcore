@@ -596,12 +596,15 @@
         <p class="page-subtitle">Live Football Scores & Statistics</p>
     </div>
 
+    <!-- Hanya tampilkan tombol tambah jika user adalah admin -->
+    {% if user.is_authenticated and user.is_admin %}
     <div class="add-button-container">
         <a href="{% url 'scoreboard:add_match' %}" class="add-button">
             <span>➕</span>
             <span>Tambah Pertandingan Baru</span>
         </a>
     </div>
+    {% endif %}
 
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
@@ -617,7 +620,10 @@
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
                 {% endif %}
                         <div class="match-card">
+                            <!-- Hanya tampilkan tombol edit jika user adalah admin -->
+                            {% if user.is_authenticated and user.is_admin %}
                             <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit</a>
+                            {% endif %}
 
                             <div class="team">
                                 <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
