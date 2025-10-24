@@ -1,13 +1,255 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Xcore{% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="container-xcore">
-        <div class="hero-content">
-            <h1>Welcome to Xcore!</h1>
-            <p class="hero-tagline">{{ tagline|default:"Web scoring break on-yyyyyy" }}</p>
-            <a href="#" class="cta-button">Get Started</a>
-        </div>
+<div class="container-xcore">
+  <!-- Hero Section -->
+  <div class="prediction-header fade-in text-center">
+    <h1 class="prediction-title">Welcome to Xcore</h1>
+    <p class="prediction-subtitle">Your ultimate platform for sports predictions and team exploration!</p>
+    <div class="hero-cta">
+      {% if user.is_authenticated %}
+        <a href="{% url 'prediction:list' %}" class="tab-btn btn-cta">Start Predicting Now</a>
+      {% else %}
+        <a href="{% url 'landingpage:login' %}" class="tab-btn btn-cta">Join Now</a>
+      {% endif %}
     </div>
-</section>
+  </div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Features Section -->
+    <div class="features-section fade-in">
+      <h2 class="section-title">Why Choose Xcore?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3 class="feature-title">Predict Matches</h3>
+          <p class="feature-description">Vote for your favorite teams and see how your predictions stack up!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3 class="feature-title">Explore Teams</h3>
+          <p class="feature-description">Discover players and teams from around the world with detailed profiles.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">Track Your Votes</h3>
+          <p class="feature-description">Monitor your predictions and compete with others in real-time.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section fade-in text-center">
+      <h2 class="section-title">Ready to Dive In?</h2>
+      <p class="section-subtitle">Join the Xcore community and start making your predictions today!</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'prediction:list' %}" class="tab-btn btn-cta">Go to Prediction Center</a>
+      {% else %}
+        <a href="{% url 'landingpage:signup' %}" class="tab-btn btn-cta">Sign Up Now</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+/* ============================================
+   LANDING PAGE STYLES (Aligned with Prediction Center and Players List)
+   ============================================ */
+
+:root {
+  --green-light: #eef8f6;
+  --green-normal: #56bda9;
+  --green-dark: #418e7f;
+  --green-darker: #1e423b;
+  --white-light: #ffffff;
+  --white-normal: #fcfdfd;
+  --white-dark: #f9fafb;
+  --blue-normal: #546881;
+  --blue-dark: #1d242d;
+  --navbar-height: 64px;
+  --footer-height: 60px;
+}
+
+.container-xcore {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: var(--navbar-height);
+  padding-bottom: 60px;
+  font-family: 'Poppins', sans-serif;
+  min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+}
+
+.prediction-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 3rem 0 2rem 0;
+}
+
+.prediction-title {
+  font-size: 2.5rem;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.prediction-subtitle {
+  color: var(--blue-normal);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-cta {
+  margin-top: 1rem;
+}
+
+.tab-btn.btn-cta {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.tab-btn.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+}
+
+.content-wrapper {
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.features-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: var(--green-darker);
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--green-normal);
+  padding-left: 1rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: var(--white-normal);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+}
+
+.feature-description {
+  font-size: 0.9rem;
+  color: var(--blue-normal);
+}
+
+.cta-section {
+  padding: 2rem;
+  background: var(--green-light);
+  border-radius: 12px;
+}
+
+.section-subtitle {
+  color: var(--blue-normal);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .container-xcore {
+    width: 90%;
+    padding: var(--navbar-height) 1rem 2rem;
+  }
+
+  .prediction-title {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-card {
+    padding: 1rem;
+  }
+
+  .tab-btn.btn-cta {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .cta-section {
+    padding: 1.5rem;
+  }
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any JavaScript if needed (e.g., for interactivity)
+document.addEventListener("DOMContentLoaded", function() {
+  // Optional: Add scroll animations or other effects
+});
+</script>
+
 {% endblock %}
