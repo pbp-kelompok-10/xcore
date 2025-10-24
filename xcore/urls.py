@@ -6,7 +6,6 @@ urlpatterns = [
     path('statistik/', include('statistik.urls')),
     path('scoreboard/', include('scoreboard.urls')),
     path('prediction/', include('prediction.urls')),
-    path('statistik/', include('statistik.urls')),
     path('lineup/', include('lineup.urls')),
     path('highlight/', include('highlights.urls', namespace='highlight')),
     path('', include('landingpage.urls')),

@@ -1,22 +1,40 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+<<<<<<< HEAD
 from django.contrib.auth import get_user_model
+=======
+from django.contrib.auth.models import User
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
 from django.utils import timezone
 from .models import Forum, Post
 from .forms import PostForm, ForumForm
 from scoreboard.models import Match
 import uuid
+<<<<<<< HEAD
 
 User = get_user_model()
 from datetime import datetime, timedelta
 
 class ForumTestCase(TestCase):
     def setUp(self):
+=======
+from datetime import datetime, timedelta
+
+class ForumTestCase(TestCase):
+    def setUp(self):
+        # Buat Match dengan SEMUA field wajib
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
         self.match = Match.objects.create(
             id=uuid.uuid4(),
             home_team="Team A",
             away_team="Team B",
+<<<<<<< HEAD
             match_date=timezone.now(),
+=======
+            match_date=timezone.now(),  # **WAJIB: tambahkan match_date**
+            # Tambahkan field lain yang wajib sesuai model Match Anda
+            # Contoh: stadium="Stadium Test", competition="Test League"
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
         )
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpass123')
@@ -38,7 +56,11 @@ class ForumTestCase(TestCase):
             id=uuid.uuid4(),
             home_team="Team C",
             away_team="Team D",
+<<<<<<< HEAD
             match_date=timezone.now()
+=======
+            match_date=timezone.now()  # **WAJIB**
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
         )
         new_forum = Forum.objects.create(match=new_match, nama="About Team C vs Team D")
         self.assertEqual(new_forum.nama, "About Team C vs Team D")
@@ -97,11 +119,19 @@ class PostFormTestCase(TestCase):
 
 class ForumViewTestCase(TestCase):
     def setUp(self):
+<<<<<<< HEAD
+=======
+        # Buat Match dengan SEMUA field wajib
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
         self.match = Match.objects.create(
             id=uuid.uuid4(),
             home_team="Team A",
             away_team="Team B",
+<<<<<<< HEAD
             match_date=timezone.now()
+=======
+            match_date=timezone.now()  # **WAJIB**
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
         )
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpass123')
@@ -214,4 +244,8 @@ class ForumViewTestCase(TestCase):
         }
         response = self.client.post(reverse('forum:edit_post', args=[self.forum.id, self.post.id]), data)
         self.assertEqual(response.status_code, 404)
+<<<<<<< HEAD
         self.assertIn('error', response.json())
+=======
+        self.assertIn('error', response.json())
+>>>>>>> cd50e7d051cff78400bb9dab85a50e0fc278406d
