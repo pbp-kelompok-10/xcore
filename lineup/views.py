@@ -88,7 +88,6 @@ class PlayerDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         player = self.object
 
-        # Try to find the latest match the player appeared in (if any lineup exists)
         lineup = player.lineups.first()
         context['match'] = lineup.match if lineup else None
         context['match_id_safe'] = lineup.match.id if lineup else None
@@ -118,7 +117,6 @@ class PlayerDeleteView(SuperuserRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         return redirect(reverse('lineup:player-list'))
 
-    # ✅ Handle POST deletes (from your inline form)
     def post(self, request, *args, **kwargs):
         player = get_object_or_404(Player, pk=self.kwargs['pk'])
         player.delete()
@@ -148,7 +146,6 @@ class LineupDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         match = self.get_object()
 
-        # Safely get home and away lineups
         home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
         away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
 
@@ -230,7 +227,7 @@ class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         match = Match.objects.get(pk=self.kwargs['match_id'])
-        return Lineup.objects.filter(match=match).first()  # not used directly; we handle both
+        return Lineup.objects.filter(match=match).first()  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -335,7 +332,6 @@ class UploadTeamsView(SuperuserRequiredMixin, View):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-# ---------- Upload Players ZIP ----------
 @method_decorator(csrf_exempt, name='dispatch')
 class UploadPlayersView(SuperuserRequiredMixin, View):
     def post(self, request):
