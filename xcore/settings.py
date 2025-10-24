@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'lineup',
     'landingpage',
     'forum',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -133,6 +134,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'user.CustomUser'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

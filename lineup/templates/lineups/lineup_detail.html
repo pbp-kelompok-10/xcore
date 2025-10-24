@@ -241,7 +241,7 @@
     </div>
 
     <!-- Edit Lineup button -->
-    {% if request.user.is_superuser %}
+    {% if request.user.is_admin %}
       <div class="action-buttons">
         <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
       </div>
@@ -250,7 +250,7 @@
   {% else %}
     <div class="no-lineup">
       <p>No lineup has been created for this match yet.</p>
-      {% if request.user.is_superuser %}
+      {% if request.user.is_admin %}
         <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
       {% endif %}
     </div>

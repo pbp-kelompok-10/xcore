@@ -259,7 +259,7 @@
         <h1>Players</h1>
       </div>
 
-      {% if request.user.is_superuser %}
+      {% if request.user.is_admin %}
       <div style="display: flex; gap: 10px;">
         <a href="{% url 'lineup:player-create' %}" class="add-btn">+ Add Player</a>
         <button class="upload-btn" onclick="openModal()">⬆️ Upload ZIP</button>

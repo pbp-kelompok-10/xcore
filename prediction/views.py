@@ -36,7 +36,6 @@ def prediction_list(request):
 
 @login_required(login_url='/login')
 def submit_vote(request):
-    """CREATE - User vote pertama kali"""
     if request.method == "POST":
         prediction_id = request.POST.get("prediction_id")
         choice = request.POST.get("choice")

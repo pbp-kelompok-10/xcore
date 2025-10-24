@@ -6,9 +6,9 @@
 {% block content %}
 <div class="container-xcore">
   <!-- Header -->
-  <div class="prediction-header fade-in">
+  <div class="prediction-header fade-in text-center">
     <div>
-      <h2 class="prediction-title">🎯 Prediction Center</h2>
+      <h1 class="prediction-title">Prediction Center</h1>
       <p class="prediction-subtitle">Bet your fate and predict the winners!</p>
     </div>
   </div>
@@ -283,10 +283,19 @@
    PREDICTION CENTER STYLES
    ============================================ */
 
+.container-xcore {
+  width: 80%;                /* sesuaikan lebar konten, misal 80% layar */
+  max-width: 1200px;         /* biar gak terlalu lebar di layar besar */
+  margin: 0 auto;            /* ini yang bikin ke tengah horizontal */
+  padding-top: var(--navbar-height); /* beri jarak dari navbar */
+  padding-bottom: 60px;
+}
+
 .prediction-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center; /* tengah vertikal */
+  align-items: center;     /* tengah horizontal */
   margin: 3rem 0 2rem 0;
 }
 

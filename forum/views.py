@@ -9,6 +9,7 @@ from .models import Forum, Post
 from scoreboard.models import Match
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 def show_main(request, id):
     try:
@@ -51,15 +52,14 @@ def edit_forum(request, forum_id):
 
     return render(request, 'edit_forum.html', {'forum': forum})
 
-@login_required(login_url='/login/')
 @require_POST
 def add_post(request, forum_id):
     forum = Forum.objects.get(id=forum_id)
     message = request.POST.get('message')
     author = request.user
-
-    if (request.user.is_anonymous):
-        return JsonResponse({'error': 'You must be logged in to post.'}, status=403)
+    
+    if (author.is_anonymous):
+        return JsonResponse({'error': 'You must be logged in to add a post.'}, status=403)
     
     if not message:
         return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
@@ -77,11 +77,14 @@ def get_posts(request, forum_id):
     try:
         forum = Forum.objects.get(id=forum_id)
         posts = Post.objects.filter(forum=forum).order_by('created_at')
+
+        User = get_user_model()  # dynamically get your CustomUser model
+
         posts_data = [
             {
                 'id': post.id,
                 'author_id': post.author.id,
-                'author_name': User.objects.get(id=post.author.id).username,
+                'author_name': post.author.username,  # simpler and efficient
                 'message': post.message,
                 'created_at': post.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'is_edited': post.is_edited,
@@ -89,11 +92,13 @@ def get_posts(request, forum_id):
             }
             for post in posts
         ]
-        return JsonResponse(
-            {'posts': posts_data,
-             'user_id': request.user.id if request.user.is_authenticated else None,
-             'user_is_authenticated': request.user.is_authenticated}
-            , status=200)
+
+        return JsonResponse({
+            'posts': posts_data,
+            'user_id': request.user.id if request.user.is_authenticated else None,
+            'user_is_authenticated': request.user.is_authenticated,
+        }, status=200)
+
     except Forum.DoesNotExist:
         return JsonResponse({'error': 'Forum not found.'}, status=404)
 

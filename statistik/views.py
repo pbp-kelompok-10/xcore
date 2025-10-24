@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Statistik
 from .forms import StatistikForm
 
 def add_statistik(request, match_id):
-    """CREATE - Tambah statistik baru"""
+
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return redirect('statistik:statistik_display', match_id=match.id)
     
     # Cek apakah sudah ada statistik
     existing_statistik = Statistik.objects.filter(match=match).first()
@@ -71,6 +73,8 @@ def add_statistik(request, match_id):
 
 def update_statistik(request, match_id):
     """UPDATE - Edit statistik yang sudah ada"""
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to update statistics.")
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
     statistik = get_object_or_404(Statistik, match=match)
@@ -120,7 +124,8 @@ def update_statistik(request, match_id):
     return render(request, 'statistik/statistik_form.html', context)
 
 def delete_statistik(request, match_id):
-    """DELETE - Hapus statistik"""
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to delete statistik.")
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
     statistik = get_object_or_404(Statistik, match=match)
