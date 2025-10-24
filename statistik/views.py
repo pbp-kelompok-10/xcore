@@ -74,7 +74,8 @@ def add_statistik(request, match_id):
 def update_statistik(request, match_id):
     """UPDATE - Edit statistik yang sudah ada"""
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return HttpResponseForbidden("You do not have permission to update statistics.")
+        messages.error(request, "You do not have permission to update statistics.")
+        return redirect('statistik:statistik_display', match_id=match_id)
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
     statistik = get_object_or_404(Statistik, match=match)
@@ -125,7 +126,8 @@ def update_statistik(request, match_id):
 
 def delete_statistik(request, match_id):
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return HttpResponseForbidden("You do not have permission to delete statistik.")
+        messages.error(request, "You do not have permission to delete statistik.")
+        return redirect('statistik:statistik_display', match_id=match_id)
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
     statistik = get_object_or_404(Statistik, match=match)

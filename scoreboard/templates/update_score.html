@@ -4,140 +4,501 @@
 
 {% block extra_css %}
 <style>
-    .update-container {
-        max-width: 650px;
-        margin: 60px auto;
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        padding: 35px;
-        text-align: left;
-        animation: fadeIn 0.4s ease-in-out;
+    :root {
+        --primary-color: #1e423b;
+        --secondary-color: #56bda9;
+        --secondary-hover: #4daa96;
+        --secondary-active: #459987;
+        --light-bg: #eef8f6;
+        --light-hover: #e6f5f2;
+        --light-active: #cbebe4;
+        --white: #ffffff;
+        --text-dark: #333333;
+        --text-light: #666666;
+        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        --error-color: #e74c3c;
+        --error-bg: #ffeaea;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
+    body {
+        background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
+        position: relative;
+        min-height: 100vh;
     }
 
-    .update-container h2 {
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 25px;
+    .football-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .football-element {
+        position: absolute;
+        opacity: 0.03;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .hexagon {
+        width: 80px;
+        height: 46px;
+        background: var(--primary-color);
+        position: relative;
+        border-radius: 4px;
+    }
+
+    .hexagon:before,
+    .hexagon:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        border-left: 40px solid transparent;
+        border-right: 40px solid transparent;
+    }
+
+    .hexagon:before {
+        bottom: 100%;
+        border-bottom: 23px solid var(--primary-color);
+    }
+
+    .hexagon:after {
+        top: 100%;
+        border-top: 23px solid var(--primary-color);
+    }
+
+    .circle {
+        border-radius: 50%;
+        background: var(--secondary-color);
+    }
+
+    .line {
+        background: var(--primary-color);
+        height: 2px;
+    }
+
+    .element-1 { top: 15%; left: 8%; animation-delay: 0s; }
+    .element-2 { top: 70%; right: 10%; animation-delay: 5s; }
+    .element-3 { bottom: 25%; left: 20%; animation-delay: 10s; }
+    .element-4 { top: 35%; right: 15%; animation-delay: 3s; }
+    .element-5 { bottom: 15%; right: 8%; animation-delay: 7s; }
+    .element-6 { top: 60%; left: 5%; animation-delay: 12s; }
+
+    .field-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+        background-size: 60px 60px;
+        z-index: -2;
+        opacity: 0.3;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(20px, 15px) rotate(120deg); }
+        66% { transform: translate(-10px, 25px) rotate(240deg); }
+    }
+
+    .navbar {
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .navbar h1 {
+        font-size: 22px;
+        margin: 0 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar h1::before {
+        content: "⚽";
+        margin-right: 10px;
         font-size: 24px;
+    }
+
+    .back-button {
+        color: white;
+        text-decoration: none;
+        font-size: 24px;
+        margin-right: 10px;
+        transition: transform 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .back-button:hover {
+        transform: translateX(-3px);
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-container {
+        width: 90%;
+        max-width: 700px;
+        margin: 40px auto;
+        background: linear-gradient(135deg, var(--white) 0%, var(--light-bg) 100%);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s, box-shadow 0.3s;
+        position: relative;
+        overflow: hidden;
+        border: 2px solid var(--light-active);
+        backdrop-filter: blur(15px);
+    }
+
+    .form-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 6px;
+        background: linear-gradient(to bottom, var(--secondary-color), var(--secondary-hover));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .form-container:hover::before {
+        opacity: 1;
+    }
+
+    .form-container:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-5px);
+    }
+
+    .form-title {
+        text-align: center;
+        color: var(--primary-color);
+        margin-bottom: 30px;
+        font-size: 28px;
         font-weight: 700;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .form-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--secondary-color), var(--secondary-hover));
+        border-radius: 2px;
     }
 
     .form-group {
-        margin-bottom: 18px;
+        margin-bottom: 25px;
+        position: relative;
     }
 
-    label {
+    .form-group label {
         display: block;
+        margin-bottom: 8px;
         font-weight: 600;
-        margin-bottom: 6px;
-        color: #333;
+        color: var(--text-dark);
+        font-size: 15px;
     }
 
-    input[type="text"],
-    input[type="number"],
-    select {
+    .form-group input,
+    .form-group select {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #d0d0d0;
+        padding: 14px 18px;
+        border: 2px solid var(--light-bg);
         border-radius: 10px;
         font-size: 15px;
-        transition: 0.25s;
+        transition: all 0.3s;
+        background-color: var(--light-bg);
     }
 
-    input:focus,
-    select:focus {
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 6px rgba(86, 189, 169, 0.3);
+    .form-group input:focus,
+    .form-group select:focus {
         outline: none;
+        border-color: var(--secondary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(86, 189, 169, 0.2);
     }
 
-    input[readonly] {
-        background: #f2f4f3;
+    .form-group input:hover,
+    .form-group select:hover {
+        background-color: var(--light-hover);
+    }
+
+    .form-group input[readonly] {
+        background-color: #f8f9fa;
         cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .score-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 20px 0;
+        background: var(--light-bg);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--light-active);
+    }
+
+    .score-row .form-group {
+        flex: 1;
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .score-row label::after {
+        content: "" !important;
+    }
+
+    .vs-text {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 20px;
+        margin-top: 10px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .button-group {
         display: flex;
-        justify-content: center;
-        gap: 12px;
+        gap: 15px;
         margin-top: 30px;
     }
 
-    .btn {
+    .submit-button {
+        flex: 1;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
+        color: white;
         border: none;
-        border-radius: 30px;
-        padding: 12px 30px;
-        font-size: 15px;
+        border-radius: 12px;
+        font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.25s ease;
+        transition: all 0.3s;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(86, 189, 169, 0.3);
+        position: relative;
+        overflow: hidden;
     }
 
-    .btn-primary {
-        background: var(--secondary-color);
-        color: #fff;
+    .submit-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
     }
 
-    .btn-primary:hover {
-        background: var(--primary-color);
+    .submit-button:hover::before {
+        left: 100%;
+    }
+
+    .submit-button:hover {
+        background: linear-gradient(135deg, var(--secondary-hover), var(--secondary-active));
+        box-shadow: 0 6px 20px rgba(86, 189, 169, 0.5);
         transform: translateY(-2px);
     }
 
-    .btn-cancel {
-        background: #ccc;
-        color: #333;
+    .cancel-button {
+        flex: 1;
+        padding: 16px;
+        background: var(--light-bg);
+        color: var(--text-dark);
+        border: 2px solid var(--light-active);
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
     }
 
-    .btn-cancel:hover {
-        background: #aaa;
+    .cancel-button:hover {
+        background: var(--light-hover);
         transform: translateY(-2px);
     }
 
-        .btn-danger {
-        background: #e74c3c;
+    .delete-section {
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid var(--light-active);
+        text-align: center;
+    }
+
+    .delete-button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
         color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
     }
-    .btn-danger:hover {
-        background: #c0392b;
+
+    .delete-button:hover {
+        background: linear-gradient(135deg, #c0392b, #a93226);
+        box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
         transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .form-container {
+            padding: 25px;
+        }
+        
+        .navbar h1 {
+            font-size: 18px;
+        }
+        
+        .football-element {
+            opacity: 0.02;
+        }
+        
+        .score-row {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .vs-text {
+            margin: 10px 0;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .football-element {
+            display: none;
+        }
+        
+        .field-pattern {
+            opacity: 0.2;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Minimal Football Background Elements -->
+<div class="football-elements">
+    <div class="field-pattern"></div>
+    <div class="football-element element-1 hexagon"></div>
+    <div class="football-element element-2 circle" style="width: 60px; height: 60px;"></div>
+    <div class="football-element element-3 circle" style="width: 30px; height: 30px;"></div>
+    <div class="football-element element-4 hexagon"></div>
+    <div class="football-element element-5 circle" style="width: 45px; height: 45px;"></div>
+    <div class="football-element element-6 line" style="width: 120px;"></div>
+</div>
 
-<div class="update-container">
-    <h2>Update Pertandingan</h2>
+<div class="navbar">
+    <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
+    <h1>Xcore - Update Pertandingan</h1>
+</div>
+
+<div class="form-container">
+    <h2 class="form-title">Update Pertandingan</h2>
 
     <form method="POST">
         {% csrf_token %}
 
-        <div class="form-group">
-            <label>Home Team</label>
-            <input type="text" name="home_team" value="{{ match.home_team }}" readonly>
+        <!-- TIM TUAN RUMAH & TAMU -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Home Team</label>
+                <input type="text" name="home_team" value="{{ match.home_team }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Away Team</label>
+                <input type="text" name="away_team" value="{{ match.away_team }}" readonly>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Away Team</label>
-            <input type="text" name="away_team" value="{{ match.away_team }}" readonly>
+        <!-- SKOR -->
+        <div class="score-row">
+            <div class="form-group">
+                <label>Home Score</label>
+                <input type="number" name="home_score" value="{{ match.home_score }}" min="0" required>
+            </div>
+            <div class="vs-text">VS</div>
+            <div class="form-group">
+                <label>Away Score</label>
+                <input type="number" name="away_score" value="{{ match.away_score }}" min="0" required>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Home Score</label>
-            <input type="number" name="home_score" value="{{ match.home_score }}" min="0" required>
+        <!-- TANGGAL & STADION -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tanggal Pertandingan</label>
+                <input type="date" name="match_date" value="{{ match.match_date|date:'Y-m-d' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Stadion</label>
+                <input type="text" name="stadium" value="{{ match.stadium }}" required>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Away Score</label>
-            <input type="number" name="away_score" value="{{ match.away_score }}" min="0" required>
+        <!-- ROUND & GROUP -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Round</label>
+                <input type="number" name="round" value="{{ match.round }}" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>Group</label>
+                <input type="text" name="group" value="{{ match.group }}" required>
+            </div>
         </div>
 
+        <!-- STATUS -->
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
@@ -147,52 +508,42 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label>Round</label>
-            <input type="text" name="round" value="{{ match.round }}">
-        </div>
-
-        <div class="form-group">
-            <label>Group</label>
-            <input type="text" name="group" value="{{ match.group }}">
-        </div>
-
-        <div class="form-group">
-            <label>Stadium</label>
-            <input type="text" name="stadium" value="{{ match.stadium }}">
-        </div>
-
         <div class="button-group">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{% url 'scoreboard:scoreboard_list' %}" class="btn btn-cancel">Batal</a>
+            <button type="submit" class="submit-button">Update Pertandingan</button>
+            <a href="{% url 'scoreboard:scoreboard_list' %}" class="cancel-button">Batal</a>
         </div>
     </form>
 
-        <form id="delete-form-{{ match.id }}" action="{% url 'scoreboard:delete_match' match.id %}" method="POST" style="margin-top: 15px; text-align:center;">
-        {% csrf_token %}
-        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ match.id }}')">
-            Hapus Pertandingan
-        </button>
-    </form>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-    function confirmDelete(matchId) {
-        Swal.fire({
-            title: 'Yakin ingin menghapus?',
-            text: "Pertandingan ini akan dihapus secara permanen.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`delete-form-${matchId}`).submit();
-            }
-        });
-    }
-    </script>
+    <!-- DELETE SECTION -->
+    <div class="delete-section">
+        <form id="delete-form-{{ match.id }}" action="{% url 'scoreboard:delete_match' match.id %}" method="POST">
+            {% csrf_token %}
+            <button type="button" class="delete-button" onclick="confirmDelete('{{ match.id }}')">
+                🗑️ Hapus Pertandingan
+            </button>
+        </form>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmDelete(matchId) {
+    Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Pertandingan ini akan dihapus secara permanen.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#56bda9',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        background: 'var(--white)',
+        color: 'var(--text-dark)'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(`delete-form-${matchId}`).submit();
+        }
+    });
+}
+</script>
 {% endblock %}
