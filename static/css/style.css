@@ -83,13 +83,17 @@ body {
     top: 0;
     z-index: 100;
     width: 100%;
+    padding: 1rem 0; /* Tambahin ini biar lebih tinggi */
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    gap: 15px;
+    padding: 1rem 2rem; /* Ubah dari 12px 20px jadi 1rem 2rem biar lebih tinggi dan lebar */
+    gap: 2rem; /* Ubah dari 15px jadi 2rem biar spacing lebih lebar */
+    max-width: 100%; /* Pastikan full width */
+    margin: 0 auto;
+    justify-content: space-between; /* Bikin components spread ke ujung-ujung */
 }
 
 
@@ -165,7 +169,7 @@ body {
 
 .nav-link-item {
     color: var(--green-darker);
-    font-weight: 500;
+    font-weight: 700;
     font-size: 15px;
     text-decoration: none;
     transition: opacity 0.2s;

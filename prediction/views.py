@@ -10,10 +10,15 @@ from .models import Prediction, Vote
 # USER SIDE - VOTING & VIEWING
 # ============================================
 
+
 def prediction_list(request):
     """Halaman utama untuk user melihat semua predictions"""
     predictions = Prediction.objects.select_related('match').all()
-    votes = Vote.objects.filter(user=request.user).select_related("prediction")
+    
+    if request.user.is_authenticated:
+        votes = Vote.objects.filter(user=request.user).select_related("prediction")
+    else:
+        votes = Vote.objects.none()  # Empty queryset untuk user yang belum login
     
     upcoming_predictions = predictions.filter(match__status='upcoming')
     live_predictions = predictions.filter(match__status='live')

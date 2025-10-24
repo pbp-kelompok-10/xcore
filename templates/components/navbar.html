@@ -6,9 +6,9 @@
       
       <!-- Left: Brand -->
       <div class="flex items-center">
-        <h1 class="text-xl font-semibold text-white whitespace-nowrap">
-          <span class="font-bold">Xcore</span>
-        </h1>
+        <a href="/" class="flex items-center">
+          <img src="{% static 'image/xcore.png' %}" alt="Xcore Logo" class="h-8 inline-block">
+        </a>
       </div>
 
       <!-- Center: Search Bar -->
@@ -32,7 +32,7 @@
         <a href="#" class="nav-link-item">
           Highlights
         </a>
-        <a href="#" class="nav-link-item">
+        <a href="{%  url 'prediction:list'  %}" class="nav-link-item">
           Forum
         </a>
         <a href="{% url 'prediction:list' %}" class="nav-link-item">
