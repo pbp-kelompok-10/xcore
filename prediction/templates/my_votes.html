@@ -5,9 +5,29 @@
 
 {% block content %}
 <div class="container-xcore">
-  <div class="page-header">
-    <h2>📊 My Voting History</h2>
-    <a href="{% url 'prediction:list' %}" class="btn-back">← Back to Predictions</a>
+
+  <!-- Header -->
+  <div class="prediction-header fade-in">
+    <div>
+      <h2 class="prediction-title">📊 My Voting History</h2>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation-wrapper fade-in">
+    <div class="tab-group-left">
+      <button class="tab-btn active" data-filter="all">All Matches</button>
+      <button class="tab-btn" data-filter="upcoming">Upcoming</button>
+      <button class="tab-btn" data-filter="live">Live</button>
+      <button class="tab-btn" data-filter="finished">Finished</button>
+    </div>
+    
+    {% if user.is_authenticated %}
+      <div class="tab-group-right">
+        <a href="{% url 'prediction:my_votes' %}" class="tab-btn tab-my-votes">
+          📊 My Votes
+        </a>
+      </div>
+    {% endif %}
   </div>
 
   <!-- Messages -->
@@ -371,28 +391,69 @@
   font-weight: 600;
 }
 
-/* Empty State */
-.empty-state {
+
+/* ============================================
+   DYNAMIC EMPTY STATE
+   ============================================ */
+
+/* Dynamic Empty State - Works for all filters */
+.empty-state-dynamic {
+  grid-column: 1 / -1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 5rem 2rem;
   background: var(--white-light);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 2px dashed var(--green-light-active);
+  animation: fadeIn 0.6s ease-out;
 }
 
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.empty-state-dynamic .empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+  animation: bounce 2s infinite;
 }
 
-.empty-state h3 {
+.empty-state-dynamic .empty-title {
   color: var(--green-darker);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
-.empty-state p {
+.empty-state-dynamic .empty-message {
   color: var(--blue-normal);
-  margin-bottom: 2rem;
+  font-size: 1.05rem;
+}
+
+/* Bounce animation for empty icon */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .empty-state-dynamic {
+    padding: 3rem 1.5rem;
+  }
+  
+  .empty-state-dynamic .empty-icon {
+    font-size: 4rem;
+  }
+  
+  .empty-state-dynamic .empty-title {
+    font-size: 1.25rem;
+  }
+  
+  .empty-state-dynamic .empty-message {
+    font-size: 0.95rem;
+  }
 }
 
 .btn-primary {

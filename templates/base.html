@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -5,176 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Xcore{% endblock %}</title>
     
-    <style>
-        :root {
-            --primary-color: #28574E;
-            --secondary-color: #56BDA9;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-        }
-
-        .navbar {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .menu-icon, .user-icon {
-            font-size: 22px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .menu-icon:hover, .user-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            margin: 0 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            color: white;
-            text-decoration: none;
-        }
-
-        .navbar-brand::before {
-            content: "⚽";
-            margin-right: 8px;
-        }
-
-        .search-bar {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .search-bar input {
-            width: 60%;
-            max-width: 700px;
-            padding: 10px 16px;
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s;
-        }
-
-        .search-bar input:focus {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .user-icon {
-            margin-left: 15px;
-            color: white;
-        }
-
-        /* === Toast Base Styles === */
-        #toast-component {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 9999;
-
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-
-            min-width: 260px;
-            max-width: 420px;
-            padding: 16px 20px;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-
-            opacity: 0;
-            transform: translateY(40px) scale(0.95);
-            pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* === Visible State === */
-        #toast-component.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-
-        /* === Typography === */
-        #toast-title {
-            margin: 0;
-            font-weight: 600;
-            color: #111827;
-            font-size: 16px;
-        }
-
-        #toast-message {
-            margin: 4px 0 0;
-            font-size: 14px;
-            color: #4b5563;
-            line-height: 1.4;
-        }
-
-        /* === Close Button === */
-        .toast-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #9ca3af;
-            cursor: pointer;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-
-        .toast-close:hover {
-            color: #6b7280;
-        }
-    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="menu-icon">☰</div>
-        <a href="{% url 'scoreboard:scoreboard_list' %}" class="navbar-brand">Xcore</a>
-        <div class="search-bar">
-            <input type="text" placeholder="Cari pertandingan, tim, atau tanggal...">
-        </div>
-        <div class="user-icon">
-            <i class="fas fa-user-circle"></i>
-        </div>
-    </nav>
-
+    
+    {% include 'components/navbar.html' %}
     {% block content %}
     {% endblock %}
     {% include 'toast.html' %}
+    {% include 'components/footer.html' %}
 
     <!-- Toast Component -->
     <div id="toast-component">

@@ -13,6 +13,7 @@ from .models import Prediction, Vote
 def prediction_list(request):
     """Halaman utama untuk user melihat semua predictions"""
     predictions = Prediction.objects.select_related('match').all()
+    votes = Vote.objects.filter(user=request.user).select_related("prediction")
     
     upcoming_predictions = predictions.filter(match__status='upcoming')
     live_predictions = predictions.filter(match__status='live')
@@ -22,6 +23,7 @@ def prediction_list(request):
         'upcoming_predictions': upcoming_predictions,
         'live_predictions': live_predictions,
         'finished_predictions': finished_predictions,
+        'votes': votes,
     }
     return render(request, 'prediction_center.html', context)
 
