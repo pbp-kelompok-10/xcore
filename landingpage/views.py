@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login,logout
 from user.forms import CustomUserCreationForm
-# Create your views here.
+
 def landing_home(request):
     context = {
         'title': 'Welcome to Xcore',
