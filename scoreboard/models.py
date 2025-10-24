@@ -74,7 +74,6 @@ class Match(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        # Automatically set team names from codes
         code_to_country = dict(self.COUNTRY_CHOICES)
         self.home_team = code_to_country.get(self.home_team_code, self.home_team_code)
         self.away_team = code_to_country.get(self.away_team_code, self.away_team_code)
