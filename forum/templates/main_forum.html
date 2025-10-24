@@ -1,36 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Forum - {{ forum.nama }}{% endblock %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
 
-    <!-- HAPUS 'static/' di DEPAN -->
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/main_forum.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div class="forum-container">
-        <h1>{{ forum.title }}</h1>
-        <div id="postsContainer" class="posts-container">
-            <!-- Posts loaded here -->
+{% block content %}
+    <div class="action-buttons">
+        <a href="/scoreboard/" class="btn btn-secondary">Back to Scoreboard</a>
+        <div class="feature-buttons">
+            <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">Forum</a>
+            <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">Highlight</a>
+            <a href="/prediction/" class="btn btn-feature">Prediction</a>
+            <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">Lineup</a>
         </div>
+    </div>
 
-        <form id="postForm" method="post" action="">  <!-- FIX: Tambah id="postForm" -->
-            {% csrf_token %}  <!-- CSRF Token WAJIB -->
-            <textarea id="postContent" name="message" placeholder="Write your post..." rows="3"></textarea><br>
-            <button type="submit" id="submitPost" class="btn btn-primary">Kirim Post</button>  <!-- type="submit" -->
-        </form>
+    <div class="forum-container">
+        <h1>{{ forum.nama }}</h1>
 
-    <!-- LOAD forumId DAN JS DI AKHIR -->
+        <div class="forum-content">
+            <div id="postsContainer" class="posts-container">
+                <!-- Posts loaded here -->
+            </div>
+            <form id="postForm" method="post" action="">
+                {% csrf_token %}
+                <textarea id="postContent" name="message" placeholder="Write your post..." rows="3"></textarea><br>
+                <button type="submit" id="submitPost" class="btn btn-primary">Kirim Post</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
     <script>
-        const defaultProfilePic = "{% static 'image/default_pp.jpg' %}"; //kenapa ga nge catch, padahal di main_forum.css bisa
+        const defaultProfilePic = "{% static 'image/default_pp.jpg' %}";
         const forumId = "{{ forum.id }}";
+        const currentUserId = "{{ user.id }}";
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'js/main_forum.js' %}"></script>
-</body>
-</html>
+{% endblock %}

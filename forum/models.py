@@ -20,6 +20,8 @@ class Post(models.Model):
     
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    is_edited = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
-        return self.id + "-" + self.forum.id
+        return f"{str(self.id)}-{str(self.forum.id)}"
