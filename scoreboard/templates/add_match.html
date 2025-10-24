@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
-{% block meta %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tambah Pertandingan - Xcore</title>
   <style>
     :root {
       --primary-color: #28574e;
@@ -100,7 +99,6 @@
   
   <div class="navbar">
     <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
-    <h1>Xcore - Tambah Pertandingan</h1>
   </div>
 
   <div class="form-container">
@@ -178,4 +176,4 @@
 </body>
 </html>
 
-{% endblock content %}
+{% endblock %}

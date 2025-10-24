@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 <nav class="navbar-xcore fixed top-0 left-0 w-full shadow-sm z-50">
-  <div class="mx-auto px-6 lg:px-24">
+  <div class="mx-auto px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       
       <!-- Left: Brand -->
@@ -20,11 +20,6 @@
 
       <!-- Right: Desktop Navigation -->
       <div class="hidden md:flex items-center space-x-8">
-        
-      </div>
-
-      <!-- Right: Desktop User Section -->
-      <div class="hidden md:flex items-center space-x-6 ml-6">
         <input 
           type="text" 
           placeholder="Cari pertandingan, tim, atau tanggal..." 
@@ -42,7 +37,10 @@
         <a href="{% url 'lineup:player-list' %}" class="nav-link-item">
           Players
         </a>
+      </div>
 
+      <!-- Right: Desktop User Section -->
+      <div class="hidden md:flex items-center space-x-6 ml-6">
         {% if user.is_authenticated %}
           <!-- User Dropdown -->
           <div class="user-dropdown-container">

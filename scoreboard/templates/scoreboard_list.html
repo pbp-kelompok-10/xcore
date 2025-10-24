@@ -5,50 +5,73 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary-color: #28574E;
-        --secondary-color: #56BDA9;
-        --light-bg: #f4f6f7;
-        --white: #ffffff;
-        --text-dark: #333333;
-        --text-light: #888888;
+        /* Menggunakan Xcore Brand Colors */
+        --green-light: #eef8f6;
+        --green-normal: #56bda9;
+        --green-dark: #418e7f;
+        --green-darker: #1e423b;
+        --white-light: #ffffff;
+        --white-normal: #fcfdfd;
+        --white-dark: #f9fafb;
+        --blue-normal: #546881;
+        --blue-dark: #1d242d;
+        --navbar-height: 64px;
     }
 
     body {
-        background-color: var(--light-bg);
-        color: var(--text-dark);
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--green-light);
+        color: var(--blue-dark);
         line-height: 1.6;
         margin: 0;
         padding: 0;
+        min-height: 100vh;
     }
 
-    /* === DATE HEADER === */
+    /* Container */
+    .container {
+        width: 80%;
+        max-width: none;
+        margin: 24px auto;
+        padding-top: calc(var(--navbar-height));
+        padding-bottom: calc(var(--navbar-height) + 20px);
+    }
+
+    /* Date Section Wrapper */
+    .date-section-wrapper {
+        background: var(--white-light);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    /* Date Section */
     .date-section {
-        margin: 25px 0 15px 0;
+        margin: 0 0 15px;
+    }
+
+    /* Date Header Container */
+    .date-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
     }
 
     .date-header {
-        text-align: center;
-        color: var(--primary-color);
+        text-align: left;
+        color: var(--white-dark);
         font-weight: 600;
         font-size: 18px;
-        background-color: white;
-        padding: 12px;
+        background-color: var(--green-dark);
+        padding: 12px 24px;
         border-radius: 8px;
-        width: 90%;
-        max-width: 900px;
-        margin: 0 auto 20px auto;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        wi
     }
 
-    /* === SCOREBOARD CONTAINER === */
-    .container {
-        width: 90%;
-        max-width: 900px;
-        margin: 20px auto;
-        padding-top: calc(var(--navbar-height, 70px) + 20px); /* Navbar height + extra spacing */
-    }
-
-    /* === MATCH CARDS === */
+    /* Match Card */
     .match-link {
         text-decoration: none;
         color: inherit;
@@ -58,52 +81,28 @@
     .match-link:hover .match-card {
         transform: translateY(-3px);
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
     }
 
     .match-card {
-        background: var(--white);
+        background: var(--green-light);
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         margin-bottom: 15px;
-        overflow: hidden;
+        padding: 18px 25px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 18px 25px;
-        position: relative;
-        transition: transform 0.3s, box-shadow 0.3s, background-color 0.2s;
-    }
-
-    .edit-button {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        background-color: var(--secondary-color);
-        color: white;
-        text-decoration: none;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 14px;
-        z-index: 10;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .edit-button:hover {
-        background-color: var(--primary-color);
-        transform: scale(1.05);
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
     .match-card:hover {
-        background-color: #f8f9fa;
+        background-color: var(--green-light-hover);
     }
 
     .team {
         display: flex;
         align-items: center;
         width: 35%;
-        z-index: 1;
     }
 
     .team img {
@@ -111,125 +110,166 @@
         height: 36px;
         border-radius: 50%;
         margin-right: 12px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         object-fit: cover;
-        border: 1px solid #f0f0f0;
+        border: 1px solid var(--white-dark);
     }
 
     .team-name {
         font-weight: 600;
         font-size: 16px;
+        color: var(--blue-dark);
     }
 
     .score-section {
         text-align: center;
         width: 30%;
-        z-index: 1;
     }
 
     .score {
         font-size: 24px;
         font-weight: bold;
+        color: var(--green-darker);
         margin-bottom: 5px;
     }
 
     .ft {
         font-size: 12px;
-        color: var(--text-light);
+        color: var(--blue-normal);
         margin: 0 5px;
     }
 
     .match-info {
         font-size: 13px;
-        color: var(--text-light);
+        color: var(--blue-normal);
         margin-top: 5px;
     }
 
     .status-upcoming {
-        color: #e67e22;
+        display: inline-block;
+        background-color: #e67e22; /* biru */
+        color: white;
         font-weight: 600;
+        font-size: 12px;
+        padding: 4px 10px; /* kasih ruang biar kayak badge */
+        border-radius: 8px; /* sudut tumpul */
+        margin: 8px 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
     }
 
     .status-live {
-        color: #e74c3c;
+        display: inline-block;
+        background-color: #e74c3c; 
+        color: white;
         font-weight: 600;
+        font-size: 12px;
+        padding: 4px 10px; /* kasih ruang biar kayak badge */
+        border-radius: 8px; /* sudut tumpul */
+        margin: 8px 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
     }
+
 
     .status-finished {
-        color: #27ae60;
+        display: inline-block;
+        background-color: #007bff; /* biru */
+        color: white;
         font-weight: 600;
+        font-size: 12px;
+        padding: 4px 10px; /* kasih ruang biar kayak badge */
+        border-radius: 8px; /* sudut tumpul */
+        margin: 8px 0;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); /* opsional, biar agak timbul */
     }
 
-    /* === ADD BUTTON === */
+
+    /* Add Button */
     .add-button {
         display: block;
         width: 220px;
         margin: 25px auto;
         padding: 12px;
-        background-color: var(--secondary-color);
-        color: white;
+        background-color: var(--green-normal);
+        color: var(--white-light);
         text-decoration: none;
         text-align: center;
         border-radius: 8px;
         font-weight: 600;
-        transition: background-color 0.3s, transform 0.2s;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.3s, transform 0.2s;   
     }
 
     .add-button:hover {
-        background-color: var(--primary-color);
+        background-color: var(--green-dark);
         transform: translateY(-2px);
     }
 
-    /* === NO MATCHES === */
+    /* Forum Button */
+    .feature-button {
+        color: var(--white-dark);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: color 0.3s, background-color 0.3s;
+        background-color: var(--green-dark);
+    }
+
+    .feature-button:hover {
+        color: var(--green-dark);
+        background-color: var(--green-light);
+        text-decoration: none;
+    }
+
+    /* No Matches */
     .no-matches {
         text-align: center;
         padding: 40px;
-        color: var(--text-light);
+        color: var(--blue-normal);
         font-style: italic;
-        background: white;
+        background: var(--white-light);
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         margin: 20px 0;
     }
 
-    /* === FORUM BUTTON === */
-    .forum-button {
-        display: inline-block;
-        color: #28574E;
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 14px;
-        margin: 5px 0 20px auto;
-        text-align: right;
-        display: block;
-        width: fit-content;
-    }
-
-    .forum-button:hover {
-        text-decoration: underline;
-        color: #1e4039;
-    }
-
-    /* === RESPONSIVE === */
+    /* Responsive */
     @media (max-width: 768px) {
+        .date-section-wrapper {
+            padding: 15px;
+        }
+
+        .date-header-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .date-header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .feature-button {
+            align-self: flex-end;
+        }
+
         .match-card {
             flex-direction: column;
             padding: 15px;
         }
-        
+
         .team {
             width: 100%;
             justify-content: center;
             margin-bottom: 10px;
         }
-        
+
         .score-section {
             width: 100%;
             order: -1;
             margin-bottom: 15px;
         }
-        
+
         .team:last-child {
             margin-bottom: 0;
         }
@@ -238,77 +278,76 @@
             width: 32px;
             height: 32px;
         }
-
-        .search-bar input {
-            width: 80%;
-        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-
-<div class="container">
+<div class="container px-6 lg:px-8">
     <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
 
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
-        <div class="date-section">
-            <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
+        <div class="date-section-wrapper">
+            <div class="date-section">
+                <div class="date-header-container">
+                    <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
+                    {% with has_non_upcoming=False %}
+                        {% for match in matches %}
+                            {% if match.status != 'upcoming' %}
+                                {% if not has_non_upcoming %}
+                                    <a href="{% url 'forum:forum_detail' match.id %}" class="feature-button">💬 Buka Forum</a>
+                                    {% with has_non_upcoming=True %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                </div>
 
-            {% for match in matches %}
-                {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' %}'">
-                {% elif match.statistics.all %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
-                {% else %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
-                {% endif %}
-                        <div class="match-card">
-                            <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit Pertandingan</a>
+                {% for match in matches %}
+                <div class="match-link" {% if match.status == 'upcoming' %}onclick="window.location.href='{% url 'scoreboard:prediction' %}'"
+                    {% elif match.statistics.all %}onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'"{% endif %}>
+                    <div class="match-card">
+                        <div class="team">
+                            <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
+                                 alt="{{ match.home_team }}"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <div class="team-name">{{ match.home_team }}</div>
+                        </div>
 
-                            <div class="team">
-                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
-                                     alt="{{ match.home_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-                                <div class="team-name">{{ match.home_team }}</div>
+                        <div class="score-section">
+                            <div class="score">
+                                {% if match.status == 'upcoming' %}
+                                    - : -
+                                {% else %}
+                                    {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
+                                {% endif %}
                             </div>
-
-                            <div class="score-section">
-                                <div class="score">
-                                    {% if match.status == 'upcoming' %}
-                                        - : -
-                                    {% else %}
-                                        {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
-                                    {% endif %}
-                                </div>
-                                <div class="match-info">
-                                    {% if match.status == 'upcoming' %}
-                                        <span class="status-upcoming">UPCOMING</span>
-                                    {% elif match.status == 'live' %}
-                                        <span class="status-live">LIVE</span>
-                                    {% else %}
-                                        <span class="status-finished">FINISHED</span>
-                                    {% endif %}
-                                    <br>
-                                    {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
-                                    {{ match.stadium }}
-                                </div>
-                            </div>
-
-                            <div class="team" style="justify-content: flex-end;">
-                                <div class="team-name">{{ match.away_team }}</div>
-                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png"
-                                     alt="{{ match.away_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <div class="match-info">
+                                {% if match.status == 'upcoming' %}
+                                    <span class="status-upcoming">UPCOMING</span>
+                                {% elif match.status == 'live' %}
+                                    <span class="status-live">LIVE</span>
+                                {% else %}
+                                    <span class="status-finished">FINISHED</span>
+                                {% endif %}
+                                <br>
+                                {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
+                                {{ match.stadium }}
                             </div>
                         </div>
-                    </div>
 
-                {% if match.status != 'upcoming' %}
-                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
-                {% endif %}
-            {% endfor %}
+                        <div class="team" style="justify-content: flex-end;">
+                            <div class="team-name">{{ match.away_team }}</div>
+                            <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
+                                 alt="{{ match.away_team }}"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endfor %}
     {% else %}
@@ -318,15 +357,15 @@
         </div>
     {% endif %}
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Prevent edit-button click from triggering parent card click
-    document.querySelectorAll('.edit-button').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
+    document.querySelectorAll('.match-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-button') || e.target.classList.contains('feature-button')) {
+                e.stopPropagation();
+            }
         });
     });
 </script>

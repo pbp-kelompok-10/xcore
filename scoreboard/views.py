@@ -37,7 +37,10 @@ def add_match(request):
         if form.is_valid():
             match = form.save()
             
-            create_forum_for_match(match)
+            Forum.objects.create(
+                match=match,
+                nama= "About " + match.home_team + " vs " + match.away_team,
+            )
 
             Prediction.objects.create(
                 match=match,

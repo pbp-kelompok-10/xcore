@@ -30,6 +30,7 @@ def prediction_list(request):
         'finished_predictions': finished_predictions,
         'votes': votes,
     }
+
     return render(request, 'prediction_center.html', context)
 
 

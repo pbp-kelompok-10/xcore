@@ -545,12 +545,18 @@ h3 {
    HERO SECTION (Landing Page)
    ============================================ */
 .hero-section {
+<<<<<<< HEAD
   background: var(--white-dark);
   min-height: 100vh; /* Ganti dari calc(100vh - var(--navbar-height)) jadi full 100vh */
   color: var(--green-darker);
   display: flex; /* Tambahan untuk centering */
   align-items: center; /* Vertical center */
   justify-content: center; /* Horizontal center */
+=======
+    background: var(--white-dark);
+    min-height: calc(100vh - var(--navbar-height --footer-height));
+    color: var(--green-darker);
+>>>>>>> f5e421f01866ab5b46dfea41f1bdd4eb409b050c
 }
 
 .hero-content {

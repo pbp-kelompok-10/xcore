@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import landing_home, register, login_user, logout_user, profile
+from .views import landing_home, register, login_user, logout_user, profile_user
 
 app_name = 'landingpage'
 
@@ -9,5 +9,5 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
-    path('profile/', profile, name='profile'),
+    path('profile/', profile_user, name='profile'),
 ]
