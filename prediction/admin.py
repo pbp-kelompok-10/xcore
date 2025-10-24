@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Prediction, Vote
 
 
-# ==== 1️⃣ PREDICTION ADMIN ====
 @admin.register(Prediction)
 class PredictionAdmin(admin.ModelAdmin):
     list_display = ['id', 'question', 'match', 'votes_home_team', 'votes_away_team', 'total_votes']
@@ -23,7 +22,6 @@ class PredictionAdmin(admin.ModelAdmin):
         }),
     )
 
-    # Inline Vote objects directly under Prediction
     class VoteInline(admin.TabularInline):
         model = Vote
         extra = 0
@@ -33,7 +31,6 @@ class PredictionAdmin(admin.ModelAdmin):
     inlines = [VoteInline]
 
 
-# ==== 2️⃣ VOTE ADMIN ====
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'prediction', 'choice', 'voted_at']
