@@ -1,30 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}Update Score - Xcore{% endblock %}
+{% block title %}Forum - {{ forum.nama }}{% endblock %}
 
 {% load static %}
 
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'forum/css/main_forum.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-    
+{% endblock %}
+
+
+{% block content %}
     <div class="action-buttons">
-        <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
+        <a href="/scoreboard/" class="btn btn-secondary">Back to Scoreboard</a>
         <div class="feature-buttons">
-            <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">💬 Forum</a>
-            <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">🎥 Highlight</a>
-            <a href="/prediction/" class="btn btn-feature">⚽ Prediction</a>
-            <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">👥 Lineup</a>
+            <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">Forum</a>
+            <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">Highlight</a>
+            <a href="/prediction/" class="btn btn-feature">Prediction</a>
+            <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">Lineup</a>
         </div>
     </div>
 
@@ -42,12 +34,15 @@
             </form>
         </div>
     </div>
+{% endblock %}
 
+{% block extra_js %}
     <script>
-        const defaultProfilePic = "{% static '/forum/image/default_pp.jpg' %}";
+        const defaultProfilePic = "{% static 'forum/image/default_pp.jpg' %}";
         const forumId = "{{ forum.id }}";
+        const currentUserId = "{{ user.id }}";
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'forum/js/main_forum.js' %}"></script>
-</body>
-</html>
 {% endblock %}

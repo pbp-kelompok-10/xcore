@@ -19,7 +19,7 @@ from django import forms
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict access to superusers only."""
     def test_func(self):
-        return self.request.user.is_superuser
+        return self.request.user.is_admin
 
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:

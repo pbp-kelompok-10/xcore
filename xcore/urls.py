@@ -11,5 +11,6 @@ urlpatterns = [
     path('highlight/', include('highlights.urls', namespace='highlight')),
     path('', include('landingpage.urls')),
     path('forum/', include('forum.urls', namespace='forum')),
+    path('user/', include('user.urls', namespace='user')),
 ]
 
