@@ -12,9 +12,6 @@ from scoreboard.models import Match
 User = get_user_model()
 
 
-# ------------------------------------------------------------
-# 🧩 Base setup for all lineup-related tests
-# ------------------------------------------------------------
 class BaseSetup(TestCase):
     def setUp(self):
         self.client = Client()
@@ -37,9 +34,6 @@ class BaseSetup(TestCase):
             Player.objects.create(nama=f"AwayPlayer{i}", asal="Korea", umur=25, nomor=i, tim=self.team_away)
 
 
-# ------------------------------------------------------------
-# 🧱 Superuser mixin edge cases
-# ------------------------------------------------------------
 class PermissionEdgeCasesTest(BaseSetup):
     def test_redirect_unauthenticated_user(self):
         """Unauthenticated user redirected to login"""
@@ -54,9 +48,6 @@ class PermissionEdgeCasesTest(BaseSetup):
         self.assertEqual(response.status_code, 403)
 
 
-# ------------------------------------------------------------
-# 🧱 Team UpdateView coverage
-# ------------------------------------------------------------
 class TeamUpdateViewTest(BaseSetup):
     def test_team_update_get_context_contains_formset(self):
         self.client.login(username="admin", password="admin123")
@@ -73,13 +64,7 @@ class TeamUpdateViewTest(BaseSetup):
         self.assertTrue(any("Please correct errors" in m for m in messages))
 
 
-# ------------------------------------------------------------
-# 🧱 Player CRUD and DetailView
-# ------------------------------------------------------------
 
-# ------------------------------------------------------------
-# 🧱 PlayerListView coverage
-# ------------------------------------------------------------
 class PlayerListViewTest(BaseSetup):
     def test_grouped_players_in_context(self):
         self.client.login(username="admin", password="admin123")
@@ -90,9 +75,6 @@ class PlayerListViewTest(BaseSetup):
         self.assertTrue(all(hasattr(p, "nama") for p in grouped[self.team_home]))
 
 
-# ------------------------------------------------------------
-# 🧱 Lineup Detail, Create, Update, Delete
-# ------------------------------------------------------------
 class LineupViewsTest(BaseSetup):
     def test_lineup_detail_view(self):
         self.client.login(username="admin", password="admin123")
@@ -136,9 +118,6 @@ class LineupViewsTest(BaseSetup):
         self.assertFalse(Lineup.objects.filter(match=self.match).exists())
 
 
-# ------------------------------------------------------------
-# 🧱 Upload tests (teams + players)
-# ------------------------------------------------------------
 class UploadTeamsViewTest(BaseSetup):
     def make_zip(self, files):
         buffer = io.BytesIO()
@@ -187,9 +166,6 @@ class UploadPlayersViewTest(BaseSetup):
         self.assertEqual(res.status_code, 400)
 
 
-# ------------------------------------------------------------
-# 🧱 Helper AJAX APIs
-# ------------------------------------------------------------
 class HelperFunctionsTest(BaseSetup):
     def test_get_teams_for_match(self):
         res = self.client.get(reverse("lineup:ajax-get-teams"), {"match": self.match.id})
@@ -204,9 +180,6 @@ class HelperFunctionsTest(BaseSetup):
         self.assertTrue(any("#" in p["name"] for p in data["players"]))
 
 
-# ------------------------------------------------------------
-# 🧱 Upload edge cases (no file, non-admin)
-# ------------------------------------------------------------
 class UploadEdgeCaseTest(BaseSetup):
     def test_no_file_upload(self):
         self.client.login(username="admin", password="admin123")
@@ -221,12 +194,9 @@ class UploadEdgeCaseTest(BaseSetup):
         self.assertEqual(res.status_code, 403)
 
 
-# ------------------------------------------------------------
-# 🧱 Model coverage: Team, Player, Lineup
-# ------------------------------------------------------------
 class LineupModelTest(TestCase):
     def setUp(self):
-        self.team = Team.objects.create(code='id')  # Indonesia
+        self.team = Team.objects.create(code='id')
         self.player = Player.objects.create(
             nama="Bambang",
             asal="Jakarta",

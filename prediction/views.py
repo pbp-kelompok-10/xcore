@@ -135,10 +135,15 @@ def update_vote(request, vote_id):
 
 
 @login_required
-@require_post
 def delete_vote(request, vote_id):
     """DELETE - User hapus vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
+
+    if request.method != "POST":
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Method not allowed. Use POST to delete a vote.'
+        }, status=405)
     
     # Check apakah masih bisa dihapus
     if not vote.can_modify():

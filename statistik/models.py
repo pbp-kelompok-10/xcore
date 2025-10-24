@@ -1,17 +1,12 @@
 from django.db import models
 
 class Statistik(models.Model):
-    # GANTI: match_id jadi ForeignKey ke Match
     match = models.ForeignKey(
         'scoreboard.Match',
         on_delete=models.CASCADE,
         related_name='statistics'
     )
-    
-    # HAPUS field duplikat ini:
-    # - team_home, team_away, score_home, score_away, stadium
-    
-    # SIMPAN hanya field statistik:
+
     pass_home = models.IntegerField(default=0)
     pass_away = models.IntegerField(default=0)
     shoot_home = models.IntegerField(default=0)

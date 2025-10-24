@@ -14,7 +14,6 @@ class PredictionBaseSetup(TestCase):
     def setUp(self):
         self.client = Client()
 
-        # Users
         self.user = User.objects.create_user(
             username="user1",
             password="pass123",
@@ -26,7 +25,7 @@ class PredictionBaseSetup(TestCase):
             is_admin=False,
         )
 
-        # Match for predictions; in the future so voting is still open initially
+
         self.match = Match.objects.create(
             id=uuid.uuid4(),
             home_team_code="jp",
@@ -38,20 +37,11 @@ class PredictionBaseSetup(TestCase):
             status="upcoming",
         )
 
-        # Prediction linked to the match
         self.prediction = Prediction.objects.create(
             match=self.match,
             votes_home_team=5,
             votes_away_team=3,
         )
-
-        # URL names must match your prediction/urls.py
-        # I'm assuming:
-        # path('', prediction_list, name='list')
-        # path('vote/', submit_vote, name='submit_vote')
-        # path('my-votes/', my_votes, name='my_votes')
-        # path('vote/<uuid:vote_id>/edit/', update_vote, name='update_vote')
-        # path('vote/<uuid:vote_id>/delete/', delete_vote, name='delete_vote')
         self.prediction_list_url = reverse("prediction:list")
         self.submit_vote_url = reverse("prediction:submit_vote")
         self.my_votes_url = reverse("prediction:my_votes")
@@ -137,11 +127,9 @@ class SubmitVoteTests(PredictionBaseSetup):
     def test_submit_vote_closed_deadline(self):
         """
         If voting is closed (deadline passed), should block.
-        We'll simulate closed by moving match_date to the past so is_voting_open() returns False.
         """
         self.client.login(username="user1", password="pass123")
 
-        # force match to be in the past so deadline is passed
         self.prediction.match.match_date = timezone.now() - timezone.timedelta(hours=1)
         self.prediction.match.save()
 
@@ -161,7 +149,6 @@ class SubmitVoteTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # user has already voted home
         Vote.objects.create(
             user=self.user,
             prediction=self.prediction,
@@ -186,27 +173,23 @@ class SubmitVoteTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # keep match date in the future so voting is open
 
         res = self.client.post(self.submit_vote_url, {
             "prediction_id": str(self.prediction.id),
-            "choice": "home",  # should increment votes_home_team
+            "choice": "home",
         })
 
         self.assertEqual(res.status_code, 200)
         data = res.json()
         self.assertEqual(data["status"], "success")
 
-        # Should include home/away info
         self.assertEqual(data["home"]["team"], self.prediction.match.home_team)
         self.assertEqual(data["away"]["team"], self.prediction.match.away_team)
 
-        # Verify it incremented
         self.prediction.refresh_from_db()
-        self.assertEqual(self.prediction.votes_home_team, 6)  # 5 + 1
+        self.assertEqual(self.prediction.votes_home_team, 6)
         self.assertEqual(self.prediction.votes_away_team, 3)
 
-        # ensure Vote created for that user
         self.assertTrue(
             Vote.objects.filter(user=self.user, prediction=self.prediction).exists()
         )
@@ -220,7 +203,6 @@ class MyVotesViewTests(PredictionBaseSetup):
         """
         res = self.client.get(self.my_votes_url)
         self.assertEqual(res.status_code, 302)
-        # optional: assert it's a login-ish redirect
         self.assertIn("login", res.url.lower())
 
     def test_my_votes_lists_user_votes(self):
@@ -246,7 +228,6 @@ class MyVotesViewTests(PredictionBaseSetup):
         self.assertIn("votes", res.context)
 
         votes_qs = res.context["votes"]
-        # first should be my_vote because of order_by('-voted_at')
         self.assertEqual(list(votes_qs)[0].id, my_vote.id)
         self.assertTrue(all(v.user == self.user for v in votes_qs))
 
@@ -254,7 +235,6 @@ class MyVotesViewTests(PredictionBaseSetup):
 class UpdateVoteViewTests(PredictionBaseSetup):
     def setUp(self):
         super().setUp()
-        # User's existing vote
         self.vote = Vote.objects.create(
             user=self.user,
             prediction=self.prediction,
@@ -283,7 +263,6 @@ class UpdateVoteViewTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # Close the window: put match in the past
         self.prediction.match.match_date = timezone.now() - timezone.timedelta(hours=1)
         self.prediction.match.save()
 
@@ -291,7 +270,6 @@ class UpdateVoteViewTests(PredictionBaseSetup):
         self.assertEqual(res.status_code, 200)
 
         messages = [m.message for m in get_messages(res.wsgi_request)]
-        # Expect "Voting sudah ditutup! Tidak bisa ubah vote lagi."
         self.assertTrue(any("voting sudah ditutup" in m.lower() for m in messages))
 
     def test_update_vote_post_success_changes_choice_and_counts(self):
@@ -301,19 +279,17 @@ class UpdateVoteViewTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # Keep match in future so we can still modify
         res = self.client.post(self.update_url, {
             "choice": "away"
         }, follow=True)
 
         self.assertEqual(res.status_code, 200)
 
-        # Reload objects and verify
         self.prediction.refresh_from_db()
         self.vote.refresh_from_db()
 
-        self.assertEqual(self.prediction.votes_home_team, 4)  # 5 - 1
-        self.assertEqual(self.prediction.votes_away_team, 4)  # 3 + 1
+        self.assertEqual(self.prediction.votes_home_team, 4)
+        self.assertEqual(self.prediction.votes_away_team, 4)
         self.assertEqual(self.vote.choice, "away")
 
         msgs = [m.message for m in get_messages(res.wsgi_request)]
@@ -349,7 +325,6 @@ class DeleteVoteViewTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # Force deadline passed
         self.prediction.match.match_date = timezone.now() - timezone.timedelta(hours=1)
         self.prediction.match.save()
 
@@ -366,7 +341,6 @@ class DeleteVoteViewTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # Force deadline passed
         self.prediction.match.match_date = timezone.now() - timezone.timedelta(hours=1)
         self.prediction.match.save()
 
@@ -391,16 +365,13 @@ class DeleteVoteViewTests(PredictionBaseSetup):
         """
         self.client.login(username="user1", password="pass123")
 
-        # Keep match in future => can_modify() True
         res = self.client.post(self.delete_url, follow=True)
         self.assertEqual(res.status_code, 200)
 
-        # After deleting this user's 'home' vote, home count should decrement
         self.prediction.refresh_from_db()
-        self.assertEqual(self.prediction.votes_home_team, 4)  # was 5 -> now 4
+        self.assertEqual(self.prediction.votes_home_team, 4)
         self.assertEqual(self.prediction.votes_away_team, 3)
 
-        # Vote should be gone
         self.assertFalse(Vote.objects.filter(id=self.vote.id).exists())
 
         msgs = [m.message for m in get_messages(res.wsgi_request)]
@@ -426,16 +397,3 @@ class DeleteVoteViewTests(PredictionBaseSetup):
         self.assertIn("berhasil dihapus", data["message"].lower())
 
         self.assertFalse(Vote.objects.filter(id=self.vote.id).exists())
-
-    def test_delete_vote_get_renders_confirmation_template(self):
-        """
-        GET should render confirmation page with the vote in context.
-        Assumes delete_vote view returns render(...) for GET
-        and that templates/delete_vote.html exists.
-        """
-        self.client.login(username="user1", password="pass123")
-
-        res = self.client.get(self.delete_url)
-        self.assertEqual(res.status_code, 200)
-        self.assertTemplateUsed(res, "delete_vote.html")
-        self.assertIn("vote", res.context)

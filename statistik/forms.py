@@ -5,8 +5,7 @@ class StatistikForm(forms.ModelForm):
     class Meta:
         model = Statistik
         fields = [
-            'match',  # GANTI: match_id jadi match
-            # HAPUS: team_home, team_away, score_home, score_away, stadium
+            'match', 
             'pass_home', 'pass_away', 'shoot_home', 'shoot_away', 
             'on_target_home', 'on_target_away', 'ball_possession_home', 
             'ball_possession_away', 'red_card_home', 'red_card_away',

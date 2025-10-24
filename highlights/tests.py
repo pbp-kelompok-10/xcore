@@ -12,7 +12,6 @@ class HighlightViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        # Create admin and normal user
         self.admin_user = User.objects.create_user(
             username="admin", password="admin123", is_admin=True
         )
@@ -20,7 +19,6 @@ class HighlightViewsTest(TestCase):
             username="user", password="user123", is_admin=False
         )
 
-        # Create a sample match (UUID auto-generated)
         self.match = Match.objects.create(
             home_team_code="jp",
             away_team_code="kr",
@@ -31,13 +29,11 @@ class HighlightViewsTest(TestCase):
             status="finished"
         )
 
-        # URLs from your highlights/urls.py
         self.detail_url = reverse("highlights:match_highlights", args=[self.match.id])
         self.create_url = reverse("highlights:highlight_create", args=[self.match.id])
         self.update_url = reverse("highlights:highlight_update", args=[self.match.id])
         self.delete_url = reverse("highlights:highlight_delete", args=[self.match.id])
 
-    # ---------------- DETAIL ----------------
     def test_highlight_detail_view(self):
         """Should render highlight detail page correctly."""
         response = self.client.get(self.detail_url)
@@ -45,7 +41,6 @@ class HighlightViewsTest(TestCase):
         self.assertTemplateUsed(response, "highlight.html")
         self.assertIn("match", response.context)
 
-    # ---------------- CREATE ----------------
     def test_highlight_create_forbidden_for_non_admin(self):
         """Non-admin users should not be able to create highlights."""
         self.client.login(username="user", password="user123")
@@ -62,7 +57,6 @@ class HighlightViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Highlight.objects.filter(match=self.match).exists())
 
-    # ---------------- UPDATE ----------------
     def test_highlight_update_as_admin(self):
         """Admin can update existing highlight."""
         highlight = Highlight.objects.create(
@@ -87,7 +81,6 @@ class HighlightViewsTest(TestCase):
         response = self.client.get(self.update_url)
         self.assertEqual(response.status_code, 403)
 
-    # ---------------- DELETE ----------------
     def test_highlight_delete_as_admin(self):
         """Admin can delete highlight."""
         Highlight.objects.create(

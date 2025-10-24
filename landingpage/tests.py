@@ -21,7 +21,6 @@ class LandingPageViewTest(TestCase):
             password='testpass123'
         )
 
-    # -------------------- Landing --------------------
     def test_landing_home_view(self):
         """Landing page renders correctly"""
         response = self.client.get(self.home_url)
@@ -30,7 +29,6 @@ class LandingPageViewTest(TestCase):
         self.assertIn('features', response.context)
         self.assertIn('title', response.context)
 
-    # -------------------- Register --------------------
     def test_register_get_request(self):
         """GET request to register page renders form"""
         response = self.client.get(self.register_url)
@@ -49,7 +47,6 @@ class LandingPageViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username='newuser').exists())
 
-        # Test success message
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertIn("Your account has been successfully created!", messages[0])
 
@@ -58,14 +55,13 @@ class LandingPageViewTest(TestCase):
         data = {
             'username': 'invaliduser',
             'password1': 'abc',
-            'password2': 'xyz',  # mismatch
+            'password2': 'xyz',
         }
         response = self.client.post(self.register_url, data)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'register.html')
         self.assertFalse(User.objects.filter(username='invaliduser').exists())
 
-    # -------------------- Login --------------------
     def test_login_get_request(self):
         """GET request to login page renders AuthenticationForm"""
         response = self.client.get(self.login_url)
@@ -87,7 +83,6 @@ class LandingPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'login.html')
 
-    # -------------------- Logout --------------------
     def test_logout_user_redirects_to_login(self):
         """Logging out redirects to login page"""
         self.client.login(username='testuser', password='testpass123')
@@ -95,7 +90,6 @@ class LandingPageViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.login_url)
 
-    # -------------------- Profile --------------------
     def test_profile_view(self):
         """Profile page renders correctly"""
         response = self.client.get(self.profile_url)
