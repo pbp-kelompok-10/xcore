@@ -347,6 +347,7 @@
         display: flex;
         align-items: center;
         width: 35%;
+        z-index: 1;
     }
 
     .team img {
@@ -480,7 +481,19 @@
         font-size: 1.5rem;
     }
 
+    /* === FOOTER === */
+    .footer {
+        text-align: center;
+        padding: 30px 20px;
+        margin-top: 50px;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--light-active);
+        background: var(--white);
+        backdrop-filter: blur(10px);
+    }
 
+    /* === RESPONSIVE === */
     @media (max-width: 768px) {
         .football-element {
             opacity: 0.02;
@@ -495,19 +508,19 @@
             padding: 20px;
             text-align: center;
         }
-
+        
         .team {
             width: 100%;
             justify-content: center;
             margin-bottom: 15px;
         }
-
+        
         .score-section {
             width: 100%;
             order: -1;
             margin-bottom: 20px;
         }
-
+        
         .team:last-child {
             margin-bottom: 0;
         }
@@ -595,22 +608,8 @@
 
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
-        <div class="date-section-wrapper">
-            <div class="date-section">
-                <div class="date-header-container">
-                    <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
-                    {% with has_non_upcoming=False %}
-                        {% for match in matches %}
-                            {% if match.status != 'upcoming' %}
-                                {% if not has_non_upcoming %}
-                                    <a href="{% url 'forum:forum_detail' match.id %}" class="feature-button">💬 Buka Forum</a>
-                                    {% with has_non_upcoming=True %}
-                                    {% endwith %}
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endwith %}
-                </div>
+        <div class="date-section">
+            <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
 
             {% for match in matches %}
                 {% if match.status == 'upcoming' %}
@@ -626,13 +625,11 @@
                             <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit</a>
                             {% endif %}
 
-                        <div class="score-section">
-                            <div class="score">
-                                {% if match.status == 'upcoming' %}
-                                    - : -
-                                {% else %}
-                                    {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
-                                {% endif %}
+                            <div class="team">
+                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
+                                     alt="{{ match.home_team }}"
+                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                <div class="team-name">{{ match.home_team }}</div>
                             </div>
 
                             <div class="score-section">
@@ -663,6 +660,7 @@
                                      onerror="this.src='https://flagcdn.com/w40/unknown.png'">
                             </div>
                         </div>
+                    </div>
 
                 {% if match.status != 'upcoming' %}
                     <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">
@@ -680,6 +678,10 @@
             <p>Mulai dengan menambahkan pertandingan pertama Anda menggunakan tombol di atas.</p>
         </div>
     {% endif %}
+</div>
+
+<div class="footer">
+    &copy; 2024 Xcore Scoreboard. All rights reserved.
 </div>
 {% endblock %}
 
