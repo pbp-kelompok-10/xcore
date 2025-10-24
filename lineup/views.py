@@ -97,7 +97,7 @@ class PlayerCreateView(SuperuserRequiredMixin, CreateView):
     fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
     template_name = 'players/player_form.html'
     def get_success_url(self):
-        return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
+        return reverse('lineup:player-list')
 
 
 class PlayerUpdateView(SuperuserRequiredMixin, UpdateView):

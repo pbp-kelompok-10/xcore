@@ -61,7 +61,7 @@ body {
     min-height: 100vh;
     display: flex;          
     flex-direction: column;  
-    background-color: var(--green-light);
+    background-color: var(--green-light); 
 }
 
 /* Background Gradient Utilities */
@@ -79,9 +79,9 @@ body {
 .navbar-xcore {
     background: linear-gradient(90deg, var(--green-darker), var(--green-light-active), var(--green-normal));
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed; 
     top: 0;
-    z-index: 100;
+    left: 0;
     width: 100%;
     padding: 1rem 0; /* Tambahin ini biar lebih tinggi */
 }
@@ -601,10 +601,10 @@ footer{
     font-size: 16px;
     font-weight: 500;
     line-height: normal;
-    position: relative;
 }
 
-.row{
+
+.row {
     width: 85%;
     margin: auto;
     display: flex;

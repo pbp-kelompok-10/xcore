@@ -48,8 +48,6 @@ def logout_user(request):
     logout(request)
     return redirect('landingpage:home')
 
-def profile_user(request):
-    context = {
-        'name': request.user.username,
-    }
-    return render(request, 'profile.html', context)
+
+def profile(request):
+    return render(request, 'profile.html')

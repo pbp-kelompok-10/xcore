@@ -278,6 +278,272 @@
 <!-- Include Modal -->
 {% include 'modal/modal_poll.html' %}
 
+<style>
+/* ============================================
+   PREDICTION CENTER STYLES
+   ============================================ */
+
+.prediction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3rem 0 2rem 0;
+}
+
+.prediction-title {
+  font-size: 2.5rem;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+}
+
+.prediction-subtitle {
+  color: var(--blue-normal);
+  font-size: 1.1rem;
+}
+
+.btn-my-votes {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  color: var(--white-light);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-my-votes:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(84, 104, 129, 0.4);
+}
+
+.section-header {
+  margin: 2rem 0 1.5rem 0;
+}
+
+.section-header h3 {
+  color: var(--green-darker);
+  font-size: 1.8rem;
+  border-left: 4px solid var(--green-normal);
+  padding-left: 1rem;
+}
+
+.predictions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.prediction-card {
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.prediction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.live-card {
+  border: 2px solid #dc3545;
+}
+
+.finished-card {
+  opacity: 0.85;
+}
+
+.live-indicator {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #dc3545;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.finished-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.match-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.team {
+  flex: 1;
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green-darker);
+}
+
+.vs-badge {
+  background: var(--green-light);
+  color: var(--green-darker);
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin: 0 1rem;
+}
+
+.match-details {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.match-date, .match-stadium {
+  color: var(--blue-normal);
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
+.match-score {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.match-score .score {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green-darker);
+}
+
+.already-voted {
+  background: var(--green-light);
+  color: var(--green-darker);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.vote-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: none;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+
+.vote-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+}
+
+.vote-btn.voted {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+}
+
+/* Vote Results */
+.vote-results {
+  background: var(--green-light);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.result-item {
+  margin-bottom: 1rem;
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+}
+
+.result-label {
+  display: block;
+  font-weight: 600;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  background: var(--white-light);
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, var(--green-normal), var(--green-dark));
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.result-value {
+  font-size: 0.9rem;
+  color: var(--blue-normal);
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--blue-normal);
+  font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .predictions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .match-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .vs-badge {
+    margin: 0;
+  }
+
+  .prediction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+</style>
+
 <script>
 function getCookie(name) {
     let cookieValue = null;
