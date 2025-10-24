@@ -1,8 +1,6 @@
 from django.contrib import admin
 from .models import Match, Prediction, Vote
 
-
-# ==== 1️⃣ MATCH ADMIN ====
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
     list_display = (
@@ -35,7 +33,6 @@ class MatchAdmin(admin.ModelAdmin):
     inlines = [PredictionInline]
 
 
-# ==== 2️⃣ PREDICTION ADMIN ====
 @admin.register(Prediction)
 class PredictionAdmin(admin.ModelAdmin):
     list_display = ['id', 'question', 'match', 'votes_home_team', 'votes_away_team', 'total_votes']
@@ -64,8 +61,6 @@ class PredictionAdmin(admin.ModelAdmin):
 
     inlines = [VoteInline]
 
-
-# ==== 3️⃣ VOTE ADMIN ====
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'prediction', 'choice', 'voted_at']

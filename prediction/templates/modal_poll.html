@@ -1,0 +1,331 @@
+<!-- Modal Polling -->
+<div id="polling-popup" class="popup-overlay hidden">
+  <div class="popup-container">
+    <!-- Close Button -->
+    <button class="popup-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Modal Header -->
+    <div class="popup-header">
+      <h3 class="popup-title">Who will win?</h3>
+      <p class="popup-subtitle">Cast your vote for the winner!</p>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="popup-body">
+      <div class="team-buttons">
+        <button class="team-btn team-home" data-team="home">
+          <svg class="team-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Home Team</span>
+        </button>
+        
+        <div class="vs-divider">VS</div>
+        
+        <button class="team-btn team-away" data-team="away">
+          <svg class="team-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Away Team</span>
+        </button>
+      </div>
+
+      <button class="team-btn team-draw" data-team="draw">
+        <svg class="team-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span>Draw</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ============================================
+   MODAL POLLING STYLES
+   ============================================ */
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 66, 59, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.popup-overlay.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.popup-container {
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Close Button */
+.popup-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--green-light);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--green-darker);
+}
+
+.popup-close-btn:hover {
+  background: var(--green-light-active);
+  transform: rotate(90deg);
+}
+
+/* Modal Header */
+.popup-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.popup-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--green-darker);
+  margin-bottom: 8px;
+}
+
+.popup-subtitle {
+  font-size: 0.95rem;
+  color: var(--blue-normal);
+  font-weight: 500;
+}
+
+/* Modal Body */
+.popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.team-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.vs-divider {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green-normal);
+  padding: 0 8px;
+}
+
+/* Team Buttons */
+.team-btn {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
+}
+
+.team-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(86, 189, 169, 0.4);
+  background: linear-gradient(135deg, var(--green-dark), var(--green-darker));
+}
+
+.team-btn:active {
+  transform: translateY(-2px);
+}
+
+.team-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.team-btn span {
+  font-size: 0.9rem;
+}
+
+/* Draw Button (Full Width) */
+.team-draw {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  box-shadow: 0 4px 12px rgba(84, 104, 129, 0.3);
+}
+
+.team-draw:hover {
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue-dark-hover));
+  box-shadow: 0 8px 20px rgba(84, 104, 129, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .popup-container {
+    padding: 24px;
+    margin: 16px;
+  }
+
+  .team-buttons {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .vs-divider {
+    display: none;
+  }
+
+  .popup-title {
+    font-size: 1.5rem;
+  }
+
+  .team-btn {
+    padding: 14px 20px;
+  }
+
+  .team-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const popup = document.getElementById("polling-popup");
+  const closeBtn = document.querySelector(".popup-close-btn");
+  let currentPredictionId = null;
+
+  // Open popup when vote button clicked
+  document.querySelectorAll(".vote-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const card = btn.closest(".prediction-card");
+      const matchTitle = card.querySelector("h3").textContent;
+      currentPredictionId = btn.dataset.predictionId;
+      
+      popup.querySelector(".popup-title").textContent = `Who will win: ${matchTitle}?`;
+      popup.classList.remove("hidden");
+    });
+  });
+
+  // Close popup
+  closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
+  
+  // Close popup when clicking outside
+  popup.addEventListener("click", (e) => {
+    if (e.target === popup) {
+      popup.classList.add("hidden");
+    }
+  });
+
+  // Handle team button clicks
+  document.querySelectorAll(".team-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const choice = btn.dataset.team;
+      
+      if (!currentPredictionId) {
+        alert("Prediction ID tidak ditemukan!");
+        return;
+      }
+
+      // Disable buttons while submitting
+      document.querySelectorAll(".team-btn").forEach(b => b.disabled = true);
+      
+      fetch("submit-vote/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: `prediction_id=${currentPredictionId}&choice=${choice}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          // Success animation
+          btn.style.transform = "scale(1.1)";
+          setTimeout(() => {
+            alert("Vote berhasil! 🎉");
+            popup.classList.add("hidden");
+            btn.style.transform = "";
+          }, 300);
+        } else {
+          alert(data.message || "Terjadi kesalahan");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan saat mengirim vote");
+      })
+      .finally(() => {
+        // Re-enable buttons
+        document.querySelectorAll(".team-btn").forEach(b => b.disabled = false);
+      });
+    });
+  });
+
+  // Helper function to get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
+</script>

@@ -271,10 +271,15 @@
                 {% elif match.statistics.all %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
                 {% else %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
+                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
                 {% endif %}
-                        <div class="match-card">
-                            <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit Pertandingan</a>
+                    <div class="match-card">
+                        <div class="team">
+                            <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png" 
+                                    alt="{{ match.home_team }}"
+                                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <div class="team-name">{{ match.home_team }}</div>
+                        </div>
 
                             <div class="team">
                                 <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
@@ -311,6 +316,30 @@
                                      alt="{{ match.away_team }}"
                                      onerror="this.src='https://flagcdn.com/w40/unknown.png'">
                             </div>
+                            <div class="match-info">
+                                {% if match.status == 'upcoming' %}
+                                    <span class="status-upcoming">UPCOMING</span>
+                                {% elif match.status == 'live' %}
+                                    <span class="status-live">LIVE</span>
+                                {% else %}
+                                    <span class="status-finished">FINISHED</span>
+                                {% endif %}
+
+                                <br>
+                                {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
+                                {{ match.stadium }}
+
+                                
+                            </div>
+                        </div>
+                        
+
+
+                        <div class="team" style="justify-content: flex-end;">
+                            <div class="team-name">{{ match.away_team }}</div>
+                            <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
+                                    alt="{{ match.away_team }}"
+                                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
                         </div>
                     </div>
 
