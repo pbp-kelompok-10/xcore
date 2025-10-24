@@ -1,5 +1,5 @@
 from django.urls import path
-from scoreboard.views import scoreboard_list, admin_check, add_match, update_score, delete_match
+from scoreboard.views import scoreboard_list,add_match, update_score, delete_match
 from prediction.views import prediction_list
 from statistik.views import statistik_display
 

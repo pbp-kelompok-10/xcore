@@ -1,27 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="page">
   <!-- Navigation Buttons -->
   <div class="action-buttons">
     <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
     <div class="feature-buttons">
-      <a href="{% url 'forum:forum_detail' match.id %}" class="btn btn-feature">💬 Forum</a>
-      <a href="{% url 'highlights:match_highlights' match.id %}" class="btn btn-feature">🎥 Highlight</a>
-      <a href="/prediction/" class="btn btn-feature">⚽ Prediction</a>
+      <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn btn-feature">💬 Forum</a>
+      <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn btn-feature">🎥 Highlight</a>
+      <a href="{% url 'prediction:list' %}" class="btn btn-feature">⚽ Prediction</a>
       <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">👥 Lineup</a>
     </div>
   </div>
 
   <!-- Header Pertandingan -->
   <div class="match-header">
-    <h1 style="text-align:center;color:#3F6E7F;margin-bottom:10px;font-size:1.8em;">{{ match.stadium }}</h1>
+    <h1>{{ match.stadium }}</h1>
     
     <div class="teams-display">
       <div class="team">
         <div class="flag-placeholder">
           <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png" 
                alt="{{ match.home_team }}"
-               style="width: 60px; height: 40px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
                onerror="this.src='https://flagcdn.com/w80/unknown.png'">
         </div>
         <h2>{{ match.home_team }}</h2>
@@ -37,7 +37,6 @@
         <div class="flag-placeholder">
           <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png" 
                alt="{{ match.away_team }}"
-               style="width: 60px; height: 40px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
                onerror="this.src='https://flagcdn.com/w80/unknown.png'">
         </div>
         <h2>{{ match.away_team }}</h2>
@@ -47,63 +46,78 @@
 
   <!-- Team Statistics -->
   <div class="team-statistics">
-    <h3>Team Statistic</h3>
-    
+    <h3>Team Statistics</h3>
+
     {% if statistik %}
-      <div class="stats-table">
+      <div class="stats-comparison">
+        <div class="stats-header">
+          <div class="team-name">{{ match.home_team }}</div>
+          <div class="stat-label">Statistic</div>
+          <div class="team-name">{{ match.away_team }}</div>
+        </div>
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.pass_home }}</div>
           <div class="stat-name">Passes</div>
-          <div class="stat-value">{{ statistik.pass_home }}</div>
+          <div class="team-stat">{{ statistik.pass_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.shoot_home }}</div>
           <div class="stat-name">Shoot</div>
-          <div class="stat-value">{{ statistik.shoot_home }}</div>
+          <div class="team-stat">{{ statistik.shoot_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.on_target_home }}</div>
           <div class="stat-name">Shoot on Target</div>
-          <div class="stat-value">{{ statistik.on_target_home }}</div>
+          <div class="team-stat">{{ statistik.on_target_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.ball_possession_home }}%</div>
           <div class="stat-name">Ball Possession</div>
-          <div class="stat-value">{{ statistik.ball_possession_home }}%</div>
+          <div class="team-stat">{{ statistik.ball_possession_away }}%</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.red_card_home }}</div>
           <div class="stat-name">Red Card</div>
-          <div class="stat-value">{{ statistik.red_card_home }}</div>
+          <div class="team-stat">{{ statistik.red_card_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.yellow_card_home }}</div>
           <div class="stat-name">Yellow Card</div>
-          <div class="stat-value">{{ statistik.yellow_card_home }}</div>
+          <div class="team-stat">{{ statistik.yellow_card_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.offside_home }}</div>
           <div class="stat-name">Offside</div>
-          <div class="stat-value">{{ statistik.offside_home }}</div>
+          <div class="team-stat">{{ statistik.offside_away }}</div>
         </div>
-        
+
         <div class="stat-row">
+          <div class="team-stat">{{ statistik.corner_home }}</div>
           <div class="stat-name">Corners</div>
-          <div class="stat-value">{{ statistik.corner_home }}</div>
+          <div class="team-stat">{{ statistik.corner_away }}</div>
         </div>
       </div>
 
-      <!-- ✅ TOMBOL EDIT & DELETE DI BAWAH STATISTIK -->
-      <div class="crud-buttons" style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-        <a href="{% url 'statistik:update_statistik' match.id %}" class="btn-edit">✏️ Edit Statistik</a>
-        <a href="{% url 'statistik:delete_statistik' match.id %}" class="btn-delete">🗑️ Hapus Statistik</a>
-      </div>
+      {% if request.user.is_authenticated and request.user.is_admin %}
+        <div class="crud-buttons">
+          <a href="{% url 'statistik:update_statistik' match.id %}" class="btn-edit">✏️ Edit Statistik</a>
+          <a href="{% url 'statistik:delete_statistik' match.id %}" class="btn-delete">🗑️ Hapus Statistik</a>
+        </div>
+      {% endif %}
 
     {% else %}
-      <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px; margin: 20px 0;">
-        <p style="color: #6c757d; font-size: 1.1em; margin-bottom: 20px;">Belum ada statistik untuk pertandingan ini.</p>
-        <a href="{% url 'statistik:add_statistik' match.id %}" class="btn-add">
-          ➕ Tambah Statistik Pertama
-        </a>
+      <div class="no-statistik">
+        <p>📊 No statistik is available right now.</p>
+        {% if request.user.is_authenticated and request.user.is_admin %}
+          <a href="{% url 'statistik:add_statistik' match.id %}" class="btn-add">➕ Tambah Statistik Pertama</a>
+        {% endif %}
       </div>
     {% endif %}
   </div>
@@ -422,4 +436,5 @@
   }
 }
 </style>
+
 {% endblock %}

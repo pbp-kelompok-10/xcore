@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -42,7 +43,7 @@
             flex-wrap: wrap;
         }
         
-        .cta-button {
+        .cta-button2 {
             display: inline-block;
             padding: 15px 30px;
             background: #ff6b6b;
@@ -54,25 +55,20 @@
             transition: transform 0.3s, background 0.3s;
         }
         
-        .cta-button:hover {
+        .cta-button2:hover {
             transform: translateY(-3px);
             background: #ff5252;
         }
 
-        .cta-button.alt {
+        .cta-button2.alt {
             background: #28574E;
             border: 2px solid white;
         }
 
-        .cta-button.alt:hover {
+        .cta-button2.alt:hover {
             background: #1e403a;
         }
         
-        footer {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 <body>
@@ -83,18 +79,14 @@
 
         <div class="cta-buttons">
             {% if user.is_authenticated %}
-                <a href="/scoreboard" class="cta-button">Go to Dashboard</a>
-                <a href="{% url 'landingpage:logout' %}" class="cta-button alt">Logout</a>
+                <a href="/scoreboard" class="cta-button2">Go to Dashboard</a>
+                <a href="{% url 'landingpage:logout' %}" class="cta-button2 alt">Logout</a>
             {% else %}
-                <a href="{% url 'landingpage:login' %}" class="cta-button">Login</a>
-                <a href="{% url 'landingpage:register' %}" class="cta-button alt">Register</a>
+                <a href="{% url 'landingpage:login' %}" class="cta-button2">Login</a>
+                <a href="{% url 'landingpage:register' %}" class="cta-button2 alt">Register</a>
             {% endif %}
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Xcore Scoreboard. All rights reserved.</p>
-    </footer>
+    
 </body>
 </html>

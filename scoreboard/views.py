@@ -10,6 +10,7 @@ from django.db.models.functions import TruncDate
 from forum.models import Forum
 from django.contrib import messages
 from prediction.models import Prediction
+from django.http import HttpResponseForbidden
 
 def scoreboard_list(request):
     matches = Match.objects.all().order_by('match_date')
@@ -26,11 +27,10 @@ def scoreboard_list(request):
     }
     return render(request, 'scoreboard_list.html', context)
 
-def admin_check(user):
-    return user.is_superuser
 
-# @user_passes_test(admin_check)
 def add_match(request):
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to add matches.")
     if request.method == 'POST':
         form = MatchForm(request.POST)
         if form.is_valid():
@@ -52,8 +52,9 @@ def add_match(request):
     return render(request, 'add_match.html', {'form': form})
 
 
-# @user_passes_test(admin_check)
 def update_score(request, match_id):
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to update scores.")
     match = get_object_or_404(Match, id=match_id)
     
     if request.method == "POST":
@@ -69,6 +70,8 @@ def update_score(request, match_id):
     return render(request, 'update_score.html', {'match': match})
 
 def delete_match(request, match_id):
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to delete matches.")
     match = get_object_or_404(Match, id=match_id)
 
     if request.method == "POST":

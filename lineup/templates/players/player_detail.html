@@ -102,6 +102,7 @@
   </style>
 </head>
 <body>
+  
   <div class="player-card">
     <h1>{{ player.nama }}</h1>
 
@@ -120,7 +121,7 @@
     </div>
 
     <div class="actions">
-      {% if request.user.is_superuser %}
+      {% if request.user.is_admin %}
         <a href="{% url 'lineup:player-update' player.pk %}" class="btn-edit">✏️ Edit</a>
 
         <form method="post"

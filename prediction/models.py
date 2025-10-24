@@ -1,18 +1,10 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
-from scoreboard.models import Match
-
-# Create your models here.
-
-# menyimpan Prediction/voting untuk setiap pertandingan
-# models.py
-
-from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
 from scoreboard.models import Match
 import uuid
+from django.conf import settings
 
 class Prediction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -51,7 +43,7 @@ class Prediction(models.Model):
 
 class Vote(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='votes')
     prediction = models.ForeignKey(Prediction, on_delete=models.CASCADE, related_name='votes')
     choice = models.CharField(max_length=100) 
     voted_at = models.DateTimeField(auto_now_add=True)

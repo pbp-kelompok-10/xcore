@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login,logout
-
+from user.forms import CustomUserCreationForm
 # Create your views here.
 def landing_home(request):
     context = {
@@ -19,15 +19,16 @@ def landing_home(request):
     return render(request, 'landing.html', context)
 
 def register(request):
-    form = UserCreationForm()
-
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Your account has been successfully created!')
+            user = form.save()
+            messages.success(request, "Your account has been successfully created!")
             return redirect('landingpage:login')
-    context = {'form':form}
+    else:
+        form = CustomUserCreationForm()
+
+    context = {'form': form}
     return render(request, 'register.html', context)
 
 def login_user(request):
@@ -48,4 +49,5 @@ def logout_user(request):
     logout(request)
     return redirect('landingpage:login')
 
-
+def profile(request):
+    return render(request, 'profile.html')

@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from scoreboard.models import Match
+from django.conf import settings
 
 class Forum(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, null=True)
@@ -16,10 +17,12 @@ class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    is_edited = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
-        return self.id + "-" + self.forum.id
+        return f"{str(self.id)}-{str(self.forum.id)}"
