@@ -121,7 +121,7 @@ $(document).ready(function () {
                 $postCard.find('.post-display').removeClass('editing');
                 $postCard.find('.edit-mode').removeClass('active');
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.');
+                showToast('Success!', 'Your post has been edited.', 'success');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
