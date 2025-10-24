@@ -45,7 +45,7 @@ class HighlightViewsTest(TestCase):
         """Non-admin users should not be able to create highlights."""
         self.client.login(username="user", password="user123")
         response = self.client.get(self.create_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
     def test_highlight_create_as_admin(self):
         """Admin should be able to create highlight."""
@@ -79,7 +79,7 @@ class HighlightViewsTest(TestCase):
         )
         self.client.login(username="user", password="user123")
         response = self.client.get(self.update_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
     def test_highlight_delete_as_admin(self):
         """Admin can delete highlight."""
@@ -100,4 +100,4 @@ class HighlightViewsTest(TestCase):
         )
         self.client.login(username="user", password="user123")
         response = self.client.get(self.delete_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)

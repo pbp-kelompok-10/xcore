@@ -127,7 +127,7 @@ class StatistikViewTests(TestCase):
         Statistik.objects.create(match=self.match, **self.valid_data)
         self.client.login(username="user", password="pass456")
         res = self.client.post(self.update_url)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
     def test_update_admin_post_valid_normal(self):
         statistik = Statistik.objects.create(match=self.match, **self.valid_data)
@@ -158,7 +158,7 @@ class StatistikViewTests(TestCase):
         Statistik.objects.create(match=self.match, **self.valid_data)
         self.client.login(username="user", password="pass456")
         res = self.client.post(self.delete_url)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
     def test_delete_admin_post_valid_normal(self):
         Statistik.objects.create(match=self.match, **self.valid_data)

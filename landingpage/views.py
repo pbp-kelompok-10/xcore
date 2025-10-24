@@ -10,7 +10,7 @@ from user.forms import CustomUserCreationForm
 def landing_home(request):
     context = {
         'title': 'Welcome to Xcore',
-        'tagline': 'Web scoring terbaik cihuyyyyyyy',
+        'tagline': 'Your Ultimate Football Companion',
         'features': [
             'Scoreboard',
             'Statistic', 
