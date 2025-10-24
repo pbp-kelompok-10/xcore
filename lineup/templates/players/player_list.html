@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Players - Xcore{% endblock %}
 
@@ -15,17 +16,97 @@
         --blue-normal: #546881;
         --blue-dark: #1d242d;
         --navbar-height: 64px;
+        --footer-height: 60px;
     }
 
-    .page {
+    .container-xcore {
         width: 80%;
         max-width: 1200px;
         margin: 0 auto;
-        padding: var(--navbar-height) 1rem 60px;
+        padding-top: var(--navbar-height);
+        padding-bottom: 60px;
         font-family: 'Poppins', sans-serif;
-        animation: fade-in 0.5s ease-in;
-        background: transparent;
-        min-height: 100vh;
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+    }
+
+    .prediction-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 3rem 0 2rem 0;
+        text-align: center !important;
+    }
+
+    .prediction-title {
+        font-size: 2.5rem;
+        color: var(--green-darker) !important;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        text-align: center !important;
+    }
+
+    .prediction-subtitle {
+        color: var(--blue-normal) !important;
+        font-size: 1.1rem;
+        text-align: center !important;
+    }
+
+    .tab-navigation-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .tab-group-left, .tab-group-right {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .tab-btn {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+        color: var(--white-light) !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+    }
+
+    .tab-btn.btn-back {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+    }
+
+    .tab-btn.btn-back:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+    }
+
+    .tab-btn.btn-add {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+    }
+
+    .tab-btn.btn-add:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+    }
+
+    .tab-btn.btn-upload {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+    }
+
+    .tab-btn.btn-upload:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
     }
 
     .search-bar {
@@ -33,87 +114,25 @@
         padding: 0.75rem 1rem;
         border-radius: 8px;
         border: 1px solid var(--blue-normal);
-        margin-bottom: 1rem; 
+        margin-bottom: 1rem;
         font-size: 1rem;
         font-family: 'Poppins', sans-serif;
         color: var(--blue-dark);
         transition: all 0.3s ease;
     }
 
-    .white-box {
-        background: var(--white-light);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-top: 1rem;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        color: var(--green-darker);
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-align: center;
-    }
-
-    .actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-        animation: fade-in 0.5s ease-in;
-    }
-
-    .btn {
-        display: inline-block;
-        text-decoration: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        color: var(--white-light);
-        text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        cursor: pointer;
-        border: none;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    }
-
-    .btn-back {
-        background: linear-gradient(135deg, var(--green-darker), var(--blue-dark));
-    }
-
-    .btn-back:hover {
-        background: linear-gradient(135deg, var(--blue-dark), var(--green-darker));
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
-    }
-
-    .btn-add:hover {
-        background: linear-gradient(135deg, var(--green-dark), var(--green-normal));
-    }
-
-    .btn-upload {
-        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
-    }
-
-    .btn-upload:hover {
-        background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal));
-    }
-
-
     .search-bar:focus {
         outline: none;
         border-color: var(--green-dark);
         box-shadow: 0 4px 12px rgba(86, 189, 169, 0.2);
+    }
+
+    .white-box {
+        background: var(--white-normal);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-top: 1rem;
     }
 
     .team-card {
@@ -220,21 +239,21 @@
 
     .empty {
         text-align: center;
-        padding: 3rem 2rem; /* dari 4rem jadi 6rem */
+        padding: 3rem 2rem;
         color: var(--blue-normal);
         font-size: 1.2rem;
         background: var(--white-light);
         border-radius: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin: 0; /* tambahkan margin top dan bottom */
+        margin: 0;
         animation: fade-in 0.5s ease-in;
-        min-height: 300px; /* tambahkan min-height */
+        min-height: 300px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    #uploadModal {
+    .modal {
         display: none;
         position: fixed;
         top: 0;
@@ -260,7 +279,7 @@
         animation: fade-in 0.5s ease-in;
     }
 
-    .modal-content h2 {
+    .modal-title {
         font-size: 1.8rem;
         font-weight: 700;
         color: var(--green-darker);
@@ -273,7 +292,13 @@
         color: var(--blue-dark);
     }
 
-    .modal-content button {
+    .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .btn-vote {
         background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
         color: var(--white-light);
         border: none;
@@ -281,20 +306,19 @@
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
-        margin: 0.5rem;
         transition: all 0.3s ease;
     }
 
-    .modal-content button:hover {
+    .btn-vote:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    .close-btn {
+    .btn-vote.close-btn {
         background: linear-gradient(135deg, #ef4444, #dc2626);
     }
 
-    .close-btn:hover {
+    .btn-vote.close-btn:hover {
         background: linear-gradient(135deg, #dc2626, #ef4444);
     }
 
@@ -310,22 +334,26 @@
     }
 
     @media (max-width: 768px) {
-        .page {
+        .container-xcore {
             width: 90%;
             padding: var(--navbar-height) 1rem 2rem;
-            
         }
 
-        h1 {
+        .prediction-title {
             font-size: 2rem;
         }
 
-        .actions {
+        .tab-navigation-wrapper {
             flex-direction: column;
             align-items: stretch;
         }
 
-        .btn {
+        .tab-group-left, .tab-group-right {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .tab-btn {
             width: 100%;
             margin-bottom: 0.5rem;
         }
@@ -348,11 +376,11 @@
             padding: 1.5rem;
         }
 
-        .modal-content h2 {
+        .modal-title {
             font-size: 1.5rem;
         }
 
-        .modal-content button {
+        .btn-vote {
             padding: 0.5rem 1rem;
             font-size: 0.85rem;
         }
@@ -361,20 +389,29 @@
 {% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Players</h1>
-
-    <div class="actions">
-        <a href="javascript:history.back()" class="btn btn-back">← Back</a>
-        <div style="display: flex; gap: 10px;">
-            {% if request.user.is_superuser %}
-            <a href="{% url 'lineup:player-create' %}" class="btn btn-add">+ Add Player</a>
-            <button class="btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
-            {% endif %}
+<div class="container-xcore">
+    <!-- Header -->
+    <div class="prediction-header fade-in text-center">
+        <div>
+            <h1 class="prediction-title">Players</h1>
+            <p class="prediction-subtitle">Discover all players in Xcore!</p>
         </div>
     </div>
 
-    <!-- KOTAK PUTIH DIMULAI DI SINI -->
+    <!-- Actions -->
+    <div class="tab-navigation-wrapper fade-in">
+        <div class="tab-group-left">
+            <a href="javascript:history.back()" class="tab-btn btn-back">← Back</a>
+        </div>
+        {% if request.user.is_admin %}
+        <div class="tab-group-right">
+            <a href="{% url 'lineup:player-create' %}" class="tab-btn btn-add">+ Add Player</a>
+            <button class="tab-btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- White Box -->
     <div class="white-box">
         <input type="text" id="search" class="search-bar" placeholder="🔍 Search player by name or number...">
 
@@ -410,18 +447,17 @@
         <p class="empty">No players available.</p>
         {% endif %}
     </div>
-    <!-- KOTAK PUTIH SELESAI DI SINI -->
 
     <!-- Upload Modal -->
-    <div id="uploadModal">
+    <div id="uploadModal" class="modal">
         <div class="modal-content">
-            <h2>Upload Players (ZIP)</h2>
+            <h2 class="modal-title">Upload Players (ZIP)</h2>
             <form id="uploadForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" id="zipFile" name="file" accept=".zip" required>
-                <div>
-                    <button type="submit">Upload</button>
-                    <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-vote">Upload</button>
+                    <button type="button" class="btn-vote close-btn" onclick="closeModal()">Cancel</button>
                 </div>
             </form>
             <p id="uploadStatus"></p>
