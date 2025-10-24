@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-  {% include 'components/navbar.html' %}
-{% include 'components/footer.html' %}
+
 <div class="page">
   <!-- Navigation Buttons -->
   <div class="action-buttons">
     <a href="/scoreboard/" class="btn btn-secondary">← Back to Scoreboard</a>
     <div class="feature-buttons">
-      <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">💬 Forum</a>
+      <a href="{% url 'forum:forum_detail' id=match.id%}" class="btn btn-feature">💬 Forum</a>
       <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn btn-feature">🎥 Highlight</a>
       <a href="{% url 'prediction:list' %}" class="btn btn-feature">⚽ Prediction</a>
       <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn btn-feature">👥 Lineup</a>

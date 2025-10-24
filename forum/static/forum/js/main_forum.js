@@ -21,25 +21,21 @@ $(document).ready(function () {
                 'message': postContent,
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
-            success: function () {
-                $("#postContent").val('');
-                displayPosts();
-            },
-            error: function (xhr) {
-                if (xhr.status === 401 && xhr.responseJSON?.redirect) {
-                    window.location.href = xhr.responseJSON.redirect;
+            success: function (data) {
+                if (!data.user_is_authenticated){
+                    showToast('Gagal!', 'Kamu harus login untuk menambahkan postingan.', 'error');
+                    $("#postContent").val('');
                     return;
                 }
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: xhr.responseJSON?.error || 'Error sending post.',
-                });
+                $("#postContent").val('');
+                displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah ditambahkan ke forum.', 'success');
+            },
+            error: function (xhr, status, error) {
+                showToast('Gagal!', 'Terjadi kesalahan saat menambahkan postingan.', 'error');
             }
         });
-
-
     });
 
     // Edit Post Trigger
@@ -123,6 +119,7 @@ $(document).ready(function () {
                 $postCard.find('.post-display').removeClass('editing');
                 $postCard.find('.edit-mode').removeClass('active');
                 displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.', 'success');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
@@ -145,6 +142,7 @@ $(document).ready(function () {
             },
             success: function (data) {
                 displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah dihapus.', 'success');
             },
             error: function (xhr, status, error) {
                 Swal.fire({

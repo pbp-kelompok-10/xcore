@@ -51,26 +51,28 @@ def edit_forum(request, forum_id):
 
     return render(request, 'edit_forum.html', {'forum': forum})
 
+@login_required(login_url='/login/')
 @require_POST
 def add_post(request, forum_id):
-    if not request.user.is_authenticated:
-        return JsonResponse({'redirect': '/login/?next=' + request.path}, status=401)
+    forum = Forum.objects.get(id=forum_id)
+    message = request.POST.get('message')
+    author = request.user
 
-    try:
-        forum = Forum.objects.get(id=forum_id)
-    except Forum.DoesNotExist:
-        return JsonResponse({'error': 'Forum not found.'}, status=404)
-
-    message = request.POST.get('message', '').strip()
+    if (request.user.is_anonymous):
+        return JsonResponse({'error': 'You must be logged in to post.'}, status=403)
+    
     if not message:
         return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
 
-    new_post = Post.objects.create(
+    new_post = Post(
         forum=forum,
         message=message,
-        author=request.user
+        author=author
     )
-    return JsonResponse({'message': 'Post added successfully.'}, status=201)
+    new_post.save()
+    
+    return HttpResponse(b'Post added successfully.', status=201)
+
 def get_posts(request, forum_id):
     try:
         forum = Forum.objects.get(id=forum_id)
