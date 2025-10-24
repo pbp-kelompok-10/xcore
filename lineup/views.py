@@ -47,14 +47,14 @@ class TeamCreateView(SuperuserRequiredMixin, CreateView):
     model = Team
     fields = ['code']
     template_name = 'teams/team_form.html'
-    success_url = reverse_lazy('team-list')
+    success_url = reverse_lazy('lineup:team-list')
 
 
 class TeamUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Team
     form_class = TeamForm
     template_name = 'teams/team_form.html'
-    success_url = reverse_lazy('team-list')
+    success_url = reverse_lazy('lineup:team-list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
