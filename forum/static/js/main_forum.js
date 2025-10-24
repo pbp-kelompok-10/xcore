@@ -22,8 +22,15 @@ $(document).ready(function () {
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function (data) {
+                if (!data.user_is_authenticated){
+                    showToast('Gagal!', 'Kamu harus login untuk menambahkan postingan.');
+                    $("#postContent").val('');
+                    return;
+                }
+
                 $("#postContent").val('');
                 displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah ditambahkan ke forum.');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
@@ -116,6 +123,7 @@ $(document).ready(function () {
                 $postCard.find('.post-display').removeClass('editing');
                 $postCard.find('.edit-mode').removeClass('active');
                 displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
@@ -138,6 +146,7 @@ $(document).ready(function () {
             },
             success: function (data) {
                 displayPosts();
+                showToast('Berhasil!', 'Postingan kamu sudah dihapus.');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
