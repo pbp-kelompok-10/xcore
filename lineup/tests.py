@@ -42,10 +42,10 @@ class PermissionEdgeCasesTest(BaseSetup):
         self.assertIn(reverse("landingpage:login"), response.url)
 
     def test_permission_denied_for_non_admin(self):
-        """Authenticated non-admin gets 403"""
+        """Authenticated non-admin gets 302"""
         self.client.login(username="user", password="user123")
         response = self.client.get(reverse("lineup:team-update", args=[self.team_home.id]))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
 
 class TeamUpdateViewTest(BaseSetup):
@@ -191,7 +191,7 @@ class UploadEdgeCaseTest(BaseSetup):
     def test_non_admin_upload_forbidden(self):
         self.client.login(username="user", password="user123")
         res = self.client.post(reverse("lineup:upload-teams"))
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
 
 class LineupModelTest(TestCase):

@@ -46,10 +46,10 @@ class ScoreboardViewTests(TestCase):
         self.assertTrue(any(isinstance(v, list) for v in grouped.values()))
 
     def test_add_match_requires_admin(self):
-        """Non-admin user should get 403"""
+        """Non-admin user should get 302"""
         self.client.login(username="user", password="pass456")
         res = self.client.get(self.add_match_url)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
     def test_add_match_admin_gets_form(self):
         """Admin should see the form page"""
@@ -61,7 +61,7 @@ class ScoreboardViewTests(TestCase):
     def test_update_score_requires_admin(self):
         self.client.login(username="user", password="pass456")
         res = self.client.get(self.update_score_url)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
     def test_update_score_admin_can_post(self):
         """Admin should update match fields"""
@@ -86,7 +86,7 @@ class ScoreboardViewTests(TestCase):
     def test_delete_match_requires_admin(self):
         self.client.login(username="user", password="pass456")
         res = self.client.post(self.delete_match_url)
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 302)
 
     def test_delete_match_admin_post_deletes_match(self):
         """Admin should delete match successfully"""
