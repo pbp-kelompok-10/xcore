@@ -243,7 +243,7 @@
       <div class="video-placeholder">
         <p>No highlight video available</p>
 
-        {% if user.is_superuser %}
+        {% if user.is_admin %}
           <a href="{% url 'highlights:highlight_create' match.id %}" class="add-video-btn">Add Video</a>
         {% endif %}
       </div>
@@ -254,7 +254,7 @@
   <div class="actions">
     <a href="{% url 'statistik:statistik_display' match.id %}" class="btn-action btn-back">← Back to Statistik</a>
 
-    {% if user.is_superuser and highlight %}
+    {% if user.is_admin and highlight %}
       <a href="{% url 'highlights:highlight_update' match.id %}" class="btn-action btn-edit">✏️ Update Highlight</a>
       <a href="{% url 'highlights:highlight_delete' match.id %}" class="btn-action btn-delete"
          onclick="return confirm('Are you sure you want to delete this highlight?');">

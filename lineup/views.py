@@ -24,7 +24,7 @@ class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             # Redirect unauthenticated users to login page
-            return redirect('login')
+            return redirect('landingpage:login')
         # Authenticated but not superuser → 403 Forbidden
         raise PermissionDenied("You do not have permission to access this page.")
 

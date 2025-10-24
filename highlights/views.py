@@ -25,8 +25,8 @@ def highlight_detail(request, match_id):
 
 
 def highlight_create(request, match_id):
-    if not request.user.is_admin:
-        return HttpResponseForbidden("You do not have permission to update highlights.")
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return HttpResponseForbidden("You do not have permission to create highlights.")
     
     match = get_object_or_404(Match, id=match_id)
 
@@ -53,7 +53,7 @@ def highlight_create(request, match_id):
 
 def highlight_update(request, match_id):
 
-    if not request.user.is_admin:
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
         return HttpResponseForbidden("You do not have permission to update highlights.")
     
     match = get_object_or_404(Match, id=match_id)
@@ -79,7 +79,7 @@ def highlight_update(request, match_id):
 
 def highlight_delete(request, match_id):
 
-    if not request.user.is_admin:
+    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
         return HttpResponseForbidden("You do not have permission to delete highlights.")
     
     match = get_object_or_404(Match, id=match_id)
