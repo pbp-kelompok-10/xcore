@@ -22,18 +22,20 @@ $(document).ready(function () {
                 'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
             },
             success: function (data) {
-                if (!data.user_is_authenticated){
-                    showToast('Gagal!', 'Kamu harus login untuk menambahkan postingan.', 'error');
-                    $("#postContent").val('');
-                    return;
-                }
-
                 $("#postContent").val('');
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah ditambahkan ke forum.', 'success');
+                showToast('Success!', 'Your post has been added to the forum.', 'success');
             },
             error: function (xhr, status, error) {
-                showToast('Gagal!', 'Terjadi kesalahan saat menambahkan postingan.', 'error');
+                let errorMessage = 'Error sending post.';
+
+                // Coba ambil pesan error dari JSON response
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+
+                showToast('Failed!', errorMessage, 'error');
+                $("#postContent").val('');
             }
         });
     });
@@ -119,7 +121,7 @@ $(document).ready(function () {
                 $postCard.find('.post-display').removeClass('editing');
                 $postCard.find('.edit-mode').removeClass('active');
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.', 'success');
+                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
@@ -142,7 +144,7 @@ $(document).ready(function () {
             },
             success: function (data) {
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah dihapus.', 'success');
+                showToast('Berhasil!', 'Postingan kamu sudah dihapus.');
             },
             error: function (xhr, status, error) {
                 Swal.fire({

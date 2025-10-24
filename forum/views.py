@@ -51,15 +51,14 @@ def edit_forum(request, forum_id):
 
     return render(request, 'edit_forum.html', {'forum': forum})
 
-@login_required(login_url='/login/')
 @require_POST
 def add_post(request, forum_id):
     forum = Forum.objects.get(id=forum_id)
     message = request.POST.get('message')
     author = request.user
-
-    if (request.user.is_anonymous):
-        return JsonResponse({'error': 'You must be logged in to post.'}, status=403)
+    
+    if (author.is_anonymous):
+        return JsonResponse({'error': 'You must be logged in to add a post.'}, status=403)
     
     if not message:
         return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
