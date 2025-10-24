@@ -2,15 +2,11 @@ from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import redirect
-<<<<<<< HEAD
-from django.contrib.auth import authenticate, login,logout
-=======
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
 
 # Create your views here.
 def landing_home(request):

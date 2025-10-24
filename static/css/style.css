@@ -538,7 +538,7 @@ h3 {
    ============================================ */
 .hero-section {
     background: var(--white-dark);
-    min-height: calc(100vh - var(--navbar-height));
+    min-height: calc(100vh - var(--navbar-height --footer-height));
     color: var(--green-darker);
 }
 

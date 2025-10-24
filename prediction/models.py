@@ -39,7 +39,6 @@ class Prediction(models.Model):
     def away_percentage(self):
         total = self.total_votes
         return (self.votes_away_team / total * 100) if total > 0 else 0
-<<<<<<< HEAD
     
     # TAMBAHIN INI - Check apakah voting masih bisa (deadline 2 jam sebelum match)
     def is_voting_open(self):
@@ -50,23 +49,16 @@ class Prediction(models.Model):
         return now < deadline
 
 
-class Vote(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes')
-=======
-
 # menyimpan vote user untuk setiap Prediction
 class Vote(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='votes')
     
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
     prediction = models.ForeignKey(Prediction, on_delete=models.CASCADE, related_name='votes')
     choice = models.CharField(max_length=100) 
     voted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-<<<<<<< HEAD
         unique_together = ('user', 'prediction')
 
     def __str__(self):
@@ -75,9 +67,7 @@ class Vote(models.Model):
     def can_modify(self):
         """Check apakah vote masih bisa diubah/dihapus (sebelum deadline)"""
         return self.prediction.is_voting_open()
-=======
         unique_together = ('user', 'prediction')  # biar 1 user cuma bisa vote 1 kali per prediction
 
     def __str__(self):
         return f"{self.user.username} voted {self.choice} on '{self.prediction.question}'"
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5

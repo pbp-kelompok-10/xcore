@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -15,7 +14,6 @@ def prediction_list(request):
     """Halaman utama untuk user melihat semua predictions"""
     predictions = Prediction.objects.select_related('match').all()
     
-=======
 from django.shortcuts import render
 from .models import Prediction
 from django.contrib.auth.decorators import login_required
@@ -30,7 +28,6 @@ def prediction_list(request):
 
 
     # bagi jadi 3 kategori berdasarkan status match
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
     upcoming_predictions = predictions.filter(match__status='upcoming')
     live_predictions = predictions.filter(match__status='live')
     finished_predictions = predictions.filter(match__status='finished')
@@ -40,19 +37,13 @@ def prediction_list(request):
         'live_predictions': live_predictions,
         'finished_predictions': finished_predictions,
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
     return render(request, 'prediction_center.html', context)
 
 
 @login_required(login_url='/login')
 def submit_vote(request):
-<<<<<<< HEAD
     """CREATE - User vote pertama kali"""
-=======
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
     if request.method == "POST":
         prediction_id = request.POST.get("prediction_id")
         choice = request.POST.get("choice")
@@ -61,7 +52,6 @@ def submit_vote(request):
             prediction = Prediction.objects.get(id=prediction_id)
         except Prediction.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Prediction not found"})
-<<<<<<< HEAD
         
         # Check deadline
         if not prediction.is_voting_open():
@@ -78,36 +68,17 @@ def submit_vote(request):
             })
 
         # Simpan vote user (CREATE)
-=======
-
-        # Cek apakah user sudah pernah vote di prediction ini
-        if Vote.objects.filter(user=request.user, prediction=prediction).exists():
-            return JsonResponse({"status": "error", "message": "You already voted."})
-
-        # Simpan vote user
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
         Vote.objects.create(user=request.user, prediction=prediction, choice=choice)
 
         # Update jumlah vote
         choice = choice.lower().strip()
-<<<<<<< HEAD
-=======
-
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
         if "home" in choice:
             prediction.votes_home_team += 1
         elif "away" in choice:
             prediction.votes_away_team += 1
-<<<<<<< HEAD
         
         prediction.save()
         
-=======
-
-
-        
-        prediction.save()
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
         return JsonResponse({
             "status": "success",
             "home": {
@@ -122,7 +93,6 @@ def submit_vote(request):
             }
         })
 
-<<<<<<< HEAD
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
 
@@ -228,8 +198,3 @@ def delete_vote(request, vote_id):
         'vote': vote
     }
     return render(request, 'delete_vote.html', context)
-=======
-
-
-    return JsonResponse({"status": "error", "message": "Invalid request"})
->>>>>>> 1d9673b993e484d901ce888b3fa0221681fd16d5
