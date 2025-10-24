@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'loginregis.html' %}
 
 {% block meta %}
 <title>Login - XCORE</title>
@@ -19,8 +19,7 @@
       
       <!-- Header -->
       <div class="text-center mb-4">
-        <h1 class="text-green-dark">Login</h1>
-        <p class="hero-tagline mt-1" style="opacity: 0.85;">
+        <p class="hero-tagline" style="opacity: 0.85;">
           Selamat datang kembali di XCORE!
         </p>
       </div>
@@ -74,7 +73,7 @@
       <!-- Register Link -->
       <div class="text-center mt-4">
         <span class="text-blue-normal">Belum punya akun?</span>
-        <a href="{% url 'landingpage:register' %}" class="text-green-normal font-weight-600 ml-1" style="text-decoration: underline;">
+        <a href="{% url 'landingpage:register' %}" class="text-green-dark font-weight-600 ml-1" style="text-decoration: underline;">
           Daftar di sini
         </a>
       </div>
