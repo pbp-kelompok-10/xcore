@@ -16,3 +16,15 @@ class CustomUserCreationForm(UserCreationForm):
             if commit:
                 user.save()
             return user
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Write something about yourself...',
+                'class': 'profile-bio-field'
+            }),
+        }

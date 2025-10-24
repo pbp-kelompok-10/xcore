@@ -17,6 +17,42 @@
     {% include 'components/navbar.html' %}
     {% block content %}{% endblock %}
     {% include 'components/footer.html' %}
+    {% include 'toast.html' %}
+
+    <!-- Django Messages as Toasts -->
+    <div id="django-messages"
+         data-messages='[
+            {% for message in messages %}
+                {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+         ]'
+         style="display: none;">
+    </div>
+
+    <!-- Script to Show Toasts -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const messagesEl = document.getElementById("django-messages");
+        if (!messagesEl) return;
+
+        try {
+            const messages = JSON.parse(messagesEl.getAttribute("data-messages") || "[]");
+            messages.forEach(msg => {
+                if (msg.tags.includes("success")) {
+                    showToast("Sukses", msg.text, "success");
+                } else if (msg.tags.includes("error")) {
+                    showToast("Error", msg.text, "error");
+                } else if (msg.tags.includes("warning")) {
+                    showToast("Peringatan", msg.text, "warning");
+                } else {
+                    showToast("Info", msg.text, "info");
+                }
+            });
+        } catch (err) {
+            console.error("Error parsing Django messages:", err);
+        }
+    });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
