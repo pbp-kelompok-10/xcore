@@ -6,119 +6,426 @@
   <title>Tambah Pertandingan - Xcore</title>
   <style>
     :root {
-      --primary-color: #28574e;
+      --primary-color: #1e423b;
       --secondary-color: #56bda9;
-      --light-bg: #f4f6f7;
+      --secondary-hover: #4daa96;
+      --light-bg: #eef8f6;
       --white: #ffffff;
       --text-dark: #333333;
-      --text-light: #888888;
+      --text-light: #666666;
+      --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      --error-color: #e74c3c;
+      --error-bg: #ffeaea;
+      --success-color: #27ae60;
     }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       font-family: "Poppins", sans-serif;
-      background-color: var(--light-bg);
+      background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
       color: var(--text-dark);
       line-height: 1.6;
+      min-height: 100vh;
     }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: var(--success-color);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      transform: translateX(400px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      max-width: 350px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast.hide {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .toast-close:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Simple background pattern */
+    .field-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+        linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+      background-size: 60px 60px;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
     .navbar {
       background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
       display: flex;
       align-items: center;
-      padding: 12px 20px;
+      padding: 15px 25px;
       color: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+
     .navbar h1 {
-      font-size: 20px;
+      font-size: 22px;
       margin: 0 15px;
       font-weight: 600;
       display: flex;
       align-items: center;
     }
+
     .navbar h1::before {
       content: "⚽";
-      margin-right: 8px;
+      margin-right: 10px;
+      font-size: 24px;
     }
+
     .back-button {
       color: white;
       text-decoration: none;
-      font-size: 20px;
+      font-size: 24px;
       margin-right: 10px;
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
     }
+
+    .back-button:hover {
+      transform: translateX(-3px);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
     .form-container {
       width: 90%;
-      max-width: 600px;
-      margin: 30px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      max-width: 700px;
+      margin: 40px auto;
+      background: var(--white);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      border: 2px solid var(--light-bg);
     }
+
     .form-title {
       text-align: center;
       color: var(--primary-color);
-      margin-bottom: 25px;
-      font-size: 24px;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 15px;
     }
+
+    .form-title::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--secondary-color), var(--secondary-hover));
+      border-radius: 2px;
+    }
+
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      position: relative;
     }
+
     .form-group label {
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
       color: var(--text-dark);
+      font-size: 15px;
     }
+
+    .form-group label::after {
+      content: " *";
+      color: var(--error-color);
+    }
+
     .form-group input,
     .form-group select {
       width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.3s;
+      padding: 14px 18px;
+      border: 2px solid var(--light-bg);
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background-color: var(--light-bg);
     }
+
     .form-group input:focus,
     .form-group select:focus {
       outline: none;
       border-color: var(--secondary-color);
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(86, 189, 169, 0.2);
     }
+
+    .form-group input:hover,
+    .form-group select:hover {
+      background-color: #e6f5f2;
+    }
+
+    /* Error states */
+    .form-group.error input,
+    .form-group.error select {
+      border-color: var(--error-color);
+      background-color: var(--error-bg);
+    }
+
+    .form-group.error input:focus,
+    .form-group.error select:focus {
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+    }
+
     .form-row {
       display: flex;
-      gap: 15px;
+      gap: 20px;
     }
+
     .form-row .form-group {
       flex: 1;
     }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+      background: var(--light-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #cbebe4;
+    }
+
+    .score-row .form-group {
+      flex: 1;
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .score-row label::after {
+      content: "" !important;
+    }
+
+    .vs-text {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
     .submit-button {
       width: 100%;
-      padding: 14px;
-      background-color: var(--secondary-color);
+      padding: 16px;
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.3s;
-      margin-top: 10px;
+      transition: all 0.3s;
+      margin-top: 15px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(86, 189, 169, 0.3);
     }
-    .submit-button:hover {
-      background-color: var(--primary-color);
+
+    .submit-button:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--secondary-hover), #459987);
+      box-shadow: 0 6px 20px rgba(86, 189, 169, 0.5);
+      transform: translateY(-2px);
     }
+
+    .submit-button:active {
+      transform: translateY(0);
+    }
+
+    .submit-button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     .error-message {
-      color: #e74c3c;
+      color: var(--error-color);
       font-size: 14px;
-      margin-top: 5px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      height: 0;
+    }
+
+    .form-group.error .error-message {
+      opacity: 1;
+      transform: translateY(0);
+      height: auto;
+    }
+
+    .error-message::before {
+      content: "⚠";
+      margin-right: 6px;
+    }
+
+    .form-error {
+      color: var(--error-color);
+      margin-bottom: 20px;
+      padding: 15px;
+      background: var(--error-bg);
+      border-radius: 10px;
+      border-left: 4px solid var(--error-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .form-error::before {
+      content: "⚠";
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .validation-info {
+      background: var(--light-bg);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid var(--secondary-color);
+    }
+
+    .validation-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .validation-info p::before {
+      content: "💡 ";
+      margin-right: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      .form-container {
+        padding: 25px;
+      }
+      
+      .navbar h1 {
+        font-size: 18px;
+      }
+      
+      .score-row {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .vs-text {
+        margin: 10px 0;
+      }
+
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+      }
+
+      .toast {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .field-pattern {
+        opacity: 0.2;
+      }
     }
   </style>
 </head>
 <body>
-  
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Simple background pattern -->
+  <div class="field-pattern"></div>
+
   <div class="navbar">
     <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
     <h1>Xcore - Tambah Pertandingan</h1>
@@ -126,75 +433,335 @@
 
   <div class="form-container">
     <h2 class="form-title">Tambah Pertandingan Baru</h2>
-    <form method="POST">
+    
+    <div class="validation-info">
+      <p>Semua field wajib diisi</p>
+      <p>Round harus berupa angka positif</p>
+      <p>Skor harus berupa angka 0 atau lebih</p>
+    </div>
+
+    <form method="POST" id="matchForm">
       {% csrf_token %}
 
       {% if form.errors %}
-      <div style="color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #ffeaea; border-radius: 5px;">
+      <div class="form-error">
         Terdapat error dalam form. Silakan periksa kembali input Anda.
+        {% for field in form %}
+          {% for error in field.errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        {% endfor %}
       </div>
       {% endif %}
 
-      <!-- TIM TUAN RUMAH -->
-      <div class="form-group">
-        <label for="{{ form.home_team_code.id_for_label }}">Tuan Rumah (Kode Negara)</label>
-        {{ form.home_team_code }}
-        {% if form.home_team_code.errors %}
-        <div class="error-message">{{ form.home_team_code.errors }}</div>
-        {% endif %}
-      </div>
+      <!-- Check for success message from Django -->
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              showToast('Sukses!', '{{ message }}', 'success');
+            });
+          </script>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
 
-      <!-- TIM TAMU -->
-      <div class="form-group">
-        <label for="{{ form.away_team_code.id_for_label }}">Tamu (Kode Negara)</label>
-        {{ form.away_team_code }}
-        {% if form.away_team_code.errors %}
-        <div class="error-message">{{ form.away_team_code.errors }}</div>
-        {% endif %}
+      <!-- TIM TUAN RUMAH & TAMU -->
+      <div class="form-row">
+        <div class="form-group" id="homeTeamGroup">
+          <label for="{{ form.home_team_code.id_for_label }}">Tuan Rumah (Kode Negara)</label>
+          {{ form.home_team_code }}
+          <div class="error-message" id="homeTeamError"></div>
+        </div>
+
+        <div class="form-group" id="awayTeamGroup">
+          <label for="{{ form.away_team_code.id_for_label }}">Tamu (Kode Negara)</label>
+          {{ form.away_team_code }}
+          <div class="error-message" id="awayTeamError"></div>
+        </div>
       </div>
 
       <!-- SKOR -->
-      <div class="form-row">
-        <div class="form-group">
+      <div class="score-row">
+        <div class="form-group" id="homeScoreGroup">
           <label for="{{ form.home_score.id_for_label }}">Skor Tuan Rumah</label>
           {{ form.home_score }}
+          <div class="error-message" id="homeScoreError"></div>
         </div>
-        <div class="form-group">
+        <div class="vs-text">VS</div>
+        <div class="form-group" id="awayScoreGroup">
           <label for="{{ form.away_score.id_for_label }}">Skor Tamu</label>
           {{ form.away_score }}
+          <div class="error-message" id="awayScoreError"></div>
         </div>
       </div>
 
       <!-- TANGGAL & STADION -->
-      <div class="form-group">
-        <label for="{{ form.match_date.id_for_label }}">Tanggal Pertandingan</label>
-        {{ form.match_date }}
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.stadium.id_for_label }}">Stadion</label>
-        {{ form.stadium }}
+      <div class="form-row">
+        <div class="form-group" id="dateGroup">
+          <label for="{{ form.match_date.id_for_label }}">Tanggal Pertandingan</label>
+          {{ form.match_date }}
+          <div class="error-message" id="dateError"></div>
+        </div>
+        <div class="form-group" id="stadiumGroup">
+          <label for="{{ form.stadium.id_for_label }}">Stadion</label>
+          {{ form.stadium }}
+          <div class="error-message" id="stadiumError"></div>
+        </div>
       </div>
 
       <!-- ROUND & GROUP -->
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" id="roundGroup">
           <label for="{{ form.round.id_for_label }}">Round</label>
           {{ form.round }}
+          <div class="error-message" id="roundError"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="groupGroup">
           <label for="{{ form.group.id_for_label }}">Group</label>
           {{ form.group }}
+          <div class="error-message" id="groupError"></div>
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- STATUS -->
+      <div class="form-group" id="statusGroup">
         <label for="{{ form.status.id_for_label }}">Status</label>
         {{ form.status }}
+        <div class="error-message" id="statusError"></div>
       </div>
 
-      <button type="submit" class="submit-button">Simpan Pertandingan</button>
+      <button type="submit" class="submit-button" id="submitButton">Simpan Pertandingan</button>
     </form>
   </div>
+
+  <script>
+    function showToast(title, message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+      
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.id = toastId;
+      
+      const icon = type === 'success' ? '✅' : '⚠️';
+      
+      toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="hideToast('${toastId}')">×</button>
+      `;
+      
+      toastContainer.appendChild(toast);
+      
+      // Show toast with animation
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 100);
+      
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        hideToast(toastId);
+      }, 5000);
+    }
+    
+    function hideToast(toastId) {
+      const toast = document.getElementById(toastId);
+      if (toast) {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        
+        // Remove from DOM after animation
+        setTimeout(() => {
+          toast.remove();
+        }, 400);
+      }
+    }
+    
+    // Show success toast after form submission if URL has success parameter
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        showToast('Berhasil!', 'Pertandingan berhasil ditambahkan', 'success');
+        
+        // Remove success parameter from URL without reloading
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    });
+
+    // Form validation and handling
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('matchForm');
+      const submitButton = document.getElementById('submitButton');
+      
+      // Field validation functions
+      const validators = {
+        home_team_code: (value) => {
+          if (!value) return 'Pilih negara tuan rumah';
+          return '';
+        },
+        
+        away_team_code: (value) => {
+          if (!value) return 'Pilih negara tamu';
+          return '';
+        },
+        
+        home_score: (value) => {
+          if (value === '') return 'Skor tuan rumah harus diisi';
+          const num = parseInt(value);
+          if (isNaN(num) || num < 0) return 'Skor harus angka 0 atau lebih';
+          return '';
+        },
+        
+        away_score: (value) => {
+          if (value === '') return 'Skor tamu harus diisi';
+          const num = parseInt(value);
+          if (isNaN(num) || num < 0) return 'Skor harus angka 0 atau lebih';
+          return '';
+        },
+        
+        match_date: (value) => {
+          if (!value) return 'Tanggal pertandingan harus diisi';
+          return '';
+        },
+        
+        stadium: (value) => {
+          if (!value.trim()) return 'Nama stadion harus diisi';
+          return '';
+        },
+        
+        round: (value) => {
+          if (value === '') return 'Round harus diisi';
+          const num = parseInt(value);
+          if (isNaN(num) || num < 1) return 'Round harus angka positif (minimal 1)';
+          return '';
+        },
+        
+        group: (value) => {
+          if (!value.trim()) return 'Group harus diisi';
+          return '';
+        },
+        
+        status: (value) => {
+          if (!value) return 'Status harus dipilih';
+          return '';
+        }
+      };
+      
+      // Real-time validation for each field
+      Object.keys(validators).forEach(fieldName => {
+        const field = document.getElementById('id_' + fieldName);
+        const errorElement = document.getElementById(fieldName + 'Error');
+        const groupElement = document.getElementById(fieldName + 'Group');
+        
+        if (field) {
+          field.addEventListener('blur', () => validateField(fieldName));
+          field.addEventListener('input', () => {
+            // Clear error when user starts typing/selecting
+            if (groupElement.classList.contains('error')) {
+              const error = validators[fieldName](field.value);
+              if (!error) {
+                clearError(fieldName);
+              }
+            }
+          });
+          
+          if (field.tagName === 'SELECT') {
+            field.addEventListener('change', () => validateField(fieldName));
+          }
+        }
+      });
+      
+      function validateField(fieldName) {
+        const field = document.getElementById('id_' + fieldName);
+        const errorElement = document.getElementById(fieldName + 'Error');
+        const groupElement = document.getElementById(fieldName + 'Group');
+        
+        if (!field) return;
+        
+        const error = validators[fieldName](field.value);
+        
+        if (error) {
+          showError(fieldName, error);
+        } else {
+          clearError(fieldName);
+        }
+        
+        validateForm();
+      }
+      
+      function showError(fieldName, message) {
+        const errorElement = document.getElementById(fieldName + 'Error');
+        const groupElement = document.getElementById(fieldName + 'Group');
+        
+        if (errorElement && groupElement) {
+          errorElement.textContent = message;
+          groupElement.classList.add('error');
+        }
+      }
+      
+      function clearError(fieldName) {
+        const errorElement = document.getElementById(fieldName + 'Error');
+        const groupElement = document.getElementById(fieldName + 'Group');
+        
+        if (errorElement && groupElement) {
+          errorElement.textContent = '';
+          groupElement.classList.remove('error');
+        }
+      }
+      
+      function validateForm() {
+        let isValid = true;
+        
+        Object.keys(validators).forEach(fieldName => {
+          const field = document.getElementById('id_' + fieldName);
+          if (field) {
+            const error = validators[fieldName](field.value);
+            if (error) {
+              isValid = false;
+            }
+          }
+        });
+        
+        submitButton.disabled = !isValid;
+        return isValid;
+      }
+      
+      form.addEventListener('submit', function(e) {
+        // Validate all fields before submission untuk UX
+        let hasErrors = false;
+        
+        Object.keys(validators).forEach(fieldName => {
+          const field = document.getElementById('id_' + fieldName);
+          if (field) {
+            const error = validators[fieldName](field.value);
+            if (error) {
+              showError(fieldName, error);
+              hasErrors = true;
+            }
+          }
+        });
+        
+        if (hasErrors) {
+          e.preventDefault();
+          const firstError = document.querySelector('.form-group.error');
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          return false;
+        }
+        
+        // Jika semua valid, biarkan form submit normal
+        return true;
+      });
+      
+      validateForm();
+    });
+  </script>
 </body>
 </html>

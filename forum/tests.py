@@ -1,23 +1,22 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import Forum, Post
 from .forms import PostForm, ForumForm
 from scoreboard.models import Match
 import uuid
+
+User = get_user_model()
 from datetime import datetime, timedelta
 
 class ForumTestCase(TestCase):
     def setUp(self):
-        # Buat Match dengan SEMUA field wajib
         self.match = Match.objects.create(
             id=uuid.uuid4(),
             home_team="Team A",
             away_team="Team B",
-            match_date=timezone.now(),  # **WAJIB: tambahkan match_date**
-            # Tambahkan field lain yang wajib sesuai model Match Anda
-            # Contoh: stadium="Stadium Test", competition="Test League"
+            match_date=timezone.now(),
         )
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpass123')
@@ -39,7 +38,7 @@ class ForumTestCase(TestCase):
             id=uuid.uuid4(),
             home_team="Team C",
             away_team="Team D",
-            match_date=timezone.now()  # **WAJIB**
+            match_date=timezone.now()
         )
         new_forum = Forum.objects.create(match=new_match, nama="About Team C vs Team D")
         self.assertEqual(new_forum.nama, "About Team C vs Team D")
@@ -98,12 +97,11 @@ class PostFormTestCase(TestCase):
 
 class ForumViewTestCase(TestCase):
     def setUp(self):
-        # Buat Match dengan SEMUA field wajib
         self.match = Match.objects.create(
             id=uuid.uuid4(),
             home_team="Team A",
             away_team="Team B",
-            match_date=timezone.now()  # **WAJIB**
+            match_date=timezone.now()
         )
         self.client = Client()
         self.user = User.objects.create_user(username='testuser', password='testpass123')

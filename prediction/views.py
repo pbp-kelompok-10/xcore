@@ -138,6 +138,12 @@ def update_vote(request, vote_id):
 def delete_vote(request, vote_id):
     """DELETE - User hapus vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
+
+    if request.method != "POST":
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Method not allowed. Use POST to delete a vote.'
+        }, status=405)
     
     # Check apakah masih bisa dihapus
     if not vote.can_modify():
@@ -176,9 +182,3 @@ def delete_vote(request, vote_id):
         # Fallback for regular form submission
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
-    
-    # GET request - show confirmation page (fallback)
-    context = {
-        'vote': vote
-    }
-    return render(request, 'delete_vote.html', context)
