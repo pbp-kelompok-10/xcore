@@ -4,12 +4,10 @@ from .views import prediction_list, submit_vote, my_votes, update_vote, delete_v
 app_name = 'prediction'
 
 urlpatterns = [
-    # User Voting
     path('', prediction_list, name='list'),
     path('submit-vote/', submit_vote, name='submit_vote'),
     
-    # USER CRUD
-    path('my-votes/', my_votes, name='my_votes'),                    # READ
-    path('my-votes/update/<uuid:vote_id>/', update_vote, name='update_vote'),  # UPDATE
-    path('my-votes/delete/<uuid:vote_id>/', delete_vote, name='delete_vote'),  # DELETE
+    path('my-votes/', my_votes, name='my_votes'),                    
+    path('my-votes/update/<uuid:vote_id>/', update_vote, name='update_vote'),  
+    path('my-votes/delete/<uuid:vote_id>/', delete_vote, name='delete_vote'),  
 ]
