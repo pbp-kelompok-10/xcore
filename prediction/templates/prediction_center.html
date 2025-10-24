@@ -19,7 +19,6 @@
     {% endif %}
   </div>
 
-  <!-- Upcoming Predictions -->
   {% if upcoming_predictions %}
     <div class="section-header">
       <h3>⏰ Upcoming Matches</h3>
@@ -42,7 +41,6 @@
             <div class="match-stadium">📍 {{ prediction.match.stadium }}</div>
           </div>
 
-          <!-- Check if user already voted -->
           {% if user.is_authenticated %}
             {% with user_vote=prediction.votes.all|first %}
               {% if user_vote and user_vote.user == user %}
@@ -203,14 +201,10 @@
   {% endif %}
 </div>
 
-<!-- Include Modal -->
 {% include 'modal/modal_poll.html' %}
 
 
 <style>
-/* ============================================
-   PREDICTION CENTER STYLES
-   ============================================ */
 
 .prediction-header {
   display: flex;
@@ -401,7 +395,6 @@
   background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
 }
 
-/* Vote Results */
 .vote-results {
   background: var(--green-light);
   border-radius: 12px;
@@ -494,7 +487,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const popup = document.getElementById("polling-popup");
     const closeBtn = document.querySelector(".popup-close-btn");
 
-    // Handle vote button clicks
     document.querySelectorAll(".vote-btn").forEach(voteBtn => {
         voteBtn.addEventListener("click", () => {
             if (!isLoggedIn) {
@@ -504,26 +496,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 const homeTeam = voteBtn.dataset.home;
                 const awayTeam = voteBtn.dataset.away;
 
-                if (!predictionId) return; // Skip if no prediction ID (e.g., "View My Votes" button)
+                if (!predictionId) return; 
 
-                // Update modal content
                 popup.querySelector(".popup-title").textContent = `Who will win?`;
                 popup.querySelector(".team-home span").textContent = homeTeam;
                 popup.querySelector(".team-away span").textContent = awayTeam;
                 popup.dataset.predictionId = predictionId;
 
-                // Show modal
                 popup.classList.remove("hidden");
             }
         });
     });
 
-    // Close modal
     if (closeBtn) {
         closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
     }
 
-    // Close modal when clicking outside
     if (popup) {
         popup.addEventListener("click", (e) => {
             if (e.target === popup) {
@@ -532,7 +520,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Handle team button clicks
     document.querySelectorAll(".team-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const choice = btn.dataset.team;
@@ -543,7 +530,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
-            // Disable buttons
             document.querySelectorAll(".team-btn").forEach(b => b.disabled = true);
 
             fetch("/prediction/submit-vote/", {
@@ -560,7 +546,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     showToast('Vote berhasil! 🎉', 'success');
                     popup.classList.add("hidden");
                     
-                    // Reload page to show updated results
                     window.location.reload();
                 } else {
                     showToast(data.message || "Terjadi kesalahan", 'error');
@@ -571,7 +556,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 showToast('Terjadi kesalahan saat mengirim vote', 'error');
             })
             .finally(() => {
-                // Re-enable buttons
                 document.querySelectorAll(".team-btn").forEach(b => b.disabled = false);
             });
         });
