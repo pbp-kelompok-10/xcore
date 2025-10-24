@@ -8,6 +8,24 @@
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/register.css' %}">
+  <style>
+    .photo-preview {
+      max-width: 120px;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-top: 10px;
+      display: none;
+      border: 3px solid #28a745;
+    }
+    .input-wrapper input[type="file"] {
+      padding: 8px;
+      border: none;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -26,7 +44,7 @@
       </div>
 
       <!-- Form -->
-      <form method="POST" class="register-form">
+      <form method="POST" enctype="multipart/form-data" class="register-form">
         {% csrf_token %}
 
         <div class="form-fields">
@@ -40,7 +58,15 @@
               </label>
 
               <div class="input-wrapper">
-                {{ field }}
+                {% if field.name == 'photo' %}
+                  <!-- Khusus untuk foto: tampilkan preview -->
+                  {{ field }}
+                  <div class="text-center">
+                    <img id="photo-preview" class="photo-preview" src="" alt="Preview Foto">
+                  </div>
+                {% else %}
+                  {{ field }}
+                {% endif %}
               </div>
 
               {% if field.help_text %}
@@ -84,3 +110,29 @@
 </section>
 
 {% endblock content %}
+
+<!-- JavaScript untuk Preview Foto -->
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('id_photo');
+    const photoPreview = document.getElementById('photo-preview');
+
+    if (photoInput) {
+      photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            photoPreview.src = e.target.result;
+            photoPreview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          photoPreview.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

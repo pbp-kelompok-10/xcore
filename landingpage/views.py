@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
-
+from .forms import SignUpForm
 
 
 # Create your views here.
@@ -23,18 +23,20 @@ def landing_home(request):
     return render(request, 'landing.html', context)
 
 def register(request):
-    form = UserCreationForm()
-
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST, request.FILES)  # ← penting: request.FILES
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Your account has been successfully created!')
+            form.save()  # otomatis buat user + profil + simpan foto
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Akun {username} berhasil dibuat! Silakan login.')
             return redirect('landingpage:login')
-    context = {'form':form}
+    else:
+        form = SignUpForm()
+
+    context = {'form': form}
     return render(request, 'register.html', context)
 
-def login_user(request):
+def login_user(request): # ininya diganti apa
    if request.method == 'POST':
       form = AuthenticationForm(data=request.POST)
 
