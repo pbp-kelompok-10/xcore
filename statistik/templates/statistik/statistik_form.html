@@ -172,53 +172,50 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('statistik-form');
-    const submitBtn = document.getElementById('submit-btn');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Show loading state
-        submitBtn.innerHTML = 'Loading...';
-        submitBtn.classList.add('loading');
-        
-        // Collect form data
-        const formData = new FormData(form);
-        const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-        
-        // AJAX request
-        fetch(window.location.href, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': data.csrfmiddlewaretoken
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.status === 'success') {
-                window.toast.show('Sukses', result.message, 'success');
-                setTimeout(() => {
-                    window.location.href = result.redirect_url;
-                }, 1500);
-            } else {
-                window.toast.show('Error', result.message, 'error');
-                // Reset button
-                submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
-                submitBtn.classList.remove('loading');
-            }
-        })
-        .catch(error => {
-            window.toast.show('Error', 'Terjadi kesalahan jaringan', 'error');
-            submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
-            submitBtn.classList.remove('loading');
-        });
-    });
+  const form = document.getElementById('statistik-form');
+  const submitBtn = document.getElementById('submit-btn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    submitBtn.innerHTML = 'Loading...';
+    submitBtn.classList.add('loading');
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => (data[key] = value));
+
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': data.csrfmiddlewaretoken,
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.status === 'success') {
+          showToast('Sukses', result.message, 'success');
+          setTimeout(() => {
+            window.location.href = result.redirect_url;
+          }, 1500);
+        } else {
+          showToast('Error', result.message, 'error');
+          submitBtn.innerHTML =
+            '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+          submitBtn.classList.remove('loading');
+        }
+      })
+      .catch((error) => {
+        showToast('Error', 'Terjadi kesalahan jaringan', 'error');
+        submitBtn.innerHTML =
+          '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+        submitBtn.classList.remove('loading');
+      });
+  });
 });
 </script>
+
 {% endblock %}

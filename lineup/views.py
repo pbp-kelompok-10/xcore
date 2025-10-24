@@ -18,16 +18,18 @@ from django.core.exceptions import PermissionDenied
 from django import forms
 from django.shortcuts import get_object_or_404
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """Restrict access to superusers only."""
+    """Restrict access to admin users only with toast message."""
+
     def test_func(self):
-        return self.request.user.is_admin
+        return getattr(self.request.user, "is_admin", False)
 
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
-            # Redirect unauthenticated users to login page
-            return redirect('landingpage:login')
-        # Authenticated but not superuser → 403 Forbidden
-        raise PermissionDenied("You do not have permission to access this page.")
+            messages.error(self.request, "Silakan login terlebih dahulu untuk melanjutkan.")
+            return redirect("landingpage:login")
+
+        messages.error(self.request, "Anda tidak memiliki izin untuk mengakses halaman ini.")
+        return redirect("/scoreboard/") 
 
 class TeamListView(ListView):
     model = Team

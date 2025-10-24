@@ -30,7 +30,8 @@ def scoreboard_list(request):
 
 def add_match(request):
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return HttpResponseForbidden("You do not have permission to add matches.")
+        messages.error(request, "You do not have permission to add matches.")
+        return redirect('scoreboard:scoreboard_list')
     if request.method == 'POST':
         form = MatchForm(request.POST)
         if form.is_valid():
@@ -54,7 +55,8 @@ def add_match(request):
 
 def update_score(request, match_id):
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return HttpResponseForbidden("You do not have permission to update scores.")
+        messages.error(request, "You do not have permission to update scores.")
+        return redirect('scoreboard:scoreboard_list')
     match = get_object_or_404(Match, id=match_id)
     
     if request.method == "POST":
@@ -72,7 +74,8 @@ def update_score(request, match_id):
 
 def delete_match(request, match_id):
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return HttpResponseForbidden("You do not have permission to delete matches.")
+        messages.error(request, "You do not have permission to delete matches.")
+        return redirect('scoreboard:scoreboard_list')
     match = get_object_or_404(Match, id=match_id)
 
     if request.method == "POST":
