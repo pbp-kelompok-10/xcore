@@ -44,7 +44,7 @@ def add_match(request):
             Prediction.objects.create(
                 match=match,
             )
-            
+            messages.success(request, 'Pertandingan berhasil ditambahkan!')
             return redirect('scoreboard:scoreboard_list')
     else:
         form = MatchForm()
@@ -65,8 +65,9 @@ def update_score(request, match_id):
         match.group = request.POST.get('group')
         match.stadium = request.POST.get('stadium')
         match.save()
+        messages.success(request, 'Pertandingan berhasil diperbarui!')
         return redirect('scoreboard:scoreboard_list')
-    
+
     return render(request, 'update_score.html', {'match': match})
 
 def delete_match(request, match_id):
