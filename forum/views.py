@@ -58,6 +58,9 @@ def add_post(request, forum_id):
     message = request.POST.get('message')
     author = request.user
 
+    if (request.user.is_anonymous):
+        return JsonResponse({'error': 'You must be logged in to post.'}, status=403)
+    
     if not message:
         return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
 

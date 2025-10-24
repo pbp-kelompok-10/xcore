@@ -23,21 +23,17 @@ $(document).ready(function () {
             },
             success: function (data) {
                 if (!data.user_is_authenticated){
-                    showToast('Gagal!', 'Kamu harus login untuk menambahkan postingan.');
+                    showToast('Gagal!', 'Kamu harus login untuk menambahkan postingan.', 'error');
                     $("#postContent").val('');
                     return;
                 }
 
                 $("#postContent").val('');
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah ditambahkan ke forum.');
+                showToast('Berhasil!', 'Postingan kamu sudah ditambahkan ke forum.', 'success');
             },
             error: function (xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error sending post.',
-                });
+                showToast('Gagal!', 'Terjadi kesalahan saat menambahkan postingan.', 'error');
             }
         });
     });
@@ -123,7 +119,7 @@ $(document).ready(function () {
                 $postCard.find('.post-display').removeClass('editing');
                 $postCard.find('.edit-mode').removeClass('active');
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.');
+                showToast('Berhasil!', 'Postingan kamu sudah diperbarui.', 'success');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
@@ -146,7 +142,7 @@ $(document).ready(function () {
             },
             success: function (data) {
                 displayPosts();
-                showToast('Berhasil!', 'Postingan kamu sudah dihapus.');
+                showToast('Berhasil!', 'Postingan kamu sudah dihapus.', 'success');
             },
             error: function (xhr, status, error) {
                 Swal.fire({
