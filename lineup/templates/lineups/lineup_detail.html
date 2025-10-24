@@ -1,259 +1,342 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ match.home_team }} vs {{ match.away_team }} - Lineup{% endblock %}
+{% block title %}{{ match.home_team }} vs {{ match.away_team }} - Lineup - Xcore{% endblock %}
 
 {% block extra_css %}
 <style>
-  :root {
-    --primary-color: #28574E;
-    --secondary-color: #56BDA9;
-    --light-bg: #f4f6f7;
-    --white: #ffffff;
-    --text-dark: #222222;
-    --text-light: #777777;
-  }
+    :root {
+        --primary-color: #1e423b;
+        --secondary-color: #56bda9;
+        --secondary-hover: #4daa96;
+        --light-bg: #eef8f6;
+        --white: #ffffff;
+        --text-dark: #333333;
+        --text-light: #666666;
+        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        --navbar-height: 60px; /* Estimasi tinggi navbar */
+        --footer-height: 60px; /* Estimasi tinggi footer */
+    }
 
-  body {
-    background-color: var(--light-bg);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 0;
-  }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-  .lineup-container {
-    max-width: 1000px;
-    margin: 60px auto;
-    padding: 50px 40px 40px 40px;
-    background: var(--white);
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-    position: relative;
-  }
+    body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
 
-  /* Back Button */
-  .back-link {
-    position: absolute;
-    top: 25px;
-    left: 30px;
-    background-color: var(--secondary-color);
-    color: white;
-    text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: background-color 0.3s, transform 0.2s;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  }
+    .field-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+        background-size: 60px 60px;
+        z-index: -1;
+        opacity: 0.3;
+    }
 
-  .back-link:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-2px);
-  }
+    .content-wrapper {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-top: calc(var(--navbar-height) + 20px);
+        padding-bottom: calc(var(--footer-height) + 20px);
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
 
-  h1 {
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: center;
-    margin-top: 20px;
-    margin-bottom: 8px;
-  }
-
-  h3 {
-    font-size: 16px;
-    color: var(--text-light);
-    text-align: center;
-    margin-bottom: 45px;
-  }
-
-  .teams-wrapper {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 30px;
-  }
-
-  .team-lineup {
-    flex: 1;
-    min-width: 300px;
-    background-color: #f9fbfb;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 25px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-
-  .team-lineup:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .team-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .team-flag {
-    width: 28px;
-    height: 20px;
-    border-radius: 3px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  }
-
-  .team-lineup h2 {
-    color: var(--primary-color);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .player-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
-  }
-
-  .player-card {
-    background-color: var(--white);
-    border-radius: 10px;
-    padding: 12px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-dark);
-    font-weight: 500;
-    transition: all 0.25s ease;
-  }
-
-  .player-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
-    background-color: #eef8f6;
-  }
-
-  .player-card span {
-    display: block;
-    font-size: 12px;
-    color: var(--text-light);
-    margin-top: 4px;
-  }
-
-  .no-lineup {
-    text-align: center;
-    color: var(--text-light);
-    font-style: italic;
-    margin-top: 60px;
-    margin-bottom: 20px;
-  }
-
-  .action-buttons {
-    text-align: center;
-    margin-top: 40px;
-  }
-
-  .add-lineup-btn, .edit-lineup-btn {
-    display: inline-block;
-    background-color: var(--secondary-color);
-    color: white;
-    text-decoration: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 15px;
-    transition: background-color 0.3s, transform 0.2s;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-    margin: 10px;
-  }
-
-  .add-lineup-btn:hover, .edit-lineup-btn:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-2px);
-  }
-
-  @media (max-width: 768px) {
     .lineup-container {
-      padding: 30px 20px;
+        width: 100%;
+        padding: 40px;
+        background: var(--white);
+        border-radius: 18px;
+        box-shadow: var(--card-shadow);
+        position: relative;
+    }
+
+    .back-link {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background-color: var(--secondary-color);
+        color: var(--white);
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link:hover {
+        background-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    h1 {
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+
+    h3 {
+        font-size: 16px;
+        color: var(--text-light);
+        text-align: center;
+        margin-bottom: 45px;
     }
 
     .teams-wrapper {
-      flex-direction: column;
-      align-items: center;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 30px;
     }
 
     .team-lineup {
-      width: 100%;
+        flex: 1;
+        min-width: 300px;
+        background-color: var(--light-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
     }
-  }
+
+    .team-lineup:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .team-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .team-flag {
+        width: 28px;
+        height: 20px;
+        border-radius: 3px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .team-lineup h2 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .player-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .player-card {
+        background-color: var(--white);
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 500;
+        transition: all 0.25s ease;
+    }
+
+    .player-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+        background-color: #e6f5f2;
+    }
+
+    .player-card span {
+        display: block;
+        font-size: 12px;
+        color: var(--text-light);
+        margin-top: 4px;
+    }
+
+    .no-lineup {
+        text-align: center;
+        color: var(--text-light);
+        font-style: italic;
+        margin-top: 60px;
+        margin-bottom: 20px;
+    }
+
+    .action-buttons {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .add-lineup-btn,
+    .edit-lineup-btn {
+        display: inline-block;
+        background-color: var(--secondary-color);
+        color: var(--white);
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        margin: 10px;
+    }
+
+    .add-lineup-btn:hover,
+    .edit-lineup-btn:hover {
+        background-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .lineup-container {
+            padding: 20px;
+        }
+
+        .teams-wrapper {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-lineup {
+            width: 100%;
+        }
+
+        .back-link {
+            top: 10px;
+            left: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .field-pattern {
+            opacity: 0.2;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        h3 {
+            font-size: 14px;
+        }
+
+        .team-flag {
+            width: 24px;
+            height: 16px;
+        }
+
+        .player-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+
+        .player-card {
+            padding: 10px;
+        }
+
+        .add-lineup-btn,
+        .edit-lineup-btn {
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="field-pattern"></div>
 
-<div class="lineup-container">
-  <a href="{% url 'statistik:statistik_display' match.id %}" class="back-link">← Back to Statistik</a>
+<div class="content-wrapper">
+    <div class="lineup-container">
+        <a href="{% url 'statistik:statistik_display' match.id %}" class="back-link">← Back to Statistik</a>
 
-  <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
-  <h3>{{ match.stadium }} — {{ match.match_date|date:"l, d F Y" }}</h3>
+        <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+        <h3>{{ match.stadium }} — {{ match.match_date|date:"l, d F Y" }}</h3>
 
-  {% if home_lineup or away_lineup %}
-    <div class="teams-wrapper">
-      {% if home_lineup %}
-      <div class="team-lineup">
-        <div class="team-header">
-          <img src="https://flagcdn.com/w40/{{ home_lineup.team.code }}.png"
-               alt="{{ home_lineup.team.name }}" class="team-flag"
-               onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-          <h2>{{ home_lineup.team.name }}</h2>
-        </div>
-        <div class="player-grid">
-          {% for player in home_lineup.players.all %}
-          <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
-            {{ player.nama }}
-            <span>#{{ player.nomor }}</span>
-          </a>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
+        {% if home_lineup or away_lineup %}
+            <div class="teams-wrapper">
+                {% if home_lineup %}
+                    <div class="team-lineup">
+                        <div class="team-header">
+                            <img src="https://flagcdn.com/w40/{{ home_lineup.team.code }}.png"
+                                 alt="{{ home_lineup.team.name }}" class="team-flag"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <h2>{{ home_lineup.team.name }}</h2>
+                        </div>
+                        <div class="player-grid">
+                            {% for player in home_lineup.players.all %}
+                                <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
+                                    {{ player.nama }}
+                                    <span>#{{ player.nomor }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
 
-      {% if away_lineup %}
-      <div class="team-lineup">
-        <div class="team-header">
-          <img src="https://flagcdn.com/w40/{{ away_lineup.team.code }}.png"
-               alt="{{ away_lineup.team.name }}" class="team-flag"
-               onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-          <h2>{{ away_lineup.team.name }}</h2>
-        </div>
-        <div class="player-grid">
-          {% for player in away_lineup.players.all %}
-          <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
-            {{ player.nama }}
-            <span>#{{ player.nomor }}</span>
-          </a>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
+                {% if away_lineup %}
+                    <div class="team-lineup">
+                        <div class="team-header">
+                            <img src="https://flagcdn.com/w40/{{ away_lineup.team.code }}.png"
+                                 alt="{{ away_lineup.team.name }}" class="team-flag"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <h2>{{ away_lineup.team.name }}</h2>
+                        </div>
+                        <div class="player-grid">
+                            {% for player in away_lineup.players.all %}
+                                <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
+                                    {{ player.nama }}
+                                    <span>#{{ player.nomor }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Edit Lineup button -->
+            {% if request.user.is_admin %}
+                <div class="action-buttons">
+                    <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="no-lineup">
+                <p>No lineup has been created for this match yet.</p>
+                {% if request.user.is_admin %}
+                    <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
-
-    <!-- Edit Lineup button -->
-    {% if request.user.is_admin %}
-      <div class="action-buttons">
-        <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
-      </div>
-    {% endif %}
-
-  {% else %}
-    <div class="no-lineup">
-      <p>No lineup has been created for this match yet.</p>
-      {% if request.user.is_admin %}
-        <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
-      {% endif %}
-    </div>
-  {% endif %}
 </div>
 {% endblock %}
