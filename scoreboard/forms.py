@@ -19,7 +19,6 @@ class MatchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Optional: Add readable labels
         self.fields['home_team_code'].label = "Tuan Rumah (Kode Negara)"
         self.fields['away_team_code'].label = "Tamu (Kode Negara)"
         self.fields['match_date'].label = "Tanggal Pertandingan"
