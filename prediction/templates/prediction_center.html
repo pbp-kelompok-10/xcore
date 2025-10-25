@@ -3,9 +3,26 @@
 
 {% block title %}Prediction Center{% endblock %}
 
+{% block extra_css %}
+  
+<style>
+  .tab-btn.btn-back {
+      background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+      color: var(--white-light) !important;
+  }
+
+  .tab-btn.btn-back:hover {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+      color: var(--white-light) !important;
+  }
+</style>
+
+{% endblock %}
+
 {% block content %}
 <div class="container-xcore">
   <!-- Header -->
+  <a href="{% url 'landingpage:home' %}" class="tab-btn btn-back">← Back</a>
   <div class="prediction-header fade-in text-center">
     <div>
       <h1 class="prediction-title">Prediction Center</h1>
@@ -36,7 +53,19 @@
       {% with user_vote=prediction.votes.all|first %}
       <div class="prediction-card fade-in" 
            data-status="upcoming" 
-           data-voted="{% if user_vote and user_vote.user == user %}true{% else %}false{% endif %}">
+           data-voted="{% if user_vote and user_vote.user == user %}true{% else %}false{% endif %}"
+           data-vote-id="{% if user_vote and user_vote.user == user %}{{ user_vote.id }}{% endif %}"
+           data-prediction-id="{{ prediction.id }}"
+           data-home-team="{{ prediction.match.home_team }}"
+           data-away-team="{{ prediction.match.away_team }}"
+           data-match-date="{{ prediction.match.match_date|date:'d M Y, H:i' }}"
+           data-match-stadium="{{ prediction.match.stadium }}"
+           data-user-choice="{% if user_vote and user_vote.user == user %}{{ user_vote.choice }}{% endif %}"
+           data-voted-at="{% if user_vote and user_vote.user == user %}{{ user_vote.voted_at|date:'d M Y, H:i' }}{% endif %}"
+           data-home-votes="{{ prediction.votes_home_team }}"
+           data-away-votes="{{ prediction.votes_away_team }}"
+           data-home-percentage="{{ prediction.home_percentage|floatformat:1 }}"
+           data-away-percentage="{{ prediction.away_percentage|floatformat:1 }}">
         
         <div class="status-badge status-upcoming">⏰ UPCOMING</div>
         
@@ -78,15 +107,13 @@
           <div class="vote-timestamp">
             🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
           </div>
-          <button class="btn-vote btn-change-vote vote-trigger" 
-              data-prediction-id="{{ prediction.id }}" 
-              data-home="{{ prediction.match.home_team }}"
-              data-away="{{ prediction.match.away_team }}">
+          <!-- Change Vote Button - Buka Modal Update -->
+          <button class="btn-vote btn-change-vote change-vote-trigger">
             ✏️ Change Vote
           </button>
         {% endif %}
         
-        <!-- Vote Now button (ALWAYS rendered for authenticated users) -->
+        <!-- Vote Now button -->
         <button class="btn-vote vote-trigger" 
             data-prediction-id="{{ prediction.id }}" 
             data-home="{{ prediction.match.home_team }}"
@@ -275,23 +302,25 @@
   </div>
 </div>
 
-{% include 'modal/modal_poll.html' %}
+{% include 'modal_poll.html' %}
+{% include 'modal_update_vote.html' %}
+{% include 'toast.html' %}
 
 <style>
 
 .container-xcore {
-  width: 80%;                /* sesuaikan lebar konten, misal 80% layar */
-  max-width: 1200px;         /* biar gak terlalu lebar di layar besar */
-  margin: 0 auto;            /* ini yang bikin ke tengah horizontal */
-  padding-top: var(--navbar-height); /* beri jarak dari navbar */
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: var(--navbar-height);
   padding-bottom: 60px;
 }
 
 .prediction-header {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* tengah vertikal */
-  align-items: center;     /* tengah horizontal */
+  justify-content: center;
+  align-items: center;
   margin: 3rem 0 2rem 0;
 }
 
@@ -451,7 +480,7 @@
   margin-bottom: 1rem;
 }
 
-.vote-btn {
+.btn-vote {
   width: 100%;
   background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
   color: var(--white-light);
@@ -468,13 +497,21 @@
   text-align: center;
 }
 
-.vote-btn:hover {
+.btn-vote:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
 }
 
-.vote-btn.voted {
+.btn-vote.voted {
   background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+}
+
+.btn-change-vote {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark)) !important;
+}
+
+.btn-change-vote:hover {
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal)) !important;
 }
 
 .vote-results {
@@ -567,6 +604,7 @@ function getCookie(name) {
 document.addEventListener("DOMContentLoaded", function() {
     const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
     const popup = document.getElementById("polling-popup");
+    const updateModal = document.getElementById("update-vote-modal");
     const closeBtn = document.querySelector(".popup-close-btn");
 
     // Tab Filtering with Dynamic Empty State
@@ -630,7 +668,6 @@ document.addEventListener("DOMContentLoaded", function() {
             tabBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
-            // PENTING: Toggle class untuk show/hide voted info
             if (filter === 'myvotes') {
                 container.classList.add('viewing-my-votes');
             } else {
@@ -662,7 +699,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
-            // Update empty state based on filter and visibility
             updateEmptyState(filter, hasVisibleCards);
         });
     });
@@ -682,28 +718,155 @@ document.addEventListener("DOMContentLoaded", function() {
         updateEmptyState(filter, hasVisibleCards);
     }
 
-    // Voting Modal
+    // ========== CHANGE VOTE MODAL ==========
+    document.querySelectorAll(".change-vote-trigger").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const card = this.closest('.prediction-card');
+            
+            const homeTeam = card.dataset.homeTeam;
+            const awayTeam = card.dataset.awayTeam;
+            const matchDate = card.dataset.matchDate;
+            const stadium = card.dataset.matchStadium;
+            const userChoice = card.dataset.userChoice;
+            const votedAt = card.dataset.votedAt;
+            const voteId = card.dataset.voteId;
+            const homeVotes = card.dataset.homeVotes;
+            const awayVotes = card.dataset.awayVotes;
+            const homePercentage = card.dataset.homePercentage;
+            const awayPercentage = card.dataset.awayPercentage;
+
+            // Fill modal with data
+            document.getElementById('update-home-team').textContent = homeTeam;
+            document.getElementById('update-away-team').textContent = awayTeam;
+            document.getElementById('update-match-date').textContent = '📅 ' + matchDate;
+            document.getElementById('update-match-stadium').textContent = '📍 ' + stadium;
+            
+            // Current vote display
+            let choiceDisplay = '';
+            if (userChoice.toLowerCase().includes('home')) {
+                choiceDisplay = '🏠 ' + homeTeam;
+            } else if (userChoice.toLowerCase().includes('away')) {
+                choiceDisplay = '✈️ ' + awayTeam;
+            } else {
+                choiceDisplay = userChoice;
+            }
+            document.getElementById('current-vote-choice').textContent = choiceDisplay;
+            document.getElementById('current-vote-time').textContent = 'Voted on ' + votedAt;
+
+            // Update options
+            document.getElementById('update-option-home').textContent = homeTeam;
+            document.getElementById('update-option-away').textContent = awayTeam;
+            document.getElementById('update-stats-home').textContent = `${homeVotes} votes (${homePercentage}%)`;
+            document.getElementById('update-stats-away').textContent = `${awayVotes} votes (${awayPercentage}%)`;
+
+            // Store vote ID for submission
+            updateModal.dataset.voteId = voteId;
+
+            // Show modal
+            updateModal.classList.remove('hidden');
+        });
+    });
+
+    // Handle update vote submission dengan konfirmasi
+    let pendingVoteData = null;
+    
+    document.querySelectorAll(".update-vote-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const choice = this.dataset.choice;
+            const voteId = updateModal.dataset.voteId;
+            
+            const homeTeam = document.getElementById('update-home-team').textContent;
+            const awayTeam = document.getElementById('update-away-team').textContent;
+            const selectedTeam = choice === 'home' ? homeTeam : awayTeam;
+
+            if (!voteId) {
+                showToast('Error', 'Vote ID tidak ditemukan!', 'error');
+                return;
+            }
+
+            // Simpan data untuk konfirmasi
+            pendingVoteData = { choice, voteId };
+            
+            // Tampilkan modal konfirmasi
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmMessage = document.getElementById('confirm-message');
+            confirmMessage.textContent = `Are you sure you want to change your vote to ${selectedTeam}?`;
+            confirmModal.classList.remove('hidden');
+            
+            // Tutup update modal
+            updateModal.classList.add('hidden');
+        });
+    });
+    
+    // Handle konfirmasi Yes
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    if (confirmYesBtn) {
+        confirmYesBtn.addEventListener('click', function() {
+            if (!pendingVoteData) return;
+            
+            const { choice, voteId } = pendingVoteData;
+            
+            // Disable button
+            confirmYesBtn.disabled = true;
+            confirmYesBtn.textContent = 'Processing...';
+            
+            // Tutup modal konfirmasi
+            document.getElementById('confirm-modal').classList.add('hidden');
+
+            // Submit update
+            fetch("update-vote/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: `vote_id=${voteId}&choice=${choice}`
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    showToast('Success!', 'Vote updated successfully! 🎉', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Error', data.message || 'Terjadi kesalahan', 'error');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showToast('Error', 'Terjadi kesalahan saat mengupdate vote', 'error');
+            })
+            .finally(() => {
+                confirmYesBtn.disabled = false;
+                confirmYesBtn.textContent = 'Yes, Change Vote';
+                pendingVoteData = null;
+            });
+        });
+    }
+
+    // ========== VOTE NOW MODAL ==========
     document.querySelectorAll(".vote-trigger").forEach(voteBtn => {
-        voteBtn.addEventListener("click", () => {
+        voteBtn.addEventListener("click", function() {
             if (!isLoggedIn) {
                 window.location.href = "/login/?next={{ request.path }}";
             } else {
-                const predictionId = voteBtn.dataset.predictionId;
-                const homeTeam = voteBtn.dataset.home;
-                const awayTeam = voteBtn.dataset.away;
+                const predictionId = this.dataset.predictionId;
+                const homeTeam = this.dataset.home;
+                const awayTeam = this.dataset.away;
                 
-                // Cek apakah ini button change vote atau vote now
-                const isChangeVote = voteBtn.classList.contains('btn-change-vote');
-                
-                // Cek apakah card ini udah di-vote
-                const card = voteBtn.closest('.prediction-card');
+                const card = this.closest('.prediction-card');
                 const hasVoted = card && card.dataset.voted === 'true';
 
                 if (!predictionId) return;
 
-                // Kalau udah vote tapi bukan dari button change vote, kasih warning
-                if (hasVoted && !isChangeVote) {
-                    showToast('⚠️ You have already voted for this match! Go to "My Votes" tab to change your vote.');
+                if (hasVoted) {
+                    showToast('Already Voted', 'You have already voted for this match! Click "Change Vote" to update.', 'warning');
                     return;
                 }
 
@@ -735,7 +898,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const predictionId = popup.dataset.predictionId;
 
             if (!predictionId) {
-                alert('Prediction ID tidak ditemukan!');
+                showToast('Error', 'Prediction ID tidak ditemukan!', 'error');
                 return;
             }
 
@@ -752,16 +915,18 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert('Vote berhasil! 🎉');
+                    showToast('Success!', 'Vote berhasil! 🎉', 'success');
                     popup.classList.add("hidden");
-                    window.location.reload();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 } else {
-                    alert(data.message || "Terjadi kesalahan");
+                    showToast('Error', data.message || 'Terjadi kesalahan', 'error');
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert('Terjadi kesalahan saat mengirim vote');
+                showToast('Error', 'Terjadi kesalahan saat mengirim vote', 'error');
             })
             .finally(() => {
                 document.querySelectorAll(".team-btn").forEach(b => b.disabled = false);

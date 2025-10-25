@@ -75,7 +75,7 @@
 }
 
 .popup-container {
-  background: var(--white-light);
+  background: var(--white);
   border-radius: 16px;
   padding: 32px;
   width: 90%;
@@ -101,7 +101,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: var(--green-light);
+  background: var(--light-bg);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -111,11 +111,11 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--green-darker);
+  color: var(--text-dark);
 }
 
 .popup-close-btn:hover {
-  background: var(--green-light-active);
+  background: var(--secondary-hover);
   transform: rotate(90deg);
 }
 
@@ -128,13 +128,13 @@
 .popup-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--green-darker);
+  color: var(--primary-color);
   margin-bottom: 8px;
 }
 
 .popup-subtitle {
   font-size: 0.95rem;
-  color: var(--blue-normal);
+  color: var(--text-light);
   font-weight: 500;
 }
 
@@ -155,14 +155,14 @@
 .vs-divider {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--green-normal);
+  color: var(--secondary-color);
   padding: 0 8px;
 }
 
 /* Team Buttons */
 .team-btn {
   background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
-  color: var(--white-light);
+  color: var(--white);
   border: none;
   padding: 16px 24px;
   border-radius: 12px;
@@ -207,6 +207,14 @@
   box-shadow: 0 8px 20px rgba(84, 104, 129, 0.4);
 }
 
+/* Non-Voting Styles */
+.no-vote-message {
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .popup-container {
@@ -243,18 +251,6 @@ document.addEventListener("DOMContentLoaded", function() {
   const popup = document.getElementById("polling-popup");
   const closeBtn = document.querySelector(".popup-close-btn");
   let currentPredictionId = null;
-
-  // Open popup when vote button clicked
-  document.querySelectorAll(".vote-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
-      const card = btn.closest(".prediction-card");
-      const matchTitle = card.querySelector("h3").textContent;
-      currentPredictionId = btn.dataset.predictionId;
-      
-      popup.querySelector(".popup-title").textContent = `Who will win: ${matchTitle}?`;
-      popup.classList.remove("hidden");
-    });
-  });
 
   // Close popup
   closeBtn.addEventListener("click", () => popup.classList.add("hidden"));

@@ -17,6 +17,12 @@
         --error-bg: #ffeaea;
         --navbar-height: 60px; /* Estimasi tinggi navbar */
         --footer-height: 60px; /* Estimasi tinggi footer */
+        --green-normal: #56bda9;
+        --green-dark: #3d8a7e;
+        --green-darker: #2e6a62;
+        --blue-normal: #546881;
+        --blue-dark: #3e4f6e;
+        --blue-dark-hover: #2e3d56;
     }
 
     * {
@@ -416,6 +422,34 @@
             font-size: 1em;
         }
     }
+
+    /* Tambahan styling untuk kasus non-voting */
+    .no-vote-message {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .ok-btn {
+        background: var(--secondary-color);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .ok-btn:hover {
+        background: var(--secondary-hover);
+        transform: translateY(-2px);
+    }
 </style>
 {% endblock %}
 
@@ -430,7 +464,7 @@
             <div class="feature-buttons">
                 <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn-feature">💬 Forum</a>
                 <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn-feature">🎥 Highlight</a>
-                <a href="{% url 'prediction:list' %}" class="btn-feature">⚽ Prediction</a>
+                <a href="#" class="btn-feature vote-trigger" data-match-id="{{ match.id }}" data-home="{{ match.home_team }}" data-away="{{ match.away_team }}">⚽ Prediction</a>
                 <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">👥 Lineup</a>
             </div>
         </div>
@@ -533,4 +567,128 @@
         </div>
     </div>
 </div>
+
+{% include 'modal/modal_poll.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pollPopup = document.getElementById("polling-popup");
+        const closeBtn = document.querySelector(".popup-close-btn");
+        let currentPredictionId = null;
+
+        // Open prediction modal when Vote Trigger button is clicked
+        const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
+        document.querySelectorAll(".vote-trigger").forEach(voteBtn => {
+            voteBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                console.log("Vote trigger clicked!", this.dataset.matchId); // Debug
+                currentPredictionId = this.dataset.matchId;
+                const homeTeam = this.dataset.home;
+                const awayTeam = this.dataset.away;
+
+                if (!pollPopup) {
+                    console.error("Polling popup not found!");
+                    return;
+                }
+
+                // Check and log available elements
+                const popupTitle = pollPopup.querySelector(".popup-title");
+                const popupSubtitle = pollPopup.querySelector(".popup-subtitle");
+                const teamHomeBtn = pollPopup.querySelector(".team-home");
+                const teamAwayBtn = pollPopup.querySelector(".team-away");
+                const teamDrawBtn = pollPopup.querySelector(".team-draw");
+                const popupBody = pollPopup.querySelector(".popup-body");
+
+                console.log("DOM Elements Found:", {
+                    popupTitle,
+                    popupSubtitle,
+                    teamHomeBtn,
+                    teamAwayBtn,
+                    teamDrawBtn,
+                    popupBody
+                });
+
+                if (!popupTitle || !teamHomeBtn || !teamAwayBtn) {
+                    console.error("Required modal elements not found!");
+                    return;
+                }
+
+                if (!isLoggedIn) {
+                    window.location.href = "/login/?next={{ request.path }}";
+                    return;
+                }
+
+                // Set modal content
+                popupTitle.textContent = `Who will win: ${homeTeam} vs ${awayTeam}?`;
+                if (popupSubtitle) popupSubtitle.textContent = "Cast your vote for the winner!";
+                teamHomeBtn.textContent = homeTeam;
+                teamAwayBtn.textContent = awayTeam;
+                if (teamDrawBtn) teamDrawBtn.textContent = "Draw";
+                teamHomeBtn.querySelector("svg.team-icon").style.display = "inline";
+                teamAwayBtn.querySelector("svg.team-icon").style.display = "inline";
+                if (teamDrawBtn) teamDrawBtn.querySelector("svg.team-icon").style.display = "inline";
+
+                // Check match status and time
+                const matchDate = new Date("{{ match.match_date|date:'c' }}");
+                const now = new Date();
+                const twoHoursBefore = new Date(matchDate.getTime() - 2 * 60 * 60 * 1000);
+
+                if ("{{ match.status|lower }}" === "finished" || ("{{ match.status|lower }}" === "live" && now > twoHoursBefore)) {
+                    popupTitle.textContent = "Match Details";
+                    if (popupSubtitle) popupSubtitle.style.display = "none";
+                    if (teamHomeBtn) teamHomeBtn.style.display = "none";
+                    if (teamAwayBtn) teamAwayBtn.style.display = "none";
+                    if (teamDrawBtn) teamDrawBtn.style.display = "none";
+                    if (popupBody) {
+                        popupBody.innerHTML = `
+                            <div class="no-vote-message">Voting is not allowed for this match.</div>
+                            <button class="ok-btn" onclick="pollPopup.classList.add('hidden')">OK</button>
+                        `;
+                    } else {
+                        console.warn("popupBody not found, cannot insert non-vote message.");
+                    }
+                } else {
+                    if (teamHomeBtn) teamHomeBtn.style.display = "flex";
+                    if (teamAwayBtn) teamAwayBtn.style.display = "flex";
+                    if (teamDrawBtn) teamDrawBtn.style.display = "flex";
+                }
+
+                pollPopup.classList.remove("hidden");
+                console.log("Modal visibility:", pollPopup.classList); // Debug
+            });
+        });
+
+        // Close poll modal (backup, handled by modal_poll.html)
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => {
+                if (pollPopup) pollPopup.classList.add("hidden");
+            });
+        }
+        if (pollPopup) {
+            pollPopup.addEventListener("click", (e) => {
+                if (e.target === pollPopup) {
+                    pollPopup.classList.add("hidden");
+                }
+            });
+        }
+    });
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 {% endblock %}

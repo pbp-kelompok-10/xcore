@@ -93,8 +93,86 @@ def my_votes(request):
 
 
 @login_required
-def update_vote(request, vote_id):
-    """UPDATE - User ubah vote sendiri (sebelum deadline)"""
+def update_vote(request, vote_id=None):
+    """UPDATE - User ubah vote sendiri (handle both AJAX and HTML form)"""
+    
+    # Handle AJAX request (dari modal)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or not vote_id:
+        if request.method != 'POST':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Method not allowed'
+            }, status=405)
+        
+        # Ambil vote_id dari POST body untuk AJAX
+        vote_id = request.POST.get('vote_id') or vote_id
+        choice = request.POST.get('choice')  # 'home' atau 'away'
+        
+        if not vote_id or not choice:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Missing required parameters'
+            })
+        
+        try:
+            vote = get_object_or_404(Vote, id=vote_id, user=request.user)
+            
+            # Cek apakah masih bisa diubah
+            if not vote.can_modify():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Voting sudah ditutup! Tidak bisa ubah vote lagi.'
+                })
+            
+            prediction = vote.prediction
+            
+            # Kurangi vote lama
+            old_choice = vote.choice.lower().strip()
+            if "home" in old_choice:
+                prediction.votes_home_team -= 1
+            elif "away" in old_choice:
+                prediction.votes_away_team -= 1
+            
+            # Tambah vote baru
+            new_choice = choice.lower().strip()
+            if new_choice == 'home' or 'home' in new_choice:
+                prediction.votes_home_team += 1
+                vote.choice = 'home'
+            elif new_choice == 'away' or 'away' in new_choice:
+                prediction.votes_away_team += 1
+                vote.choice = 'away'
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Invalid choice'
+                })
+            
+            vote.save()
+            prediction.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Vote berhasil diubah!',
+                'new_stats': {
+                    'home_votes': prediction.votes_home_team,
+                    'away_votes': prediction.votes_away_team,
+                    'home_percentage': float(prediction.home_percentage),
+                    'away_percentage': float(prediction.away_percentage)
+                }
+            })
+            
+        except Vote.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Vote tidak ditemukan'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Terjadi kesalahan: {str(e)}'
+            })
+    
+    # Handle HTML form request (dari halaman update_vote.html)
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
     
     if not vote.can_modify():
@@ -107,11 +185,13 @@ def update_vote(request, vote_id):
         
         prediction = vote.prediction
         
+        # Kurangi vote lama
         if "home" in old_choice:
             prediction.votes_home_team -= 1
         elif "away" in old_choice:
             prediction.votes_away_team -= 1
         
+        # Tambah vote baru
         if "home" in new_choice:
             prediction.votes_home_team += 1
         elif "away" in new_choice:
