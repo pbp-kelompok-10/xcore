@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Disable buttons while submitting
       document.querySelectorAll(".team-btn").forEach(b => b.disabled = true);
       
-      fetch("submit-vote/", {
+      fetch("{% url 'prediction:submit_vote' %}", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
