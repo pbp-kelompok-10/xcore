@@ -1,9 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tambah Pertandingan - Xcore</title>
   <style>
     :root {
       --primary-color: #1e423b;
@@ -117,29 +119,7 @@
       opacity: 0.3;
     }
 
-    .navbar {
-      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-      display: flex;
-      align-items: center;
-      padding: 15px 25px;
-      color: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .navbar h1 {
-      font-size: 22px;
-      margin: 0 15px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar h1::before {
-      content: "⚽";
-      margin-right: 10px;
-      font-size: 24px;
-    }
-
+    
     .back-button {
       color: white;
       text-decoration: none;
@@ -425,7 +405,6 @@
 
   <div class="navbar">
     <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
-    <h1>Xcore - Tambah Pertandingan</h1>
   </div>
 
   <div class="form-container">
@@ -747,6 +726,53 @@
       
       validateForm();
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("matchForm");
+  const dateInput = document.getElementById("id_match_date");
+  const statusSelect = document.getElementById("id_status");
+  const submitButton = document.getElementById("submitButton");
+
+  function isStatusValid() {
+    const dateValue = dateInput.value;
+    const statusValue = statusSelect.value;
+    if (!dateValue || !statusValue) return true; // skip if not filled yet
+
+    const matchDate = new Date(dateValue);
+    const now = new Date();
+
+    const diffHours = (matchDate - now) / 36e5; 
+
+    if (diffHours < -1 && ["live", "upcoming"].includes(statusValue)) {
+      showToast(
+        "Status Tidak Valid",
+        "Pertandingan sudah lewat — tidak bisa berstatus 'Live' atau 'Upcoming'.",
+        "error"
+      );
+      return false;
+    }
+
+    if (diffHours > 1 && ["live", "finished"].includes(statusValue)) {
+      showToast(
+        "Status Tidak Valid",
+        "Pertandingan belum dimulai — tidak bisa berstatus 'Live' atau 'Finished'.",
+        "error"
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  form.addEventListener("submit", function (e) {
+    if (!isStatusValid()) {
+      e.preventDefault();
+      submitButton.disabled = false; 
+    }
+  });
+});
   </script>
 </body>
 </html>
+
+{% endblock %}

@@ -1,0 +1,409 @@
+<!-- Modal Konfirmasi -->
+<div id="confirm-modal" class="modal-overlay hidden">
+  <div class="modal-container confirm-modal">
+    <div class="confirm-content">
+      <div class="confirm-icon">⚠️</div>
+      <h3 class="confirm-title">Confirm Vote Change</h3>
+      <p class="confirm-message" id="confirm-message">Are you sure you want to change your vote?</p>
+      
+      <div class="confirm-buttons">
+        <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn-confirm-yes" id="confirm-yes-btn">Yes, Change Vote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Update Vote -->
+<div id="update-vote-modal" class="modal-overlay hidden">
+  <div class="modal-container update-vote-modal">
+    <button class="modal-close-btn" onclick="closeUpdateVoteModal()">✕</button>
+    
+    <div class="modal-header">
+      <h2 class="modal-title">✏️ Change Your Vote</h2>
+    </div>
+
+    <div class="modal-body">
+      <!-- Match Info -->
+      <div class="update-match-info">
+        <div class="update-teams">
+          <strong id="update-home-team"></strong>
+          <span class="update-vs">VS</span>
+          <strong id="update-away-team"></strong>
+        </div>
+        <div class="update-match-details">
+          <div id="update-match-date"></div>
+          <div id="update-match-stadium"></div>
+        </div>
+      </div>
+
+      <!-- Current Vote -->
+      <div class="current-vote-display">
+        <div class="current-vote-label">Your Current Vote:</div>
+        <div class="current-vote-value" id="current-vote-choice"></div>
+        <div class="current-vote-time" id="current-vote-time"></div>
+      </div>
+
+      <!-- Change To Label -->
+      <div class="change-to-label">
+        <span>Change to:</span>
+      </div>
+
+      <!-- Vote Options -->
+      <div class="update-vote-options">
+        <button type="button" class="update-vote-btn home-option" data-choice="home">
+          <div class="vote-option-icon">🏠</div>
+          <div class="vote-option-name" id="update-option-home"></div>
+          <div class="vote-option-stats" id="update-stats-home"></div>
+        </button>
+
+        <div class="update-vs-divider">VS</div>
+
+        <button type="button" class="update-vote-btn away-option" data-choice="away">
+          <div class="vote-option-icon">✈️</div>
+          <div class="vote-option-name" id="update-option-away"></div>
+          <div class="vote-option-stats" id="update-stats-away"></div>
+        </button>
+      </div>
+
+      <!-- Warning -->
+      <div class="update-warning">
+        ⚠️ <strong>Note:</strong> You can change your vote until 2 hours before the match starts.
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Confirm Modal Styles */
+.confirm-modal {
+  max-width: 400px;
+  width: 90%;
+  padding: 2rem;
+  background: var(--white-light);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+.confirm-content {
+  text-align: center;
+}
+
+.confirm-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.confirm-title {
+  color: var(--green-darker);
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.confirm-message {
+  color: var(--blue-normal);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-confirm-cancel,
+.btn-confirm-yes {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 1rem;
+}
+
+.btn-confirm-cancel {
+  background: var(--white-dark);
+  color: var(--green-darker);
+  border: 2px solid var(--green-light);
+}
+
+.btn-confirm-cancel:hover {
+  background: var(--green-light);
+}
+
+.btn-confirm-yes {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+}
+
+.btn-confirm-yes:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+}
+
+/* Modal Overlay - PENTING untuk z-index tinggi */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+/* Modal Update Vote Styles */
+.update-vote-modal {
+  position: relative;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--white-light);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.modal-title {
+  color: var(--green-darker);
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 0;
+}
+
+/* Match Info */
+.update-match-info {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.update-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.update-vs {
+  background: var(--white-light);
+  color: var(--green-darker);
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.update-match-details {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.update-match-details > div {
+  margin: 0.25rem 0;
+}
+
+/* Current Vote Display */
+.current-vote-display {
+  background: var(--green-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.current-vote-label {
+  color: var(--green-darker);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.current-vote-value {
+  background: var(--white-light);
+  color: var(--green-darker);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.current-vote-time {
+  color: var(--blue-normal);
+  font-size: 0.85rem;
+}
+
+/* Change To Label */
+.change-to-label {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--green-darker);
+}
+
+/* Vote Options */
+.update-vote-options {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.update-vote-btn {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: 3px solid transparent;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.update-vote-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(86, 189, 169, 0.4);
+  border-color: var(--green-light);
+}
+
+.update-vote-btn:active {
+  transform: translateY(-2px);
+}
+
+.vote-option-icon {
+  font-size: 2rem;
+}
+
+.vote-option-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.vote-option-stats {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.update-vs-divider {
+  text-align: center;
+  font-weight: 700;
+  color: var(--green-normal);
+  font-size: 1.2rem;
+}
+
+/* Warning */
+.update-warning {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .update-vote-options {
+    grid-template-columns: 1fr;
+  }
+
+  .update-vs-divider {
+    display: none;
+  }
+
+  .update-teams {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+}
+</style>
+
+<script>
+function closeUpdateVoteModal() {
+  const modal = document.getElementById('update-vote-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+function closeConfirmModal() {
+  const modal = document.getElementById('confirm-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+// Close on outside click
+document.addEventListener('DOMContentLoaded', function() {
+  const updateModal = document.getElementById('update-vote-modal');
+  const confirmModal = document.getElementById('confirm-modal');
+  
+  if (updateModal) {
+    updateModal.addEventListener('click', function(e) {
+      if (e.target === updateModal) {
+        closeUpdateVoteModal();
+      }
+    });
+  }
+  
+  if (confirmModal) {
+    confirmModal.addEventListener('click', function(e) {
+      if (e.target === confirmModal) {
+        closeConfirmModal();
+      }
+    });
+  }
+});
+</script>

@@ -40,6 +40,7 @@ class Prediction(models.Model):
         return now < deadline
 
 
+# menyimpan vote user untuk setiap Prediction
 class Vote(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='votes')
@@ -56,3 +57,7 @@ class Vote(models.Model):
     def can_modify(self):
         """Check apakah vote masih bisa diubah/dihapus (sebelum deadline)"""
         return self.prediction.is_voting_open()
+        unique_together = ('user', 'prediction')  # biar 1 user cuma bisa vote 1 kali per prediction
+
+    def __str__(self):
+        return f"{self.user.username} voted {self.choice} on '{self.prediction.question}'"

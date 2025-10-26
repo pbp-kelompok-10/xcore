@@ -1,399 +1,555 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Players List</title>
-  <style>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Players - Xcore{% endblock %}
+
+{% block extra_css %}
+<style>
     :root {
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --bg: #f9fafb;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --muted: #64748b;
-      --success: #10b981;
-      --success-hover: #059669;
-      --gray: #94a3b8;
-      --gray-hover: #64748b;
+        --green-light: #eef8f6;
+        --green-normal: #56bda9;
+        --green-dark: #418e7f;
+        --green-darker: #1e423b;
+        --white-light: #ffffff;
+        --white-normal: #fcfdfd;
+        --white-dark: #f9fafb;
+        --blue-normal: #546881;
+        --blue-dark: #1d242d;
+        --navbar-height: 64px;
+        --footer-height: 60px;
     }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      margin: 0;
-      padding: 40px;
+    .container-xcore {
+        width: 80%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: var(--navbar-height);
+        padding-bottom: 60px;
+        font-family: 'Poppins', sans-serif;
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 30px 40px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    .prediction-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 3rem 0 2rem 0;
+        text-align: center !important;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 25px;
+    .prediction-title {
+        font-size: 2.5rem;
+        color: var(--green-darker) !important;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        text-align: center !important;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .prediction-subtitle {
+        color: var(--blue-normal) !important;
+        font-size: 1.1rem;
+        text-align: center !important;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 1.8em;
-      color: var(--text);
+    .tab-navigation-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background-color: transparent !important; 
+        box-shadow: none !important;
     }
 
-    .btn-back {
-      background: var(--gray);
-      color: white;
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background 0.2s ease;
-      display: inline-block;
+    .tab-group-left, .tab-group-right {
+        display: flex;
+        gap: 0.75rem;
     }
 
-    .btn-back:hover {
-      background: var(--gray-hover);
+    .tab-btn {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+        color: var(--white-light) !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
     }
 
-    .add-btn, .upload-btn {
-      background: var(--success);
-      color: white;
-      text-decoration: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background 0.2s ease;
-      cursor: pointer;
+    .tab-btn:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    .add-btn:hover, .upload-btn:hover {
-      background: var(--success-hover);
+    .tab-btn.btn-back {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
     }
 
-    .upload-btn {
-      background: var(--primary);
+    .tab-btn.btn-back:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
     }
 
-    .upload-btn:hover {
-      background: var(--primary-hover);
+    .tab-btn.btn-add {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+    }
+
+    .tab-btn.btn-add:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+    }
+
+    .tab-btn.btn-upload {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+    }
+
+    .tab-btn.btn-upload:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
     }
 
     .search-bar {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      margin-bottom: 20px;
-      font-size: 15px;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--blue-normal);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        font-family: 'Poppins', sans-serif;
+        color: var(--blue-dark);
+        transition: all 0.3s ease;
+    }
+
+    .search-bar:focus {
+        outline: none;
+        border-color: var(--green-dark);
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.2);
+    }
+
+    .white-box {
+        background: var(--white-normal);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-top: 1rem;
     }
 
     .team-card {
-      background: #f1f5f9;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      overflow: hidden;
-      transition: all 0.3s ease;
+        background: var(--white-light);
+        margin-bottom: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        animation: fade-in 0.5s ease-in;
+    }
+
+    .team-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 
     .team-header {
-      background: #e2e8f0;
-      padding: 14px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text);
+        background: var(--green-light);
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--green-darker);
+        border-radius: 16px 16px 0 0;
+        transition: background 0.3s ease;
     }
 
     .team-header:hover {
-      background: #cbd5e1;
+        background: var(--green-normal);
+        color: var(--white-light);
     }
 
     .team-name {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.1rem;
     }
 
     .player-list {
-      display: none;
-      padding: 10px 18px 18px 18px;
-      background: var(--card-bg);
+        display: none;
+        padding: 1rem 1.5rem;
+        background: var(--white-normal);
+        border-radius: 0 0 16px 16px;
     }
 
     .player-card {
-      background: #f8fafc;
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin: 8px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s ease;
-      cursor: pointer;
+        background: var(--white-light);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        position: relative;
     }
 
     .player-card:hover {
-      background: #e0f2fe;
+        transform: translateY(-2px);
+        background: var(--green-light);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.2);
     }
 
     .player-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        z-index: 2;
     }
 
     .player-name {
-      font-weight: 600;
-      color: var(--text);
+        font-weight: 600;
+        color: var(--green-darker);
+        font-size: 1rem;
     }
 
     .player-number {
-      font-size: 0.9em;
-      color: var(--muted);
+        font-size: 0.9rem;
+        color: var(--blue-normal);
     }
 
     .action-buttons a {
-      border: none;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      color: white;
-      transition: all 0.2s ease;
-      background: var(--primary);
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        color: var(--white-light);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        z-index: 2;
     }
 
     .action-buttons a:hover {
-      background: var(--primary-hover);
+        background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal));
+        transform: translateY(-2px);
     }
 
     .empty {
-      text-align: center;
-      color: var(--muted);
-      margin-top: 20px;
-      font-style: italic;
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--blue-normal);
+        font-size: 1.2rem;
+        background: var(--white-light);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin: 0;
+        animation: fade-in 0.5s ease-in;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    #uploadModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: fade-in 0.3s ease-in;
     }
 
     .modal-content {
-      background: var(--card-bg);
-      padding: 30px;
-      border-radius: 12px;
-      width: 400px;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        background: var(--white-light);
+        padding: 2rem;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        font-family: 'Poppins', sans-serif;
+        animation: fade-in 0.5s ease-in;
+    }
+
+    .modal-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 1rem;
     }
 
     .modal-content input[type="file"] {
-      display: block;
-      margin: 15px auto;
+        display: block;
+        margin: 1rem auto;
+        color: var(--blue-dark);
     }
 
-    .modal-content button {
-      background: var(--success);
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.2s;
+    .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
     }
 
-    .modal-content button:hover {
-      background: var(--success-hover);
+    .btn-vote {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
 
-    .close-btn {
-      background: var(--danger);
+    .btn-vote:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    .close-btn:hover {
-      background: var(--danger-hover);
+    .btn-vote.close-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
     }
 
-  </style>
-</head>
-<body>
-  
-  <div class="container">
-    <div class="header">
-      <div class="header-left">
-        <a href="javascript:history.back()" class="btn-back">← Back</a>
-        <h1>Players</h1>
-      </div>
+    .btn-vote.close-btn:hover {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+    }
 
-      {% if request.user.is_admin %}
-      <div style="display: flex; gap: 10px;">
-        <a href="{% url 'lineup:player-create' %}" class="add-btn">+ Add Player</a>
-        <button class="upload-btn" onclick="openModal()">⬆️ Upload ZIP</button>
-      </div>
-      {% endif %}
-    </div>
+    #uploadStatus {
+        margin-top: 1rem;
+        color: var(--blue-normal);
+        font-size: 0.9rem;
+    }
 
-    <input type="text" id="search" class="search-bar" placeholder="🔍 Search player by name or number...">
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-    {% if grouped_teams %}
-      {% for team, players in grouped_teams.items %}
-        <div class="team-card">
-          <div class="team-header" onclick="toggleTeam('{{ team.id }}')">
-            <div class="team-name">
-              <img src="https://flagcdn.com/24x18/{{ team.code }}.png" alt="{{ team.name }} flag">
-              {{ team.name }} ({{ players|length }} players)
-            </div>
-            <span>▼</span>
-          </div>
+    @media (max-width: 768px) {
+        .container-xcore {
+            width: 90%;
+            padding: var(--navbar-height) 1rem 2rem;
+        }
 
-          <div id="team-{{ team.id }}" class="player-list">
-            {% for player in players %}
-              <div class="player-card" 
-                   data-player="{{ player.nama|lower }} {{ player.nomor }}"
-                   onclick="goToDetail(event, '{{ player.pk }}')">
-                <div class="player-info">
-                  <span class="player-name">{{ player.nama }}</span>
-                  <span class="player-number">#{{ player.nomor }}</span>
-                </div>
-                
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      <p class="empty">No players available.</p>
-    {% endif %}
-  </div>
+        .prediction-title {
+            font-size: 2rem;
+        }
 
-  <!-- Upload Modal -->
-  <div id="uploadModal">
-    <div class="modal-content">
-      <h2>Upload Players (ZIP)</h2>
-      <form id="uploadForm" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" id="zipFile" name="file" accept=".zip" required>
+        .tab-navigation-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .tab-group-left, .tab-group-right {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-header {
+            padding: 1rem;
+        }
+
+        .player-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+
+        .action-buttons {
+            margin-top: 0.5rem;
+        }
+
+        .modal-content {
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+        }
+
+        .btn-vote {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-xcore">
+    <!-- Header -->
+    <div class="prediction-header fade-in text-center">
         <div>
-          <button type="submit">Upload</button>
-          <button type="button" class="close-btn" onclick="closeModal()">Cancel</button>
+            <h1 class="prediction-title">Players</h1>
+            <p class="prediction-subtitle">Discover all players in Xcore!</p>
         </div>
-      </form>
-      <p id="uploadStatus" style="margin-top: 10px; color: var(--muted);"></p>
     </div>
-  </div>
 
-  <script>
+    <!-- Actions -->
+    <div class="tab-navigation-wrapper fade-in">
+        <div class="tab-group-left">
+            <a href="{% url 'scoreboard:scoreboard_list' %}" class="tab-btn btn-back">← Back</a>
+        </div>
+        {% if request.user.is_admin %}
+        <div class="tab-group-right">
+            <a href="{% url 'lineup:player-create' %}" class="tab-btn btn-add">+ Add Player</a>
+            <button class="tab-btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- White Box -->
+    <div class="white-box">
+        <input type="text" id="search" class="search-bar" placeholder="🔍 Search player by name or number...">
+
+        {% if grouped_teams %}
+        {% for team, players in grouped_teams.items %}
+        <div class="team-card">
+            <div class="team-header" onclick="toggleTeam('{{ team.id }}')">
+                <div class="team-name">
+                    <img src="https://flagcdn.com/24x18/{{ team.code }}.png" alt="{{ team.name }} flag">
+                    {{ team.name }} ({{ players|length }} players)
+                </div>
+                <span>▼</span>
+            </div>
+
+            <div id="team-{{ team.id }}" class="player-list">
+                {% for player in players %}
+                <div class="player-card" data-player="{{ player.nama|lower }} {{ player.nomor }}" onclick="goToDetail(event, '{{ player.pk }}')">
+                    <div class="player-info">
+                        <span class="player-name">{{ player.nama }}</span>
+                        <span class="player-number">#{{ player.nomor }}</span>
+                    </div>
+                    {% if request.user.is_superuser %}
+                    <div class="action-buttons">
+                        <a href="{% url 'lineup:player-update' player.pk %}">Edit</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="empty">No players available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Upload Players (ZIP)</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="zipFile" name="file" accept=".zip" required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-vote">Upload</button>
+                    <button type="button" class="btn-vote close-btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+            <p id="uploadStatus"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
     // --- Expand/Collapse Teams ---
     function toggleTeam(teamId) {
-      const list = document.getElementById(`team-${teamId}`);
-      list.style.display = (list.style.display === 'block') ? 'none' : 'block';
+        const list = document.getElementById(`team-${teamId}`);
+        list.style.display = (list.style.display === 'block') ? 'none' : 'block';
     }
 
     // --- Navigate to player detail ---
     function goToDetail(event, playerId) {
-      if (event.target.closest('.action-buttons')) return;
-      window.location.href = `/lineup/players/${playerId}/`;
+        if (event.target.closest('.action-buttons')) return;
+        window.location.href = `/lineup/players/${playerId}/`;
     }
 
     // --- Search Filter ---
     const searchInput = document.getElementById('search');
     searchInput.addEventListener('input', function() {
-      const term = this.value.toLowerCase();
-      const teamCards = document.querySelectorAll('.team-card');
+        const term = this.value.toLowerCase();
+        const teamCards = document.querySelectorAll('.team-card');
 
-      teamCards.forEach(card => {
-        const players = card.querySelectorAll('.player-card');
-        let matchFound = false;
+        teamCards.forEach(card => {
+            const players = card.querySelectorAll('.player-card');
+            let matchFound = false;
 
-        players.forEach(p => {
-          const text = p.getAttribute('data-player');
-          const visible = text.includes(term);
-          p.style.display = visible ? 'flex' : 'none';
-          if (visible) matchFound = true;
+            players.forEach(p => {
+                const text = p.getAttribute('data-player');
+                const visible = text.includes(term);
+                p.style.display = visible ? 'flex' : 'none';
+                if (visible) matchFound = true;
+            });
+
+            const list = card.querySelector('.player-list');
+            if (term && matchFound) {
+                list.style.display = 'block';
+            } else if (!term) {
+                list.style.display = 'none';
+            }
+
+            card.style.display = matchFound || !term ? 'block' : 'none';
         });
-
-        const list = card.querySelector('.player-list');
-        if (term && matchFound) {
-          list.style.display = 'block';
-        } else if (!term) {
-          list.style.display = 'none';
-        }
-
-        card.style.display = matchFound || !term ? 'block' : 'none';
-      });
     });
 
     // --- Upload Modal ---
     function openModal() {
-      document.getElementById("uploadModal").style.display = "flex";
+        document.getElementById("uploadModal").style.display = "flex";
     }
 
     function closeModal() {
-      document.getElementById("uploadModal").style.display = "none";
-      document.getElementById("uploadStatus").textContent = "";
+        document.getElementById("uploadModal").style.display = "none";
+        document.getElementById("uploadStatus").textContent = "";
     }
 
     // --- Handle Upload ---
     document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById("zipFile");
-      const status = document.getElementById("uploadStatus");
+        e.preventDefault();
+        const fileInput = document.getElementById("zipFile");
+        const status = document.getElementById("uploadStatus");
 
-      if (!fileInput.files.length) {
-        status.textContent = "Please select a file first.";
-        return;
-      }
+        if (!fileInput.files.length) {
+            status.textContent = "Please select a file first.";
+            return;
+        }
 
-      const formData = new FormData();
-      formData.append("file", fileInput.files[0]);
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
 
-      status.textContent = "Uploading...";
+        status.textContent = "Uploading...";
 
-      const response = await fetch("{% url 'lineup:upload-players' %}", {
-        method: "POST",
-        body: formData,
-      });
+        const response = await fetch("{% url 'lineup:upload-players' %}", {
+            method: "POST",
+            body: formData,
+        });
 
-      const result = await response.json();
-      if (result.status === "ok") {
-        status.style.color = "green";
-        status.textContent = `✅ Uploaded ${result.added_players.length} players successfully.`;
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        status.style.color = "red";
-        status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
-      }
+        const result = await response.json();
+        if (result.status === "ok") {
+            status.style.color = "green";
+            status.textContent = `✅ Uploaded ${result.added_players.length} players successfully.`;
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            status.style.color = "red";
+            status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
+        }
     });
-  </script>
-</body>
-</html>
+</script>
+{% endblock %}

@@ -1,33 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Scoreboard - Xcore{% endblock %}
 
 {% block extra_css %}
 <style>
     :root {
-        --primary-color: #1e423b;
-        --secondary-color: #56bda9;
-        --secondary-hover: #4daa96;
-        --secondary-active: #459987;
-        --light-bg: #eef8f6;
-        --light-hover: #e6f5f2;
-        --light-active: #cbebe4;
-        --white: #ffffff;
-        --text-dark: #333333;
-        --text-light: #666666;
+        --green-light: #eef8f6;
+        --green-normal: #56bda9;
+        --green-dark: #418e7f;
+        --green-darker: #1e423b;
+        --white-light: #ffffff;
+        --white-normal: #fcfdfd;
+        --white-dark: #f9fafb;
+        --blue-normal: #546881;
+        --blue-dark: #1d242d;
+        --navbar-height: 64px;
+        --footer-height: 60px;
         --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         --hover-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
     }
 
     body {
-        background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
-        color: var(--text-dark);
+        background: linear-gradient(135deg, var(--white-normal) 0%, var(--green-light) 100%);
+        color: var(--green-darker);
         line-height: 1.6;
         margin: 0;
         padding: 0;
         position: relative;
         min-height: 100vh;
         overflow-x: hidden;
+        font-family: 'Poppins', sans-serif;
     }
 
     /* Minimal Football Background Elements */
@@ -50,7 +53,7 @@
     .hexagon {
         width: 80px;
         height: 46px;
-        background: var(--primary-color);
+        background: var(--green-darker);
         position: relative;
         border-radius: 4px;
     }
@@ -66,21 +69,21 @@
 
     .hexagon:before {
         bottom: 100%;
-        border-bottom: 23px solid var(--primary-color);
+        border-bottom: 23px solid var(--green-darker);
     }
 
     .hexagon:after {
         top: 100%;
-        border-top: 23px solid var(--primary-color);
+        border-top: 23px solid var(--green-darker);
     }
 
     .circle {
         border-radius: 50%;
-        background: var(--secondary-color);
+        background: var(--green-normal);
     }
 
     .line {
-        background: var(--primary-color);
+        background: var(--green-darker);
         height: 2px;
     }
 
@@ -146,47 +149,37 @@
         }
     }
 
-    .container {
-        width: 90%;
-        max-width: 1000px;
-        margin: 30px auto;
-        position: relative;
+    /* === HEADER & CONTAINER === */
+    .container-xcore {
+        width: 80%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: var(--navbar-height);
+        padding-bottom: 60px;
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
     }
 
-    .page-header {
-        text-align: center;
-        margin-bottom: 40px;
-        position: relative;
+    .prediction-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 3rem 0 2rem 0;
+        text-align: center !important;
     }
 
-    .page-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        color: var(--primary-color);
-        margin-bottom: 10px;
-        position: relative;
-        display: inline-block;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    .prediction-title {
+        font-size: 2.5rem;
+        color: var(--green-darker) !important;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        text-align: center !important;
     }
 
-
-    .page-title::after {
-        content: "";
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--secondary-color), var(--secondary-hover));
-        border-radius: 2px;
-    }
-
-    .page-subtitle {
-        color: var(--text-light);
-        font-size: 1.2rem;
-        margin-top: 15px;
-        font-weight: 500;
+    .prediction-subtitle {
+        color: var(--blue-normal) !important;
+        font-size: 1.1rem;
+        text-align: center !important;
     }
 
     .date-section {
@@ -196,17 +189,17 @@
 
     .date-header {
         text-align: center;
-        color: var(--primary-color);
+        color: var(--green-darker);
         font-weight: 700;
         font-size: 1.4rem;
-        background: linear-gradient(135deg, var(--white) 0%, var(--light-bg) 100%);
+        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
         padding: 20px 30px;
         border-radius: 20px;
         width: 90%;
         max-width: 900px;
         margin: 0 auto 25px auto;
         box-shadow: var(--card-shadow);
-        border: 2px solid var(--light-active);
+        border: 2px solid var(--green-light);
         position: relative;
         overflow: hidden;
         backdrop-filter: blur(15px);
@@ -219,7 +212,7 @@
         left: 0;
         height: 100%;
         width: 8px;
-        background: linear-gradient(to bottom, var(--secondary-color), var(--secondary-hover));
+        background: linear-gradient(to bottom, var(--green-normal), var(--green-dark));
     }
 
     .add-button-container {
@@ -227,45 +220,26 @@
         margin: 40px 0;
     }
 
-    .add-button {
+    .tab-btn.btn-add {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+        color: var(--white-light) !important;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 12px;
-        padding: 18px 35px;
-        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
-        color: white;
-        text-decoration: none;
-        border-radius: 15px;
-        font-weight: 700;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(86, 189, 169, 0.4);
-        position: relative;
-        overflow: hidden;
-        border: 2px solid transparent;
     }
 
-    .add-button::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: 0.6s;
-    }
-
-    .add-button:hover {
-        background: linear-gradient(135deg, var(--secondary-hover), var(--secondary-active));
-        box-shadow: 0 12px 30px rgba(86, 189, 169, 0.6);
-        transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .add-button:hover::before {
-        left: 100%;
+    .tab-btn.btn-add:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
     .match-link {
@@ -280,7 +254,7 @@
     }
 
     .match-card {
-        background: linear-gradient(135deg, var(--white) 0%, var(--light-bg) 100%);
+        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
         border-radius: 20px;
         box-shadow: var(--card-shadow);
         margin-bottom: 25px;
@@ -291,7 +265,7 @@
         padding: 25px 30px;
         position: relative;
         transition: all 0.3s ease;
-        border: 2px solid var(--light-active);
+        border: 2px solid var(--green-light);
         backdrop-filter: blur(15px);
     }
 
@@ -302,7 +276,7 @@
         left: 0;
         height: 100%;
         width: 6px;
-        background: linear-gradient(to bottom, var(--secondary-color), var(--secondary-hover));
+        background: linear-gradient(to bottom, var(--green-normal), var(--green-dark));
         opacity: 0;
         transition: opacity 0.3s ease;
     }
@@ -311,26 +285,26 @@
         opacity: 1;
     }
 
-    .edit-button {
+    .tab-btn.btn-edit {
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+        color: var(--white-light) !important;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         position: absolute;
         top: 15px;
         right: 15px;
-        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
-        color: white;
-        text-decoration: none;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.85rem;
         z-index: 10;
-        transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(86, 189, 169, 0.3);
     }
 
-    .edit-button:hover {
-        background: linear-gradient(135deg, var(--secondary-hover), var(--secondary-active));
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(86, 189, 169, 0.4);
+    .tab-btn.btn-edit:hover {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
     .team {
@@ -347,7 +321,7 @@
         margin-right: 15px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         object-fit: cover;
-        border: 2px solid var(--white);
+        border: 2px solid var(--white-light);
         transition: transform 0.3s ease;
     }
 
@@ -358,7 +332,7 @@
     .team-name {
         font-weight: 600;
         font-size: 1.1rem;
-        color: var(--primary-color);
+        color: var(--green-darker);
     }
 
     .score-section {
@@ -372,20 +346,20 @@
         font-size: 2.2rem;
         font-weight: bold;
         margin-bottom: 8px;
-        color: var(--primary-color);
+        color: var(--green-darker);
         font-family: 'Poppins', sans-serif;
     }
 
     .ft {
         font-size: 0.9rem;
-        color: var(--text-light);
+        color: var(--blue-normal);
         margin: 0 8px;
         font-weight: 500;
     }
 
     .match-info {
         font-size: 0.9rem;
-        color: var(--text-light);
+        color: var(--blue-normal);
         margin-top: 8px;
         line-height: 1.4;
     }
@@ -425,22 +399,22 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        color: var(--secondary-color);
+        color: var(--green-normal);
         font-weight: 600;
         text-decoration: none;
         font-size: 0.9rem;
         margin: 10px 0 25px auto;
         padding: 8px 16px;
-        background: var(--light-bg);
+        background: var(--green-light);
         border-radius: 8px;
         transition: all 0.3s ease;
         width: fit-content;
-        border: 1px solid var(--light-active);
+        border: 1px solid var(--green-light);
     }
 
     .forum-button:hover {
-        background: var(--secondary-color);
-        color: white;
+        background: var(--green-normal);
+        color: var(--white-light);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
     }
@@ -448,12 +422,12 @@
     .no-matches {
         text-align: center;
         padding: 60px 40px;
-        color: var(--text-light);
-        background: linear-gradient(135deg, var(--white) 0%, var(--light-bg) 100%);
+        color: var(--blue-normal);
+        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
         border-radius: 16px;
         box-shadow: var(--card-shadow);
         margin: 40px 0;
-        border: 1px solid var(--light-active);
+        border: 1px solid var(--green-light);
         backdrop-filter: blur(10px);
     }
 
@@ -464,29 +438,23 @@
     }
 
     .no-matches h3 {
-        color: var(--primary-color);
+        color: var(--green-darker);
         margin-bottom: 15px;
         font-size: 1.5rem;
     }
 
-    .footer {
-        text-align: center;
-        padding: 30px 20px;
-        margin-top: 50px;
-        color: var(--text-light);
-        font-size: 0.9rem;
-        border-top: 1px solid var(--light-active);
-        background: var(--white);
-        backdrop-filter: blur(10px);
-    }
-
     @media (max-width: 768px) {
+        .container-xcore {
+            width: 90%;
+            padding: var(--navbar-height) 1rem 2rem;
+        }
+
+        .prediction-title {
+            font-size: 2rem;
+        }
+
         .football-element {
             opacity: 0.02;
-        }
-        
-        .page-title {
-            font-size: 2.2rem;
         }
 
         .match-card {
@@ -494,19 +462,19 @@
             padding: 20px;
             text-align: center;
         }
-        
+
         .team {
             width: 100%;
             justify-content: center;
             margin-bottom: 15px;
         }
-        
+
         .score-section {
             width: 100%;
             order: -1;
             margin-bottom: 20px;
         }
-        
+
         .team:last-child {
             margin-bottom: 0;
         }
@@ -520,7 +488,7 @@
             font-size: 1.8rem;
         }
 
-        .edit-button {
+        .tab-btn.btn-edit {
             position: relative;
             top: auto;
             right: auto;
@@ -533,12 +501,12 @@
         .football-element {
             display: none;
         }
-        
+
         .field-pattern {
             opacity: 0.2;
         }
-        
-        .page-title {
+
+        .prediction-title {
             font-size: 1.7rem;
         }
 
@@ -547,9 +515,9 @@
             padding: 15px 20px;
         }
 
-        .add-button {
-            padding: 14px 25px;
-            font-size: 1rem;
+        .tab-btn.btn-add {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
         }
 
         .team-name {
@@ -560,11 +528,15 @@
             font-size: 1.6rem;
         }
     }
+
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-
 <div class="football-elements">
     <div class="field-pattern"></div>
     <div class="football-element element-1 hexagon"></div>
@@ -575,18 +547,20 @@
     <div class="football-element element-6 line" style="width: 120px;"></div>
 </div>
 
-<div class="container">
-    <div class="page-header">
-        <h1 class="page-title">Xcore Scoreboard</h1>
-        <p class="page-subtitle">Live Football Scores & Statistics</p>
+<div class="container-xcore">
+    <div class="prediction-header fade-in text-center">
+        <div>
+            <h1 class="prediction-title">Scoreboard</h1>
+            <p class="prediction-subtitle">Live Football Scores & Statistics</p>
+        </div>
     </div>
 
-    <!-- Hanya tampilkan tombol tambah jika user adalah admin -->
+    <!-- Add Button -->
     {% if user.is_authenticated and user.is_admin %}
     <div class="add-button-container">
-        <a href="{% url 'scoreboard:add_match' %}" class="add-button">
+        <a href="{% url 'scoreboard:add_match' %}" class="tab-btn btn-add">
             <span>➕</span>
-            <span>Tambah Pertandingan Baru</span>
+            <span>Add New Match</span>
         </a>
     </div>
     {% endif %}
@@ -598,16 +572,15 @@
 
             {% for match in matches %}
                 {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' %}'">
+                    <div class="match-link" onclick="window.location.href='{% url 'prediction:list' %}'">
                 {% elif match.statistics.all %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
                 {% else %}
                     <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
                 {% endif %}
                         <div class="match-card">
-                            <!-- Hanya tampilkan tombol edit jika user adalah admin -->
                             {% if user.is_authenticated and user.is_admin %}
-                            <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit</a>
+                            <a href="{% url 'scoreboard:update_score' match.id %}" class="tab-btn btn-edit">Edit</a>
                             {% endif %}
 
                             <div class="team">
@@ -650,7 +623,7 @@
                 {% if match.status != 'upcoming' %}
                     <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">
                         <span>💬</span>
-                        <span>Buka Forum Diskusi</span>
+                        <span>Open Discussion Forum</span>
                     </a>
                 {% endif %}
             {% endfor %}
@@ -659,20 +632,16 @@
     {% else %}
         <div class="no-matches">
             <div class="no-matches-icon">⚽</div>
-            <h3>Belum Ada Pertandingan</h3>
-            <p>Mulai dengan menambahkan pertandingan pertama Anda menggunakan tombol di atas.</p>
+            <h3>No Matches Available</h3>
+            <p>Start by adding your first match using the button above.</p>
         </div>
     {% endif %}
-</div>
-
-<div class="footer">
-    &copy; 2024 Xcore Scoreboard. All rights reserved.
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.querySelectorAll('.edit-button').forEach(btn => {
+    document.querySelectorAll('.tab-btn.btn-edit').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
         });
@@ -683,7 +652,6 @@
         cards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
-            
             setTimeout(() => {
                 card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                 card.style.opacity = '1';
