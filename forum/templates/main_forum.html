@@ -250,12 +250,12 @@
 <div class="content-wrapper">
     <div class="page">
         <div class="action-buttons">
-            <a href="/scoreboard/" class="btn-secondary">Back to Scoreboard</a>
+            <a href="/scoreboard/" class="btn-secondary">← Back to Scoreboard</a>
             <div class="feature-buttons">
-                <a href="{% url 'forum:forum_detail' match.id %}" class="btn-feature">Forum</a>
-                <a href="{% url 'highlights:match_highlights' match.id %}" class="btn-feature">Highlight</a>
-                <a href="/prediction/" class="btn-feature">Prediction</a>
-                <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">Lineup</a>
+                <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn-feature">💬 Forum</a>
+                <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn-feature">🎥 Highlight</a>
+                <a href="#" class="btn-feature vote-trigger" data-match-id="{{ match.id }}" data-home="{{ match.home_team }}" data-away="{{ match.away_team }}">⚽ Prediction</a>
+                <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">👥 Lineup</a>
             </div>
         </div>
 
