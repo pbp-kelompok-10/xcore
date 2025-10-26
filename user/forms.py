@@ -20,7 +20,7 @@ class CustomUserCreationForm(UserCreationForm):
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'bio']
+        fields = ['username', 'email', 'bio', 'profile_picture']
         widgets = {
             'bio': forms.Textarea(attrs={
                 'rows': 4,
