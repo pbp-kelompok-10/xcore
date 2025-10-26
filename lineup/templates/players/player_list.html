@@ -393,7 +393,6 @@
 {% block content %}
 <div class="container-xcore">
     <!-- Header -->
-    <a href="{% url 'landingpage:home' %}" class="tab-btn btn-back">← Back</a>
     <div class="prediction-header fade-in text-center">
         <div>
             <h1 class="prediction-title">Players</h1>
@@ -406,7 +405,7 @@
 <<<<<<< HEAD
 =======
         <div class="tab-group-left">
-            <a href="{% url 'landingpage:home' %}" class="tab-btn btn-back">← Back</a>
+            <a href="{% url 'scoreboard:scoreboard_list' %}" class="tab-btn btn-back">← Back</a>
         </div>
 >>>>>>> 85e9b8cc3a4e957b8d9f3122b5830fc0272b7d55
         {% if request.user.is_admin %}
