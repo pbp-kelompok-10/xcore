@@ -107,30 +107,7 @@
         66% { transform: translate(-10px, 25px) rotate(240deg); }
     }
 
-    .navbar {
-        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-        display: flex;
-        align-items: center;
-        padding: 15px 25px;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .navbar h1 {
-        font-size: 22px;
-        margin: 0 15px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-    }
-
-    .navbar h1::before {
-        content: "⚽";
-        margin-right: 10px;
-        font-size: 24px;
-    }
+    
 
     .back-button {
         color: white;
@@ -391,9 +368,7 @@
             padding: 25px;
         }
         
-        .navbar h1 {
-            font-size: 18px;
-        }
+       
         
         .football-element {
             opacity: 0.02;
@@ -437,10 +412,6 @@
     <div class="football-element element-6 line" style="width: 120px;"></div>
 </div>
 
-<div class="navbar">
-    <a href="{% url 'scoreboard:scoreboard_list' %}" class="back-button">←</a>
-    <h1>Xcore - Update Pertandingan</h1>
-</div>
 
 <div class="form-container">
     <h2 class="form-title">Update Pertandingan</h2>
