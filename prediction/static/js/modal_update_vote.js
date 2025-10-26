@@ -21,6 +21,15 @@ function openUpdateVoteModal(voteId, currentVote, homeTeam, awayTeam) {
   document.getElementById("home-team-name").textContent = homeTeam;
   document.getElementById("away-team-name").textContent = awayTeam;
 
+  if (currentVote.toLowerCase().includes("home")) {
+    currentVoteEl.textContent = homeTeam;
+  } else if (currentVote.toLowerCase().includes("away")) {
+    currentVoteEl.textContent = awayTeam;
+  } else {
+    currentVoteEl.textContent = currentVote || "—";
+  }
+
+
   // Reset state
   selectedChoice = null;
   confirmSection.classList.add("hidden");
@@ -71,40 +80,76 @@ confirmUpdateBtn.addEventListener("click", () => {
   }
 
   fetch("/prediction/update-vote/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "X-CSRFToken": getCookie("csrftoken"),
-      "X-Requested-With": "XMLHttpRequest"
-    },
-    body: `vote_id=${encodeURIComponent(currentVoteId)}&choice=${encodeURIComponent(selectedChoice)}`
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === "success") {
-        modalUpdateVote.classList.add("hidden");
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "X-CSRFToken": getCookie("csrftoken"),
+    "X-Requested-With": "XMLHttpRequest"
+  },
+  body: `vote_id=${encodeURIComponent(currentVoteId)}&choice=${encodeURIComponent(selectedChoice)}`
+})
+  .then(res => res.json())
+  .then(data => {
+  console.log("Update vote response:", data);
 
-        const card = document.querySelector(`.prediction-card[data-vote-id='${data.vote_id}']`);
-        if (card) {
-          card.dataset.voted = "true";
-          card.dataset.userChoice = selectedChoice;
-          card.dataset.votedAt = new Date().toLocaleString();
-          card.dataset.homeVotes = data.votes_home_team;
-          card.dataset.awayVotes = data.votes_away_team;
-          card.dataset.homePercentage = data.home_percentage;
-          card.dataset.awayPercentage = data.away_percentage;
-          if (typeof window.refreshCardUI === "function") window.refreshCardUI(card);
-        }
+  if (data.status === "success") {
+    showToast("Success", "Vote berhasil diupdate! 🎉", "success");
+    modalUpdateVote.classList.add("hidden");
 
-        showToast('Success', 'Vote berhasil diupdate! 🎉', 'success');
-      } else {
-        alert(data.message || "Gagal update vote.");
-      }
-    })
-    .catch(err => {
-      console.error("Update vote error:", err);
-      alert("Terjadi kesalahan saat update vote.");
+    // 🔍 cari kartu berdasarkan prediction_id
+    const card = document.querySelector(`.prediction-card[data-prediction-id='${data.prediction_id}']`);
+    
+    if (card) {
+    Object.assign(card.dataset, {
+        voted: "true",
+        userChoice: selectedChoice,
+        votedAt: new Date().toLocaleString(),
+        voteId: data.vote_id || card.dataset.voteId,
+        homeVotes: data.votes_home_team,
+        awayVotes: data.votes_away_team,
+        homePercentage: data.home_percentage,
+        awayPercentage: data.away_percentage,
     });
+
+    // hide elemen lama
+    card.querySelectorAll(".voted-badge, .vote-timestamp, .change-vote-trigger, .delete-vote-btn, .vote-trigger")
+        .forEach(el => (el.style.display = "none"));
+
+    // 🔄 update hasil vote di UI
+    const homePercent = parseFloat(data.home_percentage).toFixed(1);
+    const awayPercent = parseFloat(data.away_percentage).toFixed(1);
+
+    const homeRow = card.querySelector(".result-row:nth-child(1)");
+    const awayRow = card.querySelector(".result-row:nth-child(2)");
+
+    if (homeRow && awayRow) {
+        homeRow.querySelector(".result-percent").textContent = `${homePercent}%`;
+        awayRow.querySelector(".result-percent").textContent = `${awayPercent}%`;
+
+        homeRow.querySelector(".result-fill").style.width = `${homePercent}%`;
+        awayRow.querySelector(".result-fill").style.width = `${awayPercent}%`;
+
+        homeRow.querySelector(".result-votes").textContent = 
+        `${data.votes_home_team} vote${data.votes_home_team == 1 ? '' : 's'}`;
+        awayRow.querySelector(".result-votes").textContent = 
+        `${data.votes_away_team} vote${data.votes_away_team == 1 ? '' : 's'}`;
+    }
+
+    if (typeof window.refreshCardUI === "function") window.refreshCardUI(card);
+    if (typeof window.refreshAllCards === "function") window.refreshAllCards();
+
+    console.log("✅ Updated card found:", card);
+    }
+
+  } else {
+    showToast("Error", data.message || "Gagal update vote.", "error");
+  }
+})
+
+  .catch(err => {
+    console.error("Update vote error:", err);
+    showToast("Error", "Terjadi kesalahan saat update vote.", "error");
+  });
 });
 
 // --------------------

@@ -157,6 +157,7 @@ def update_vote(request, vote_id=None):
             return JsonResponse({
                 'status': 'success',
                 'vote_id': str(vote.id),
+                "prediction_id": str(vote.prediction.id),
                 'voted_at': vote.voted_at.isoformat(),
                 'votes_home_team': prediction.votes_home_team,
                 'votes_away_team': prediction.votes_away_team,
