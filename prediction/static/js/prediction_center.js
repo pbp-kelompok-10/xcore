@@ -50,55 +50,54 @@
 
     // ========== UPCOMING ==========
     if (status === 'upcoming') {
-      if (voted) {
+    if (voted) {
+        if (isMyVotesTab) {
+        // ✅ hanya tampil di tab My Votes
         if (votedBadge) { votedBadge.style.display = 'block'; setVotedBadgeText(); }
-        if (voteNowBtn) {
-          voteNowBtn.style.display = 'block';
-          voteNowBtn.disabled = false;
-          voteNowBtn.onclick = () => showToast('Info', 'Kamu sudah vote untuk match ini!', 'info');
+        if (voteTimestamp && card.dataset.votedAt) {
+            voteTimestamp.style.display = 'block';
+            voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
         }
-      } else if (!isMyVotesTab && voteNowBtn) {
+
+        // 🧩 tambahin ini biar tombolnya muncul lagi
+        if (changeVoteBtn) { changeVoteBtn.style.display = 'block'; changeVoteBtn.disabled = false; }
+        if (deleteVoteBtn) { deleteVoteBtn.style.display = 'block'; deleteVoteBtn.disabled = false; }
+
+        } else {
+        // 🔒 di tab lain, sembunyikan badge, tapi kalau klik Vote Now kasih info toast
+        if (voteNowBtn) {
+            voteNowBtn.style.display = 'block';
+            voteNowBtn.disabled = false;
+            voteNowBtn.onclick = () => showToast('Info', 'Kamu sudah vote untuk match ini!', 'info');
+        }
+        }
+    } else if (voteNowBtn) {
+        // user belum vote → boleh vote di semua tab selain finished
         voteNowBtn.style.display = 'block';
         voteNowBtn.disabled = false;
         voteNowBtn.onclick = null;
-      }
-      return;
     }
+    return;
+    }
+
+
 
     // ========== LIVE ==========
     if (status === 'live') {
-      const stillVotingOpen = diffHours > 2; // masih lebih dari 2 jam sebelum start
-
-      if (!stillVotingOpen) {
-        // sudah lewat 2 jam → anggap finished
-        if (voted) {
-          if (votedBadge) { votedBadge.style.display = 'block'; setVotedBadgeText(); }
-          if (voteTimestamp && card.dataset.votedAt) {
-            voteTimestamp.style.display = 'block';
-            voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
-          }
-        } else if (voteTimestamp) {
-          voteTimestamp.style.display = 'block';
-          voteTimestamp.textContent = 'You didn’t vote for this match.';
-        }
-        return;
-      }
-
-      // masih bisa vote
-      if (voted) {
+    // Anggap sama kayak finished
+    if (voted) {
         if (votedBadge) { votedBadge.style.display = 'block'; setVotedBadgeText(); }
-        if (voteNowBtn) {
-          voteNowBtn.style.display = 'block';
-          voteNowBtn.disabled = false;
-          voteNowBtn.onclick = () => showToast('Info', 'Kamu sudah vote untuk match ini!', 'info');
+        if (voteTimestamp && card.dataset.votedAt) {
+        voteTimestamp.style.display = 'block';
+        voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
         }
-      } else if (voteNowBtn) {
-        voteNowBtn.style.display = 'block';
-        voteNowBtn.disabled = false;
-        voteNowBtn.onclick = null;
-      }
-      return;
+    } else if (voteTimestamp) {
+        voteTimestamp.style.display = 'block';
+        voteTimestamp.textContent = 'You haven’t voted for this match.';
     }
+    return;
+    }
+
 
     // ========== FINISHED ==========
     if (status === 'finished' || diffHours <= 2) { // tambahan: kalau udah lewat 2 jam juga treat as finished

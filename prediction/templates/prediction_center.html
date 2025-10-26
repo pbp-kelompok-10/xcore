@@ -257,20 +257,20 @@
     {% for prediction in upcoming_predictions %}
       {% with user_vote=prediction.user_vote %}
       <div class="prediction-card fade-in" 
-           data-status="upcoming" 
-           data-voted="{% if user_vote %}true{% else %}false{% endif %}"
-           data-vote-id="{% if user_vote %}{{ user_vote.id }}{% endif %}"
-           data-prediction-id="{{ prediction.id }}"
-           data-home-team="{{ prediction.match.home_team }}"
-           data-away-team="{{ prediction.match.away_team }}"
-           data-match-date="{{ prediction.match.match_date|date:'d M Y, H:i' }}"
-           data-match-stadium="{{ prediction.match.stadium }}"
-           data-user-choice="{% if user_vote %}{{ user_vote.choice }}{% endif %}"
-           data-voted-at="{% if user_vote %}{{ user_vote.voted_at|date:'d M Y, H:i' }}{% endif %}"
-           data-home-votes="{{ prediction.votes_home_team }}"
-           data-away-votes="{{ prediction.votes_away_team }}"
-           data-home-percentage="{{ prediction.home_percentage|floatformat:1 }}"
-           data-away-percentage="{{ prediction.away_percentage|floatformat:1 }}">
+          data-status="upcoming" 
+          data-voted="{% if user_vote %}true{% else %}false{% endif %}"
+          data-vote-id="{% if user_vote %}{{ user_vote.id }}{% endif %}"
+          data-prediction-id="{{ prediction.id }}"
+          data-home-team="{{ prediction.match.home_team }}"
+          data-away-team="{{ prediction.match.away_team }}"
+          data-match-start="{{ prediction.match.match_date|date:'c' }}"
+          data-match-stadium="{{ prediction.match.stadium }}"
+          data-user-choice="{% if user_vote %}{{ user_vote.choice }}{% endif %}"
+          data-voted-at="{% if user_vote %}{{ user_vote.voted_at|date:'d M Y, H:i' }}{% endif %}"
+          data-home-votes="{{ prediction.votes_home_team }}"
+          data-away-votes="{{ prediction.votes_away_team }}"
+          data-home-percentage="{{ prediction.home_percentage|floatformat:1 }}"
+          data-away-percentage="{{ prediction.away_percentage|floatformat:1 }}">
         
         <div class="status-badge status-upcoming">⏰ UPCOMING</div>
         
@@ -312,8 +312,7 @@
             </div>
             <button class="btn-vote btn-change-vote change-vote-trigger"
                     data-prediction-id="{{ prediction.id }}"
-                    data-home="{{ prediction.match.home_team }}"
-                    data-away="{{ prediction.match.away_team }}">
+                    data-vote-id="{{ user_vote.id }}">
               🔄 Change Vote
             </button>
             <button class="btn-vote delete-vote-btn"
@@ -332,11 +331,16 @@
             </button>
           {% endif %}
         {% else %}
-          <a href="{% url 'landingpage:login' %}" class="btn-vote">
-            🗳️ Login to Vote
-          </a>
+          <a href="{% url 'landingpage:login' %}" class="btn-vote">🗳️ Login to Vote</a>
         {% endif %}
 
+        <!-- Default hidden vote button for JS to show when eligible -->
+        <button class="btn-vote vote-trigger" style="display:none;"
+                data-prediction-id="{{ prediction.id }}"
+                data-home="{{ prediction.match.home_team }}"
+                data-away="{{ prediction.match.away_team }}">
+          🗳️ Vote Now
+        </button>
 
         <div class="results-section">
           <div class="result-row">
@@ -470,6 +474,7 @@
             🗳️ Login to Vote
           </a>
         {% endif %}
+        <div class="vote-timestamp" style="display:none;"></div>
         <div class="results-section">
           <div class="result-row">
             <div class="result-header">
