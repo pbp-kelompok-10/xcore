@@ -98,11 +98,11 @@
 
       <!-- Mobile Navigation Links -->
       <div class="space-y-1">
-        <a href="/" class="block text-white hover:opacity-80 font-medium py-3 transition-opacity">
-          Home
-        </a>
         <a href="{% url 'scoreboard:scoreboard_list' %}" class="block text-white hover:opacity-80 font-medium py-3 transition-opacity">
           Scoreboard
+        </a>
+        <a href="{% url 'prediction:list' %}" class="block text-white hover:opacity-80 font-medium py-3 transition-opacity">
+          Prediction
         </a>
         <a href="{% url 'lineup:team-list' %}" class="block text-white hover:opacity-80 font-medium py-3 transition-opacity">
           Teams
@@ -118,7 +118,7 @@
           <div class="mb-4">
             <div class="font-medium text-white mb-3">Halo, {{ name|default:user.username }}!</div>
             <div class="space-y-2">
-              <a href="#" class="block text-white hover:opacity-80 font-medium py-2 transition-opacity">
+              <a href="{% url 'landingpage:profile' %}" class="block text-white hover:opacity-80 font-medium py-2 transition-opacity">
                 👤 Profile
               </a>
               <a href="{% url 'landingpage:logout' %}" class="block text-white hover:opacity-80 font-medium py-2 transition-opacity">

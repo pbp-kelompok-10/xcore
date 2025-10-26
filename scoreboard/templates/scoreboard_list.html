@@ -5,34 +5,6 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --green-light: #eef8f6;
-        --green-normal: #56bda9;
-        --green-dark: #418e7f;
-        --green-darker: #1e423b;
-        --white-light: #ffffff;
-        --white-normal: #fcfdfd;
-        --white-dark: #f9fafb;
-        --blue-normal: #546881;
-        --blue-dark: #1d242d;
-        --navbar-height: 64px;
-        --footer-height: 60px;
-        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        --hover-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-    }
-
-    body {
-        background: linear-gradient(135deg, var(--white-normal) 0%, var(--green-light) 100%);
-        color: var(--green-darker);
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        min-height: 100vh;
-        overflow-x: hidden;
-        font-family: 'Poppins', sans-serif;
-    }
-
     /* Minimal Football Background Elements */
     .football-elements {
         position: fixed;
@@ -149,60 +121,67 @@
         }
     }
 
-    /* === HEADER & CONTAINER === */
-    .container-xcore {
-        width: 80%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding-top: var(--navbar-height);
-        padding-bottom: 60px;
-        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+    /* Header */
+    .scoreboard-header {
+        text-align: center;
+        margin: 3rem 0 2.5rem 0;
     }
 
-    .prediction-header {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 3rem 0 2rem 0;
-        text-align: center !important;
-    }
-
-    .prediction-title {
-        font-size: 2.5rem;
-        color: var(--green-darker) !important;
+    .scoreboard-header h1 {
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        color: var(--green-darker);
         margin-bottom: 0.5rem;
         font-weight: 700;
-        text-align: center !important;
     }
 
-    .prediction-subtitle {
-        color: var(--blue-normal) !important;
-        font-size: 1.1rem;
-        text-align: center !important;
+    .scoreboard-header p {
+        color: var(--blue-normal);
+        font-size: 1.15rem;
+        font-weight: 500;
     }
 
+    /* Add Button */
+    .add-button-container {
+        text-align: center;
+        margin: 2rem 0 3rem 0;
+    }
+
+    .btn-add-match {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(86, 189, 169, 0.35);
+    }
+
+    .btn-add-match:hover {
+        background: linear-gradient(135deg, var(--green-normal-hover), var(--green-dark-hover));
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(86, 189, 169, 0.45);
+    }
+
+    /* Date Section */
     .date-section {
-        margin: 40px 0 25px 0;
-        position: relative;
+        margin-bottom: 3rem;
     }
 
     .date-header {
+        background: linear-gradient(135deg, var(--white-light), var(--green-light));
+        border: 2px solid var(--green-light-active);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
         text-align: center;
-        color: var(--green-darker);
-        font-weight: 700;
-        font-size: 1.4rem;
-        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
-        padding: 20px 30px;
-        border-radius: 20px;
-        width: 90%;
-        max-width: 900px;
-        margin: 0 auto 25px auto;
-        box-shadow: var(--card-shadow);
-        border: 2px solid var(--green-light);
         position: relative;
         overflow: hidden;
-        backdrop-filter: blur(15px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .date-header::before {
@@ -210,63 +189,41 @@
         position: absolute;
         top: 0;
         left: 0;
+        width: 6px;
         height: 100%;
-        width: 8px;
-        background: linear-gradient(to bottom, var(--green-normal), var(--green-dark));
+        background: linear-gradient(180deg, var(--green-normal), var(--green-dark));
     }
 
-    .add-button-container {
-        text-align: center;
-        margin: 40px 0;
+    .date-header h2 {
+        color: var(--green-darker);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
     }
 
-    .tab-btn.btn-add {
-        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
-        color: var(--white-light) !important;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        white-space: nowrap;
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .tab-btn.btn-add:hover {
-        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
-    }
-
-    .match-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .match-link:hover .match-card {
-        transform: translateY(-5px);
-        box-shadow: var(--hover-shadow);
-    }
-
-    .match-card {
-        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
-        border-radius: 20px;
-        box-shadow: var(--card-shadow);
-        margin-bottom: 25px;
-        overflow: hidden;
+    /* Matches Container */
+    .matches-container {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 25px 30px;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Match Card Wrapper */
+    .match-card-wrapper {
         position: relative;
-        transition: all 0.3s ease;
+    }
+
+    /* Match Card */
+    .match-card {
+        background: var(--white-light);
         border: 2px solid var(--green-light);
-        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
 
     .match-card::before {
@@ -274,269 +231,333 @@
         position: absolute;
         top: 0;
         left: 0;
+        width: 4px;
         height: 100%;
-        width: 6px;
-        background: linear-gradient(to bottom, var(--green-normal), var(--green-dark));
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .match-card:hover::before {
-        opacity: 1;
-    }
-
-    .tab-btn.btn-edit {
-        background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
-        color: var(--white-light) !important;
-        padding: 0.25rem 0.6rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        z-index: 10;
-    }
-
-    .tab-btn.btn-edit:hover {
-        background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
-    }
-
-    .team {
-        display: flex;
-        align-items: center;
-        width: 35%;
-        z-index: 1;
-    }
-
-    .team img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        object-fit: cover;
-        border: 2px solid var(--white-light);
+        background: linear-gradient(180deg, var(--green-normal), var(--green-dark));
+        transform: scaleY(0);
         transition: transform 0.3s ease;
     }
 
-    .match-link:hover .team img {
+    .match-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(86, 189, 169, 0.2);
+        border-color: var(--green-normal);
+    }
+
+    .match-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    /* Match Content */
+    .match-content {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    /* Team Section */
+    .team-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .team-section.away {
+        justify-content: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .team-flag {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 3px solid var(--white-light);
+        transition: transform 0.3s ease;
+    }
+
+    .match-card:hover .team-flag {
         transform: scale(1.1);
     }
 
     .team-name {
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        font-weight: 700;
         color: var(--green-darker);
     }
 
+    .team-section.away .team-name {
+        text-align: right;
+    }
+
+    /* Score Section */
     .score-section {
         text-align: center;
-        width: 30%;
-        z-index: 1;
-        position: relative;
-    }
-
-    .score {
-        font-size: 2.2rem;
-        font-weight: bold;
-        margin-bottom: 8px;
-        color: var(--green-darker);
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .ft {
-        font-size: 0.9rem;
-        color: var(--blue-normal);
-        margin: 0 8px;
-        font-weight: 500;
-    }
-
-    .match-info {
-        font-size: 0.9rem;
-        color: var(--blue-normal);
-        margin-top: 8px;
-        line-height: 1.4;
+        padding: 1.5rem;
+        background: var(--green-light);
+        border-radius: 12px;
+        border: 2px solid var(--green-light-active);
     }
 
     .status-badge {
         display: inline-block;
-        padding: 4px 12px;
+        padding: 0.4rem 1rem;
         border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        margin-bottom: 5px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
     }
 
     .status-upcoming {
-        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-        color: #e65100;
+        background: linear-gradient(135deg, #FEF3C7, #FCD34D);
+        color: #92400E;
+        box-shadow: 0 2px 8px rgba(252, 211, 77, 0.3);
     }
 
     .status-live {
-        background: linear-gradient(135deg, #ffebee, #ffcdd2);
-        color: #c62828;
-        animation: pulse 2s infinite;
+        background: linear-gradient(135deg, #FCA5A5, #EF4444);
+        color: var(--white-light);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        animation: pulse-live 2s infinite;
     }
 
     .status-finished {
-        background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-        color: #2e7d32;
+        background: linear-gradient(135deg, #BFDBFE, #60A5FA);
+        color: #1E3A8A;
+        box-shadow: 0 2px 8px rgba(96, 165, 250, 0.3);
     }
 
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.7; }
-        100% { opacity: 1; }
+    @keyframes pulse-live {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
     }
 
-    .forum-button {
+    .score-display {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 0.75rem;
+        letter-spacing: 2px;
+    }
+
+    .score-display .vs-text {
+        font-size: 2rem;
+        color: var(--blue-normal);
+        font-weight: 600;
+    }
+
+    .ft-indicator {
+        color: var(--blue-normal);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0.5rem;
+    }
+
+    /* Match Info */
+    .match-info {
+        color: var(--blue-normal);
+        font-size: 0.95rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+
+    .match-info-row {
+        margin: 0.25rem 0;
+    }
+
+    /* Action Buttons Container */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Edit Button */
+    .btn-edit-match {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        color: var(--green-normal);
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 0.9rem;
-        margin: 10px 0 25px auto;
-        padding: 8px 16px;
-        background: var(--green-light);
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        width: fit-content;
-        border: 1px solid var(--green-light);
-    }
-
-    .forum-button:hover {
-        background: var(--green-normal);
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
         color: var(--white-light);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(84, 104, 129, 0.3);
+    }
+
+    .btn-edit-match:hover {
+        background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
+        box-shadow: 0 6px 18px rgba(84, 104, 129, 0.45);
     }
 
-    .no-matches {
+    /* Forum Button */
+    .btn-forum {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--white-dark);
+        color: var(--green-darker);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: 2px solid var(--green-light-active);
+    }
+
+    .btn-forum:hover {
+        background: var(--green-light);
+        border-color: var(--green-normal);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.2);
+    }
+
+    /* Empty State */
+    .empty-state {
         text-align: center;
-        padding: 60px 40px;
-        color: var(--blue-normal);
-        background: linear-gradient(135deg, var(--white-light) 0%, var(--green-light) 100%);
+        padding: 5rem 2rem;
+        background: var(--white-light);
         border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        margin: 40px 0;
-        border: 1px solid var(--green-light);
-        backdrop-filter: blur(10px);
+        border: 2px dashed var(--green-light-active);
+        margin: 3rem 0;
     }
 
-    .no-matches-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
         opacity: 0.5;
     }
 
-    .no-matches h3 {
+    .empty-state h3 {
         color: var(--green-darker);
-        margin-bottom: 15px;
         font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
     }
 
+    .empty-state p {
+        color: var(--blue-normal);
+        font-size: 1.05rem;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .container-xcore {
-            width: 90%;
-            padding: var(--navbar-height) 1rem 2rem;
+        .match-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
 
-        .prediction-title {
+        .score-section {
+            order: -1;
+        }
+
+        .team-section {
+            justify-content: center;
+        }
+
+        .team-section.away {
+            justify-content: center;
+            flex-direction: row;
+        }
+
+        .team-section.away .team-name {
+            text-align: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-edit-match,
+        .btn-forum {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .match-card {
+            padding: 1.5rem;
+        }
+
+        .team-flag {
+            width: 50px;
+            height: 50px;
+        }
+
+        .team-name {
+            font-size: 1.05rem;
+        }
+
+        .score-display {
             font-size: 2rem;
         }
 
         .football-element {
             opacity: 0.02;
         }
-
-        .match-card {
-            flex-direction: column;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .team {
-            width: 100%;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .score-section {
-            width: 100%;
-            order: -1;
-            margin-bottom: 20px;
-        }
-
-        .team:last-child {
-            margin-bottom: 0;
-        }
-
-        .team img {
-            width: 45px;
-            height: 45px;
-        }
-
-        .score {
-            font-size: 1.8rem;
-        }
-
-        .tab-btn.btn-edit {
-            position: relative;
-            top: auto;
-            right: auto;
-            margin-bottom: 15px;
-            align-self: flex-end;
-        }
     }
 
     @media (max-width: 480px) {
-        .football-element {
-            display: none;
-        }
-
         .field-pattern {
             opacity: 0.2;
         }
 
-        .prediction-title {
-            font-size: 1.7rem;
+        .football-element {
+            display: none;
+        }
+
+        .scoreboard-header h1 {
+            font-size: 1.75rem;
         }
 
         .date-header {
-            font-size: 1.1rem;
-            padding: 15px 20px;
+            padding: 1.25rem 1.5rem;
         }
 
-        .tab-btn.btn-add {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
+        .date-header h2 {
+            font-size: 1.25rem;
         }
 
-        .team-name {
-            font-size: 1rem;
+        .match-card {
+            padding: 1.25rem;
         }
 
-        .score {
-            font-size: 1.6rem;
+        .score-display {
+            font-size: 1.75rem;
         }
     }
 
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* Fade-in Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Background Elements -->
 <div class="football-elements">
     <div class="field-pattern"></div>
     <div class="football-element element-1 hexagon"></div>
@@ -548,90 +569,113 @@
 </div>
 
 <div class="container-xcore">
-    <div class="prediction-header fade-in text-center">
-        <div>
-            <h1 class="prediction-title">Scoreboard</h1>
-            <p class="prediction-subtitle">Live Football Scores & Statistics</p>
-        </div>
+    <!-- Header -->
+    <div class="scoreboard-header fade-in">
+        <h1>⚽ Scoreboard</h1>
+        <p>Live Football Scores & Match Statistics</p>
     </div>
 
-    <!-- Add Button -->
+    <!-- Add Button (Admin Only) -->
     {% if user.is_authenticated and user.is_admin %}
     <div class="add-button-container">
-        <a href="{% url 'scoreboard:add_match' %}" class="tab-btn btn-add">
-            <span>➕</span>
-            <span>Add New Match</span>
+        <a href="{% url 'scoreboard:add_match' %}" class="btn-add-match">
+            ➕ Add New Match
         </a>
     </div>
     {% endif %}
 
+    <!-- Matches by Date -->
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
-        <div class="date-section">
-            <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
+        <div class="date-section fade-in">
+            <div class="date-header">
+                <h2>📅 {{ match_date|date:"l, d F Y" }}</h2>
+            </div>
 
-            {% for match in matches %}
-                {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='{% url 'prediction:list' %}'">
-                {% elif match.statistics.all %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
-                {% else %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
-                {% endif %}
-                        <div class="match-card">
-                            {% if user.is_authenticated and user.is_admin %}
-                            <a href="{% url 'scoreboard:update_score' match.id %}" class="tab-btn btn-edit">Edit</a>
-                            {% endif %}
-
-                            <div class="team">
-                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
+            <div class="matches-container">
+                {% for match in matches %}
+                <div class="match-card-wrapper">
+                    <!-- Match Card -->
+                    <div class="match-card" onclick="handleMatchClick('{{ match.status }}', '{{ match.id }}', {{ match.statistics.all|length }})">
+                        <div class="match-content">
+                            <!-- Home Team -->
+                            <div class="team-section home">
+                                <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png"
                                      alt="{{ match.home_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                     class="team-flag"
+                                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
                                 <div class="team-name">{{ match.home_team }}</div>
                             </div>
 
+                            <!-- Score Section -->
                             <div class="score-section">
-                                <div class="score">
+                                <!-- Status Badge -->
+                                {% if match.status == 'upcoming' %}
+                                    <div class="status-badge status-upcoming">Upcoming</div>
+                                {% elif match.status == 'live' %}
+                                    <div class="status-badge status-live">● Live</div>
+                                {% else %}
+                                    <div class="status-badge status-finished">Finished</div>
+                                {% endif %}
+
+                                <!-- Score Display -->
+                                <div class="score-display">
                                     {% if match.status == 'upcoming' %}
-                                        VS
+                                        <div class="score-display">
+                                            <span class="vs-text">N/A</span>
+                                        </div>
                                     {% else %}
-                                        {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
+                                        <div class="score-display">
+                                            {{ match.home_score }}
+                                            <span class="ft-indicator">FT</span>
+                                            {{ match.away_score }}
+                                        </div>
                                     {% endif %}
                                 </div>
+
+                                <!-- Match Info -->
                                 <div class="match-info">
-                                    {% if match.status == 'upcoming' %}
-                                        <div class="status-badge status-upcoming">UPCOMING</div>
-                                    {% elif match.status == 'live' %}
-                                        <div class="status-badge status-live">LIVE</div>
-                                    {% else %}
-                                        <div class="status-badge status-finished">FINISHED</div>
-                                    {% endif %}
-                                    <div>{{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}</div>
-                                    <div>{{ match.stadium }}</div>
+                                    <div class="match-info-row">{{ match.round|default:"Round" }} • {{ match.group|default:"Group" }}</div>
+                                    <div class="match-info-row">🏟️ {{ match.stadium }}</div>
                                 </div>
                             </div>
 
-                            <div class="team" style="justify-content: flex-end;">
-                                <div class="team-name">{{ match.away_team }}</div>
-                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png"
+                            <!-- Away Team -->
+                            <div class="team-section away">
+                                <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png"
                                      alt="{{ match.away_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                     class="team-flag"
+                                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
+                                <div class="team-name">{{ match.away_team }}</div>
                             </div>
                         </div>
                     </div>
 
-                {% if match.status != 'upcoming' %}
-                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">
-                        <span>💬</span>
-                        <span>Open Discussion Forum</span>
-                    </a>
-                {% endif %}
-            {% endfor %}
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <!-- Edit Button (Admin Only) -->
+                        {% if user.is_authenticated and user.is_admin %}
+                        <a href="{% url 'scoreboard:update_score' match.id %}" class="btn-edit-match" onclick="event.stopPropagation();">
+                            ✏️ Edit Match
+                        </a>
+                        {% endif %}
+
+                        <!-- Forum Button (For Finished Matches) -->
+                        {% if match.status != 'upcoming' %}
+                        <a href="{% url 'forum:forum_detail' match.id %}" class="btn-forum" onclick="event.stopPropagation();">
+                            💬 Discussion Forum
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endfor %}
     {% else %}
-        <div class="no-matches">
-            <div class="no-matches-icon">⚽</div>
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">⚽</div>
             <h3>No Matches Available</h3>
             <p>Start by adding your first match using the button above.</p>
         </div>
@@ -641,14 +685,27 @@
 
 {% block extra_js %}
 <script>
-    document.querySelectorAll('.tab-btn.btn-edit').forEach(btn => {
+    // Handle match card click
+    function handleMatchClick(status, matchId, hasStatistics) {
+        if (status === 'upcoming') {
+            window.location.href = "{% url 'prediction:list' %}";
+        } else if (hasStatistics > 0) {
+            window.location.href = `/statistik/${matchId}/`;
+        } else {
+            window.location.href = `/statistik/add/${matchId}/`;
+        }
+    }
+
+    // Prevent buttons from triggering card click
+    document.querySelectorAll('.btn-edit-match, .btn-forum').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
         });
     });
 
+    // Staggered fade-in animation
     document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.match-card');
+        const cards = document.querySelectorAll('.match-card-wrapper');
         cards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';

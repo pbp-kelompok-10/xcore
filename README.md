@@ -92,7 +92,7 @@ Dataset negara :
 
 ```
 
-Pembagian :
+Pembagian Negara:
 1-9 : Alvin</br>
 10-18 : Zita</br>
 19-27 : Garuga</br>

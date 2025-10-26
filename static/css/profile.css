@@ -8,20 +8,22 @@
   --text-light: #666666;
 }
 
-
 .profile-page {
-  width: 100vw;
-  min-height: calc(100vh - 64px);
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
   font-family: 'Poppins', sans-serif;
-  padding: 2rem;
+  padding-top: 80px; /* FIXED: Spacing dari navbar */
+  padding-bottom: 80px;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-
 .profile-container {
+  /* REMOVED margin-top */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,7 +36,6 @@
   border: 2px solid var(--green-light-active);
   gap: 2rem;
 }
-
 
 .profile-info {
   flex: 1;
@@ -129,7 +130,6 @@
   color: var(--text-dark);
 }
 
-
 .edit-profile-container {
   margin-top: 1.5rem;
   text-align: left;
@@ -149,7 +149,6 @@
 .edit-profile-button:hover {
   background: var(--green-darker);
 }
-
 
 .profile-picture-container {
   flex: 0 0 250px;
@@ -204,12 +203,10 @@
   white-space: nowrap;
 }
 
-
 .profile-picture-label:hover .hover-text {
   opacity: 1;
   transform: translateX(50%) translateY(-3px);
 }
-
 
 @media (max-width: 900px) {
   .profile-container {
@@ -224,5 +221,9 @@
   .profile-picture {
     width: 160px;
     height: 160px;
+  }
+  
+  .profile-page {
+    padding-top: 120px; /* Kurangi sedikit di mobile */
   }
 }

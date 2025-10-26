@@ -15,8 +15,8 @@
         --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         --error-color: #e74c3c;
         --error-bg: #ffeaea;
-        --navbar-height: 60px; /* Estimasi tinggi navbar, sesuaikan jika berbeda */
-        --footer-height: 60px; /* Estimasi tinggi footer, sesuaikan jika berbeda */
+        --navbar-height: 60px;
+        --footer-height: 60px;
     }
 
     * {
@@ -32,7 +32,7 @@
         line-height: 1.6;
         min-height: 100vh;
         display: flex;
-        flex-direction: column; /* Pastikan layout vertikal */
+        flex-direction: column;
         padding: 0;
         margin: 0;
     }
@@ -52,15 +52,15 @@
     }
 
     .content-wrapper {
-        flex: 1 0 auto; /* Mengisi ruang antara navbar dan footer */
+        flex: 1 0 auto;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px; /* Jarak dari sisi layar */
-        padding-top: calc(var(--navbar-height) + 20px); /* Jarak dari navbar */
-        padding-bottom: calc(var(--footer-height) + 20px); /* Jarak dari footer */
+        padding: 20px;
+        padding-top: calc(var(--navbar-height) + 20px);
+        padding-bottom: calc(var(--footer-height) + 20px);
         width: 100%;
-        min-height: calc(100vh - var(--navbar-height) - var(--footer-height)); /* Pastikan tidak menyentuh footer */
+        min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
     }
 
     .form-container {
@@ -176,8 +176,31 @@
     .actions {
         display: flex;
         justify-content: center;
-        gap: 15px;
-        margin-top: 20px;
+        align-items: center;
+        margin-top: 30px;
+        gap: 36px;
+    }
+
+    .btn-cancel {
+        background: none;
+        color: var(--secondary-color);
+        font-weight: 600;
+        border: 2px solid var(--secondary-color);
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: auto;
+    }
+
+    .btn-cancel:hover {
+        background: var(--secondary-color);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
     }
 
     .submit-button {
@@ -185,12 +208,11 @@
         color: var(--white);
         font-weight: 600;
         border: none;
-        padding: 12px 20px;
+        padding: 12px 24px;
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
-        width: 100%;
-        max-width: 200px;
+        width: auto;
     }
 
     .submit-button:hover {
@@ -203,40 +225,20 @@
         transform: translateY(0);
     }
 
-    .btn-cancel {
-        background: none;
-        color: var(--secondary-color);
-        font-weight: 600;
-        border: 1px solid var(--secondary-color);
-        padding: 12px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        transition: all 0.3s ease;
-        width: fit-content;
-        max-width: 200px;
-    }
-
-    .btn-cancel:hover {
-        background: var(--secondary-color);
-        color: var(--white);
-        transform: translateY(-2px);
-    }
-
     @media (max-width: 768px) {
         .form-container {
             padding: 25px;
         }
 
         .actions {
-            flex-direction: column;
+            flex-direction: column-reverse;
             gap: 10px;
         }
 
         .submit-button,
         .btn-cancel {
             width: 100%;
+            justify-content: center;
         }
     }
 
@@ -284,12 +286,12 @@
             {% endfor %}
 
             <div class="actions">
-                <button type="submit" class="submit-button">💾 Save</button>
-                {% if notview.object %}
+                {% if view.object %}
                     <a href="{% url 'lineup:player-detail' view.object.id %}" class="btn-cancel">← Cancel</a>
                 {% else %}
                     <a href="{% url 'lineup:player-list' %}" class="btn-cancel">← Cancel</a>
                 {% endif %}
+                <button type="submit" class="submit-button">💾 Save</button>
             </div>
         </form>
     </div>

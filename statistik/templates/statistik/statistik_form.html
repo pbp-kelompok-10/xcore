@@ -403,12 +403,16 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Show loading state
         submitBtn.innerHTML = 'Loading...';
-        submitBtn.classList.add('loading');
+        submitBtn.style.opacity = '0.7';
+        submitBtn.disabled = true;
 
         const formData = new FormData(form);
         const data = {};
         formData.forEach((value, key) => (data[key] = value));
+
+        console.log("Submitting data:", data);
 
         fetch(window.location.href, {
             method: 'POST',
@@ -419,31 +423,60 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(data),
         })
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.status === 'success') {
+        .then((response) => response.json())
+        .then((result) => {
+            console.log("Server response:", result);
+            
+            if (result.status === 'success') {
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
                     showToast('Sukses', result.message, 'success');
-                    setTimeout(() => {
-                        window.location.href = result.redirect_url;
-                    }, 1500);
                 } else {
-                    showToast('Error', result.message, 'error');
-                    submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
-                    submitBtn.classList.remove('loading');
+                    // Fallback jika showToast tidak ada
+                    alert('Sukses: ' + result.message);
                 }
-            })
-            .catch((error) => {
-                showToast('Error', 'Terjadi kesalahan jaringan', 'error');
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 1500);
+            } else {
+                let errorMessage = result.message || 'Terjadi kesalahan';
+                // Tampilkan error detail jika ada
+                if (result.errors) {
+                    errorMessage += '\n\nDetail Error:';
+                    for (const field in result.errors) {
+                        errorMessage += `\n• ${field}: ${result.errors[field].join(', ')}`;
+                    }
+                }
+                
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
+                    showToast('Error', errorMessage, 'error');
+                } else {
+                    // Fallback jika showToast tidak ada
+                    alert('Error: ' + errorMessage);
+                }
+                
                 submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
-                submitBtn.classList.remove('loading');
-            });
+                submitBtn.style.opacity = '1';
+                submitBtn.disabled = false;
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            
+            // Gunakan showToast dari base.html
+            if (typeof showToast === 'function') {
+                showToast('Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
+            } else {
+                // Fallback jika showToast tidak ada
+                alert('Error: Terjadi kesalahan jaringan');
+            }
+            
+            submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+            submitBtn.style.opacity = '1';
+            submitBtn.disabled = false;
+        });
     });
-
-    // Fungsi placeholder untuk showToast (gantikan dengan implementasi sesungguhnya)
-    window.showToast = function(title, message, type) {
-        console.log(`${title}: ${message} (${type})`);
-        // Implementasikan logika toast di sini jika ada library seperti Toastr
-    };
 });
 </script>
 {% endblock %}
