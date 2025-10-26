@@ -6,13 +6,16 @@ from django.contrib import messages
 from scoreboard.models import Match
 from .models import Prediction, Vote
 
-# ============================================
-# USER SIDE - VOTING & VIEWING
-# ============================================
+
 
 def prediction_list(request):
     """Halaman utama untuk user melihat semua predictions"""
     predictions = Prediction.objects.select_related('match').all()
+    
+    if request.user.is_authenticated:
+        votes = Vote.objects.filter(user=request.user).select_related("prediction")
+    else:
+        votes = Vote.objects.none()  # Empty queryset untuk user yang belum login
     
     upcoming_predictions = predictions.filter(match__status='upcoming')
     live_predictions = predictions.filter(match__status='live')
@@ -22,7 +25,9 @@ def prediction_list(request):
         'upcoming_predictions': upcoming_predictions,
         'live_predictions': live_predictions,
         'finished_predictions': finished_predictions,
+        'votes': votes,
     }
+
     return render(request, 'prediction_center.html', context)
 
 
@@ -37,24 +42,20 @@ def submit_vote(request):
         except Prediction.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Prediction not found"})
         
-        # Check deadline
         if not prediction.is_voting_open():
             return JsonResponse({
                 "status": "error", 
                 "message": "Voting sudah ditutup! Deadline 2 jam sebelum match dimulai."
             })
 
-        # Cek apakah user sudah pernah vote
         if Vote.objects.filter(user=request.user, prediction=prediction).exists():
             return JsonResponse({
                 "status": "error", 
                 "message": "Kamu sudah vote! Mau ubah vote? Klik 'My Votes'"
             })
 
-        # Simpan vote user (CREATE)
         Vote.objects.create(user=request.user, prediction=prediction, choice=choice)
 
-        # Update jumlah vote
         choice = choice.lower().strip()
         if "home" in choice:
             prediction.votes_home_team += 1
@@ -92,11 +93,88 @@ def my_votes(request):
 
 
 @login_required
-def update_vote(request, vote_id):
-    """UPDATE - User ubah vote sendiri (sebelum deadline)"""
+def update_vote(request, vote_id=None):
+    """UPDATE - User ubah vote sendiri (handle both AJAX and HTML form)"""
+    
+    # Handle AJAX request (dari modal)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or not vote_id:
+        if request.method != 'POST':
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Method not allowed'
+            }, status=405)
+        
+        # Ambil vote_id dari POST body untuk AJAX
+        vote_id = request.POST.get('vote_id') or vote_id
+        choice = request.POST.get('choice')  # 'home' atau 'away'
+        
+        if not vote_id or not choice:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Missing required parameters'
+            })
+        
+        try:
+            vote = get_object_or_404(Vote, id=vote_id, user=request.user)
+            
+            # Cek apakah masih bisa diubah
+            if not vote.can_modify():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Voting sudah ditutup! Tidak bisa ubah vote lagi.'
+                })
+            
+            prediction = vote.prediction
+            
+            # Kurangi vote lama
+            old_choice = vote.choice.lower().strip()
+            if "home" in old_choice:
+                prediction.votes_home_team -= 1
+            elif "away" in old_choice:
+                prediction.votes_away_team -= 1
+            
+            # Tambah vote baru
+            new_choice = choice.lower().strip()
+            if new_choice == 'home' or 'home' in new_choice:
+                prediction.votes_home_team += 1
+                vote.choice = 'home'
+            elif new_choice == 'away' or 'away' in new_choice:
+                prediction.votes_away_team += 1
+                vote.choice = 'away'
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Invalid choice'
+                })
+            
+            vote.save()
+            prediction.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Vote berhasil diubah!',
+                'new_stats': {
+                    'home_votes': prediction.votes_home_team,
+                    'away_votes': prediction.votes_away_team,
+                    'home_percentage': float(prediction.home_percentage),
+                    'away_percentage': float(prediction.away_percentage)
+                }
+            })
+            
+        except Vote.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Vote tidak ditemukan'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Terjadi kesalahan: {str(e)}'
+            })
+    
+    # Handle HTML form request (dari halaman update_vote.html)
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
     
-    # Check apakah masih bisa diubah
     if not vote.can_modify():
         messages.error(request, "Voting sudah ditutup! Tidak bisa ubah vote lagi.")
         return redirect('prediction:my_votes')
@@ -105,7 +183,6 @@ def update_vote(request, vote_id):
         old_choice = vote.choice.lower().strip()
         new_choice = request.POST.get('choice').lower().strip()
         
-        # Update vote count
         prediction = vote.prediction
         
         # Kurangi vote lama
@@ -120,7 +197,6 @@ def update_vote(request, vote_id):
         elif "away" in new_choice:
             prediction.votes_away_team += 1
         
-        # Update vote
         vote.choice = new_choice
         vote.save()
         prediction.save()
@@ -145,20 +221,16 @@ def delete_vote(request, vote_id):
             'message': 'Method not allowed. Use POST to delete a vote.'
         }, status=405)
     
-    # Check apakah masih bisa dihapus
     if not vote.can_modify():
-        # Return JSON for AJAX
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
             return JsonResponse({
                 'status': 'error',
                 'message': 'Voting sudah ditutup! Tidak bisa hapus vote lagi.'
             })
-        # Fallback for regular request
         messages.error(request, "Voting sudah ditutup! Tidak bisa hapus vote lagi.")
         return redirect('prediction:my_votes')
     
     if request.method == 'POST':
-        # Update vote count
         prediction = vote.prediction
         choice = vote.choice.lower().strip()
         
@@ -169,16 +241,13 @@ def delete_vote(request, vote_id):
         
         prediction.save()
         
-        # Delete vote
         vote.delete()
         
-        # Return JSON for AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
             return JsonResponse({
                 'status': 'success',
                 'message': 'Vote berhasil dihapus!'
             })
         
-        # Fallback for regular form submission
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')

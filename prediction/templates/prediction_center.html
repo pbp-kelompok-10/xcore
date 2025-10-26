@@ -3,218 +3,323 @@
 
 {% block title %}Prediction Center{% endblock %}
 
+{% block extra_css %}
+  
+<style>
+  .tab-btn.btn-back {
+      background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+      color: var(--white-light) !important;
+  }
+
+  .tab-btn.btn-back:hover {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+      color: var(--white-light) !important;
+  }
+</style>
+
+{% endblock %}
+
 {% block content %}
 <div class="container-xcore">
-  <!-- Header dengan Link My Votes -->
-  <div class="prediction-header">
+  <!-- Header -->
+  <a href="{% url 'scoreboard:scoreboard_list' %}" class="tab-btn btn-back">← Back</a>
+  <div class="prediction-header fade-in text-center">
     <div>
-      <h2 class="prediction-title">🎯 Prediction Center</h2>
-      <p class="prediction-subtitle">Cast your vote and predict the winners!</p>
+      <h1 class="prediction-title">Prediction Center</h1>
+      <p class="prediction-subtitle">Bet your fate and predict the winners!</p>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation-wrapper fade-in">
+    <div class="tab-group-left">
+      <button class="tab-btn active" data-filter="all">All Matches</button>
+      <button class="tab-btn" data-filter="upcoming">Upcoming</button>
+      <button class="tab-btn" data-filter="live">Live</button>
+      <button class="tab-btn" data-filter="finished">Finished</button>
     </div>
     
     {% if user.is_authenticated %}
-      <a href="{% url 'prediction:my_votes' %}" class="btn-my-votes">
-        📊 My Votes
-      </a>
+      <div class="tab-group-right">
+        <button class="tab-btn tab-my-votes" data-filter="myvotes">📊 My Votes</button>
+      </div>
     {% endif %}
   </div>
 
-  <!-- Upcoming Predictions -->
-  {% if upcoming_predictions %}
-    <div class="section-header">
-      <h3>⏰ Upcoming Matches</h3>
-    </div>
-    <div class="predictions-grid">
-      {% for prediction in upcoming_predictions %}
-        <div class="prediction-card">
-          <div class="match-info">
-            <div class="team">
-              <span class="team-name">{{ prediction.match.home_team }}</span>
-            </div>
-            <div class="vs-badge">VS</div>
-            <div class="team">
-              <span class="team-name">{{ prediction.match.away_team }}</span>
-            </div>
+  <!-- Predictions Grid -->
+  <div class="predictions-grid">
+    <!-- Upcoming Predictions -->
+    {% for prediction in upcoming_predictions %}
+      {% with user_vote=prediction.votes.all|first %}
+      <div class="prediction-card fade-in" 
+           data-status="upcoming" 
+           data-voted="{% if user_vote and user_vote.user == user %}true{% else %}false{% endif %}"
+           data-vote-id="{% if user_vote and user_vote.user == user %}{{ user_vote.id }}{% endif %}"
+           data-prediction-id="{{ prediction.id }}"
+           data-home-team="{{ prediction.match.home_team }}"
+           data-away-team="{{ prediction.match.away_team }}"
+           data-match-date="{{ prediction.match.match_date|date:'d M Y, H:i' }}"
+           data-match-stadium="{{ prediction.match.stadium }}"
+           data-user-choice="{% if user_vote and user_vote.user == user %}{{ user_vote.choice }}{% endif %}"
+           data-voted-at="{% if user_vote and user_vote.user == user %}{{ user_vote.voted_at|date:'d M Y, H:i' }}{% endif %}"
+           data-home-votes="{{ prediction.votes_home_team }}"
+           data-away-votes="{{ prediction.votes_away_team }}"
+           data-home-percentage="{{ prediction.home_percentage|floatformat:1 }}"
+           data-away-percentage="{{ prediction.away_percentage|floatformat:1 }}">
+        
+        <div class="status-badge status-upcoming">⏰ UPCOMING</div>
+        
+        <div class="match-header">
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.home_team }}</span>
           </div>
-
-          <div class="match-details">
-            <div class="match-date">📅 {{ prediction.match.match_date|date:"d M Y, H:i" }}</div>
-            <div class="match-stadium">📍 {{ prediction.match.stadium }}</div>
-          </div>
-
-          <!-- Check if user already voted -->
-          {% if user.is_authenticated %}
-            {% with user_vote=prediction.votes.all|first %}
-              {% if user_vote and user_vote.user == user %}
-                <div class="already-voted">
-                  ✅ You voted: 
-                  {% if 'home' in user_vote.choice.lower %}
-                    {{ prediction.match.home_team }}
-                  {% elif 'away' in user_vote.choice.lower %}
-                    {{ prediction.match.away_team }}
-                  {% else %}
-                    {{ user_vote.choice }}
-                  {% endif %}
-                </div>
-                <a href="{% url 'prediction:my_votes' %}" class="vote-btn voted">
-                  View My Votes
-                </a>
-              {% else %}
-                <button class="vote-btn" 
-                    data-prediction-id="{{ prediction.id }}" 
-                    data-home="{{ prediction.match.home_team }}"
-                    data-away="{{ prediction.match.away_team }}">
-                  🗳️ Vote Now
-                </button>
-              {% endif %}
-            {% endwith %}
-          {% else %}
-            <a href="{% url 'landingpage:login' %}" class="vote-btn">
-              🗳️ Login to Vote
-            </a>
-          {% endif %}
-
-          <!-- Vote Results -->
-          <div class="vote-results" id="results-{{ prediction.id }}">
-            <div class="result-bar">
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.home_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.home_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_home_team }} votes ({{ prediction.home_percentage|floatformat:1 }}%)</span>
-              </div>
-              
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.away_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.away_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_away_team }} votes ({{ prediction.away_percentage|floatformat:1 }}%)</span>
-              </div>
-            </div>
+          <div class="vs-separator">VS</div>
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.away_team }}</span>
           </div>
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
-  <!-- Live Predictions -->
-  {% if live_predictions %}
-    <div class="section-header">
-      <h3>🔴 Live Now</h3>
-    </div>
-    <div class="predictions-grid">
-      {% for prediction in live_predictions %}
-        <div class="prediction-card live-card">
-          <div class="live-indicator">🔴 LIVE</div>
-          <div class="match-info">
-            <div class="team">
-              <span class="team-name">{{ prediction.match.home_team }}</span>
-            </div>
-            <div class="vs-badge">VS</div>
-            <div class="team">
-              <span class="team-name">{{ prediction.match.away_team }}</span>
-            </div>
+        <div class="match-info-box">
+          <div class="info-row">
+            <span class="info-icon">📅</span>
+            <span class="info-text">{{ prediction.match.match_date|date:"d M Y, H:i" }}</span>
           </div>
-
-          <div class="match-score">
-            <span class="score">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
-          </div>
-
-          <!-- Vote Results -->
-          <div class="vote-results">
-            <div class="result-bar">
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.home_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.home_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_home_team }} votes ({{ prediction.home_percentage|floatformat:1 }}%)</span>
-              </div>
-              
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.away_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.away_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_away_team }} votes ({{ prediction.away_percentage|floatformat:1 }}%)</span>
-              </div>
-            </div>
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <span class="info-text">{{ prediction.match.stadium }}</span>
           </div>
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 
-  <!-- Finished Predictions -->
-  {% if finished_predictions %}
-    <div class="section-header">
-      <h3>✅ Finished Matches</h3>
-    </div>
-    <div class="predictions-grid">
-      {% for prediction in finished_predictions %}
-        <div class="prediction-card finished-card">
-          <div class="finished-badge">FINISHED</div>
-          <div class="match-info">
-            <div class="team">
-              <span class="team-name">{{ prediction.match.home_team }}</span>
-            </div>
-            <div class="vs-badge">VS</div>
-            <div class="team">
-              <span class="team-name">{{ prediction.match.away_team }}</span>
-            </div>
+        <!-- Vote Button or Already Voted -->
+        {% if user.is_authenticated %}
+        <!-- Voted Badge (hidden by CSS, shown in My Votes) -->
+        {% if user_vote and user_vote.user == user %}
+          <div class="voted-badge">
+            ✅ You voted: 
+            {% if 'home' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.home_team }}</strong>
+            {% elif 'away' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.away_team }}</strong>
+            {% else %}
+              <strong>{{ user_vote.choice }}</strong>
+            {% endif %}
           </div>
-
-          <div class="match-score">
-            <span class="score">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
+          <div class="vote-timestamp">
+            🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
           </div>
+          <!-- Change Vote Button - Buka Modal Update -->
+          <button class="btn-vote btn-change-vote change-vote-trigger">
+            ✏️ Change Vote
+          </button>
+        {% endif %}
+        
+        <!-- Vote Now button -->
+        <button class="btn-vote vote-trigger" 
+            data-prediction-id="{{ prediction.id }}" 
+            data-home="{{ prediction.match.home_team }}"
+            data-away="{{ prediction.match.away_team }}">
+          🗳️ Vote Now
+        </button>
+      {% else %}
+        <a href="{% url 'landingpage:login' %}" class="btn-vote">
+          🗳️ Login to Vote
+        </a>
+      {% endif %}
 
-          <!-- Vote Results -->
-          <div class="vote-results">
+        <!-- Voting Results -->
+        <div class="results-section">
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.home_team }}</span>
+              <span class="result-percent">{{ prediction.home_percentage|floatformat:1 }}%</span>
+            </div>
             <div class="result-bar">
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.home_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.home_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_home_team }} votes ({{ prediction.home_percentage|floatformat:1 }}%)</span>
-              </div>
-              
-              <div class="result-item">
-                <span class="result-label">{{ prediction.match.away_team }}</span>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: {{ prediction.away_percentage }}%"></div>
-                </div>
-                <span class="result-value">{{ prediction.votes_away_team }} votes ({{ prediction.away_percentage|floatformat:1 }}%)</span>
-              </div>
+              <div class="result-fill" style="width: {{ prediction.home_percentage }}%"></div>
             </div>
+            <div class="result-votes">{{ prediction.votes_home_team }} vote{{ prediction.votes_home_team|pluralize }}</div>
+          </div>
+          
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.away_team }}</span>
+              <span class="result-percent">{{ prediction.away_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="result-bar">
+              <div class="result-fill" style="width: {{ prediction.away_percentage }}%"></div>
+            </div>
+            <div class="result-votes">{{ prediction.votes_away_team }} vote{{ prediction.votes_away_team|pluralize }}</div>
           </div>
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
+      </div>
+      {% endwith %}
+    {% endfor %}
 
-  <!-- Empty State -->
-  {% if not upcoming_predictions and not live_predictions and not finished_predictions %}
-    <div class="empty-state">
-      <p>📭 No predictions available yet.</p>
+    <!-- Live Predictions -->
+    {% for prediction in live_predictions %}
+      {% with user_vote=prediction.votes.all|first %}
+      <div class="prediction-card fade-in" 
+           data-status="live"
+           data-voted="{% if user_vote and user_vote.user == user %}true{% else %}false{% endif %}">
+        
+        <div class="status-badge status-live">🔴 LIVE</div>
+        
+        <div class="match-header">
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.home_team }}</span>
+          </div>
+          <div class="vs-separator">VS</div>
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.away_team }}</span>
+          </div>
+        </div>
+
+        <div class="live-score-box">
+          <span class="score-display">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
+        </div>
+
+        <!-- Show vote info if voted -->
+        {% if user.is_authenticated and user_vote and user_vote.user == user %}
+          <div class="voted-badge">
+            ✅ You voted: 
+            {% if 'home' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.home_team }}</strong>
+            {% elif 'away' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.away_team }}</strong>
+            {% else %}
+              <strong>{{ user_vote.choice }}</strong>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Voting Results -->
+        <div class="results-section">
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.home_team }}</span>
+              <span class="result-percent">{{ prediction.home_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="result-bar">
+              <div class="result-fill" style="width: {{ prediction.home_percentage }}%"></div>
+            </div>
+            <div class="result-votes">{{ prediction.votes_home_team }} vote{{ prediction.votes_home_team|pluralize }}</div>
+          </div>
+          
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.away_team }}</span>
+              <span class="result-percent">{{ prediction.away_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="result-bar">
+              <div class="result-fill" style="width: {{ prediction.away_percentage }}%"></div>
+            </div>
+            <div class="result-votes">{{ prediction.votes_away_team }} vote{{ prediction.votes_away_team|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}
+
+    <!-- Finished Predictions -->
+    {% for prediction in finished_predictions %}
+      {% with user_vote=prediction.votes.all|first %}
+      <div class="prediction-card fade-in" 
+           data-status="finished"
+           data-voted="{% if user_vote and user_vote.user == user %}true{% else %}false{% endif %}">
+        
+        <div class="status-badge status-finished">✅ FINISHED</div>
+        
+        <div class="match-header">
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.home_team }}</span>
+          </div>
+          <div class="vs-separator">VS</div>
+          <div class="team-section">
+            <span class="team-name">{{ prediction.match.away_team }}</span>
+          </div>
+        </div>
+
+        <div class="final-score-box">
+          <span class="score-display">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
+        </div>
+
+        <!-- Show vote info if voted -->
+        {% if user.is_authenticated and user_vote and user_vote.user == user %}
+          <div class="voted-badge">
+            ✅ You voted: 
+            {% if 'home' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.home_team }}</strong>
+            {% elif 'away' in user_vote.choice.lower %}
+              <strong>{{ prediction.match.away_team }}</strong>
+            {% else %}
+              <strong>{{ user_vote.choice }}</strong>
+            {% endif %}
+          </div>
+          <div class="vote-result-info">
+            {% if 'home' in user_vote.choice.lower and prediction.match.home_score > prediction.match.away_score %}
+              <span class="result-correct">🎉 You predicted correctly!</span>
+            {% elif 'away' in user_vote.choice.lower and prediction.match.away_score > prediction.match.home_score %}
+              <span class="result-correct">🎉 You predicted correctly!</span>
+            {% else %}
+              <span class="result-wrong">😔 Better luck next time!</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Voting Results -->
+        <div class="results-section">
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.home_team }}</span>
+              <span class="result-percent">{{ prediction.home_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="result-bar">
+              <div class="result-fill" style="width: {{ prediction.home_percentage }}%"></div>
+            </div>
+            <div class="result-votes">{{ prediction.votes_home_team }} vote{{ prediction.votes_home_team|pluralize }}</div>
+          </div>
+          
+          <div class="result-row">
+            <div class="result-header">
+              <span class="result-team">{{ prediction.match.away_team }}</span>
+              <span class="result-percent">{{ prediction.away_percentage|floatformat:1 }}%</span>
+            </div>
+            <div class="result-bar">
+              <div class="result-fill" style="width: {{ prediction.away_percentage }}%"></div>
+            </div>
+            <div class="result-votes">{{ prediction.votes_away_team }} vote{{ prediction.votes_away_team|pluralize }}</div>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+    {% endfor %}
+
+    <!-- Dynamic Empty State -->
+    <div class="empty-state-dynamic fade-in" style="display: none;">
+      <div class="empty-icon">📭</div>
+      <h3 class="empty-title">No matches found</h3>
+      <p class="empty-message">Check back later!</p>
     </div>
-  {% endif %}
+  </div>
 </div>
 
-<!-- Include Modal -->
-{% include 'modal/modal_poll.html' %}
-
+{% include 'modal_poll.html' %}
+{% include 'modal_update_vote.html' %}
+{% include 'toast.html' %}
 
 <style>
-/* ============================================
-   PREDICTION CENTER STYLES
-   ============================================ */
+
+.container-xcore {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: var(--navbar-height);
+  padding-bottom: 60px;
+}
 
 .prediction-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   margin: 3rem 0 2rem 0;
 }
@@ -375,7 +480,7 @@
   margin-bottom: 1rem;
 }
 
-.vote-btn {
+.btn-vote {
   width: 100%;
   background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
   color: var(--white-light);
@@ -392,16 +497,23 @@
   text-align: center;
 }
 
-.vote-btn:hover {
+.btn-vote:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
 }
 
-.vote-btn.voted {
+.btn-vote.voted {
   background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
 }
 
-/* Vote Results */
+.btn-change-vote {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark)) !important;
+}
+
+.btn-change-vote:hover {
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal)) !important;
+}
+
 .vote-results {
   background: var(--green-light);
   border-radius: 12px;
@@ -492,38 +604,286 @@ function getCookie(name) {
 document.addEventListener("DOMContentLoaded", function() {
     const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
     const popup = document.getElementById("polling-popup");
+    const updateModal = document.getElementById("update-vote-modal");
     const closeBtn = document.querySelector(".popup-close-btn");
 
-    // Handle vote button clicks
-    document.querySelectorAll(".vote-btn").forEach(voteBtn => {
-        voteBtn.addEventListener("click", () => {
+    // Tab Filtering with Dynamic Empty State
+    const tabBtns = document.querySelectorAll('.tab-btn[data-filter]');
+    const predictionCards = document.querySelectorAll('.prediction-card[data-status]');
+    const emptyState = document.querySelector('.empty-state-dynamic');
+    const container = document.querySelector('.container-xcore');
+
+    // Empty state messages for each filter
+    const emptyMessages = {
+        'all': {
+            icon: '📭',
+            title: 'No predictions available yet',
+            message: 'Check back later for upcoming matches!'
+        },
+        'upcoming': {
+            icon: '⏰',
+            title: 'No upcoming matches',
+            message: 'All matches have started or finished!'
+        },
+        'live': {
+            icon: '🔴',
+            title: 'No live matches right now',
+            message: 'Check back when matches are in progress!'
+        },
+        'finished': {
+            icon: '✅',
+            title: 'No finished matches yet',
+            message: 'Come back after matches are completed!'
+        },
+        'myvotes': {
+            icon: '📊',
+            title: "You haven't voted yet",
+            message: 'Start voting for your favorite teams!'
+        }
+    };
+
+    function updateEmptyState(filter, hasVisibleCards) {
+        if (!emptyState) return;
+
+        const emptyIcon = emptyState.querySelector('.empty-icon');
+        const emptyTitle = emptyState.querySelector('.empty-title');
+        const emptyMessage = emptyState.querySelector('.empty-message');
+
+        if (hasVisibleCards) {
+            emptyState.style.display = 'none';
+        } else {
+            const message = emptyMessages[filter] || emptyMessages['all'];
+            emptyIcon.textContent = message.icon;
+            emptyTitle.textContent = message.title;
+            emptyMessage.textContent = message.message;
+            emptyState.style.display = 'flex';
+        }
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+
+            // Update active tab
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            if (filter === 'myvotes') {
+                container.classList.add('viewing-my-votes');
+            } else {
+                container.classList.remove('viewing-my-votes');
+            }
+
+            let hasVisibleCards = false;
+
+            // Filter cards
+            predictionCards.forEach(card => {
+                const status = card.dataset.status;
+                const voted = card.dataset.voted === 'true';
+
+                let shouldShow = false;
+
+                if (filter === 'all') {
+                    shouldShow = true;
+                } else if (filter === 'myvotes') {
+                    shouldShow = voted;
+                } else if (status === filter) {
+                    shouldShow = true;
+                }
+
+                if (shouldShow) {
+                    card.classList.remove('hidden');
+                    hasVisibleCards = true;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            updateEmptyState(filter, hasVisibleCards);
+        });
+    });
+
+    // Initial check on page load
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) {
+        const filter = activeTab.dataset.filter || 'all';
+        let hasVisibleCards = false;
+        
+        predictionCards.forEach(card => {
+            if (!card.classList.contains('hidden')) {
+                hasVisibleCards = true;
+            }
+        });
+
+        updateEmptyState(filter, hasVisibleCards);
+    }
+
+    // ========== CHANGE VOTE MODAL ==========
+    document.querySelectorAll(".change-vote-trigger").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const card = this.closest('.prediction-card');
+            
+            const homeTeam = card.dataset.homeTeam;
+            const awayTeam = card.dataset.awayTeam;
+            const matchDate = card.dataset.matchDate;
+            const stadium = card.dataset.matchStadium;
+            const userChoice = card.dataset.userChoice;
+            const votedAt = card.dataset.votedAt;
+            const voteId = card.dataset.voteId;
+            const homeVotes = card.dataset.homeVotes;
+            const awayVotes = card.dataset.awayVotes;
+            const homePercentage = card.dataset.homePercentage;
+            const awayPercentage = card.dataset.awayPercentage;
+
+            // Fill modal with data
+            document.getElementById('update-home-team').textContent = homeTeam;
+            document.getElementById('update-away-team').textContent = awayTeam;
+            document.getElementById('update-match-date').textContent = '📅 ' + matchDate;
+            document.getElementById('update-match-stadium').textContent = '📍 ' + stadium;
+            
+            // Current vote display
+            let choiceDisplay = '';
+            if (userChoice.toLowerCase().includes('home')) {
+                choiceDisplay = '🏠 ' + homeTeam;
+            } else if (userChoice.toLowerCase().includes('away')) {
+                choiceDisplay = '✈️ ' + awayTeam;
+            } else {
+                choiceDisplay = userChoice;
+            }
+            document.getElementById('current-vote-choice').textContent = choiceDisplay;
+            document.getElementById('current-vote-time').textContent = 'Voted on ' + votedAt;
+
+            // Update options
+            document.getElementById('update-option-home').textContent = homeTeam;
+            document.getElementById('update-option-away').textContent = awayTeam;
+            document.getElementById('update-stats-home').textContent = `${homeVotes} votes (${homePercentage}%)`;
+            document.getElementById('update-stats-away').textContent = `${awayVotes} votes (${awayPercentage}%)`;
+
+            // Store vote ID for submission
+            updateModal.dataset.voteId = voteId;
+
+            // Show modal
+            updateModal.classList.remove('hidden');
+        });
+    });
+
+    // Handle update vote submission dengan konfirmasi
+    let pendingVoteData = null;
+    
+    document.querySelectorAll(".update-vote-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const choice = this.dataset.choice;
+            const voteId = updateModal.dataset.voteId;
+            
+            const homeTeam = document.getElementById('update-home-team').textContent;
+            const awayTeam = document.getElementById('update-away-team').textContent;
+            const selectedTeam = choice === 'home' ? homeTeam : awayTeam;
+
+            if (!voteId) {
+                showToast('Error', 'Vote ID tidak ditemukan!', 'error');
+                return;
+            }
+
+            // Simpan data untuk konfirmasi
+            pendingVoteData = { choice, voteId };
+            
+            // Tampilkan modal konfirmasi
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmMessage = document.getElementById('confirm-message');
+            confirmMessage.textContent = `Are you sure you want to change your vote to ${selectedTeam}?`;
+            confirmModal.classList.remove('hidden');
+            
+            // Tutup update modal
+            updateModal.classList.add('hidden');
+        });
+    });
+    
+    // Handle konfirmasi Yes
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    if (confirmYesBtn) {
+        confirmYesBtn.addEventListener('click', function() {
+            if (!pendingVoteData) return;
+            
+            const { choice, voteId } = pendingVoteData;
+            
+            // Disable button
+            confirmYesBtn.disabled = true;
+            confirmYesBtn.textContent = 'Processing...';
+            
+            // Tutup modal konfirmasi
+            document.getElementById('confirm-modal').classList.add('hidden');
+
+            // Submit update
+            fetch("update-vote/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: `vote_id=${voteId}&choice=${choice}`
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    showToast('Success!', 'Vote updated successfully! 🎉', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Error', data.message || 'Terjadi kesalahan', 'error');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showToast('Error', 'Terjadi kesalahan saat mengupdate vote', 'error');
+            })
+            .finally(() => {
+                confirmYesBtn.disabled = false;
+                confirmYesBtn.textContent = 'Yes, Change Vote';
+                pendingVoteData = null;
+            });
+        });
+    }
+
+    // ========== VOTE NOW MODAL ==========
+    document.querySelectorAll(".vote-trigger").forEach(voteBtn => {
+        voteBtn.addEventListener("click", function() {
             if (!isLoggedIn) {
                 window.location.href = "/login/?next={{ request.path }}";
             } else {
-                const predictionId = voteBtn.dataset.predictionId;
-                const homeTeam = voteBtn.dataset.home;
-                const awayTeam = voteBtn.dataset.away;
+                const predictionId = this.dataset.predictionId;
+                const homeTeam = this.dataset.home;
+                const awayTeam = this.dataset.away;
+                
+                const card = this.closest('.prediction-card');
+                const hasVoted = card && card.dataset.voted === 'true';
 
-                if (!predictionId) return; // Skip if no prediction ID (e.g., "View My Votes" button)
+                if (!predictionId) return;
 
-                // Update modal content
+                if (hasVoted) {
+                    showToast('Already Voted', 'You have already voted for this match! Click "Change Vote" to update.', 'warning');
+                    return;
+                }
+
                 popup.querySelector(".popup-title").textContent = `Who will win?`;
-                popup.querySelector(".team-home span").textContent = homeTeam;
-                popup.querySelector(".team-away span").textContent = awayTeam;
+                popup.querySelector(".team-home .team-label").textContent = homeTeam;
+                popup.querySelector(".team-away .team-label").textContent = awayTeam;
                 popup.dataset.predictionId = predictionId;
 
-                // Show modal
                 popup.classList.remove("hidden");
             }
         });
     });
 
-    // Close modal
     if (closeBtn) {
         closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
     }
 
-    // Close modal when clicking outside
     if (popup) {
         popup.addEventListener("click", (e) => {
             if (e.target === popup) {
@@ -532,21 +892,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Handle team button clicks
     document.querySelectorAll(".team-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const choice = btn.dataset.team;
             const predictionId = popup.dataset.predictionId;
 
             if (!predictionId) {
-                showToast('Prediction ID tidak ditemukan!', 'error');
+                showToast('Error', 'Prediction ID tidak ditemukan!', 'error');
                 return;
             }
 
-            // Disable buttons
             document.querySelectorAll(".team-btn").forEach(b => b.disabled = true);
 
-            fetch("/prediction/submit-vote/", {
+            fetch("submit-vote/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -557,21 +915,20 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    showToast('Vote berhasil! 🎉', 'success');
+                    showToast('Success!', 'Vote berhasil! 🎉', 'success');
                     popup.classList.add("hidden");
-                    
-                    // Reload page to show updated results
-                    window.location.reload();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 } else {
-                    showToast(data.message || "Terjadi kesalahan", 'error');
+                    showToast('Error', data.message || 'Terjadi kesalahan', 'error');
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                showToast('Terjadi kesalahan saat mengirim vote', 'error');
+                showToast('Error', 'Terjadi kesalahan saat mengirim vote', 'error');
             })
             .finally(() => {
-                // Re-enable buttons
                 document.querySelectorAll(".team-btn").forEach(b => b.disabled = false);
             });
         });

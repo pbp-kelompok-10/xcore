@@ -13,11 +13,10 @@ class StatistikForm(forms.ModelForm):
             'offside_away', 'corner_home', 'corner_away'
         ]
         widgets = {
-            'match': forms.HiddenInput(),  # Sembunyikan field match
+            'match': forms.HiddenInput(),  
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filter hanya match yang sudah selesai
         from scoreboard.models import Match
         self.fields['match'].queryset = Match.objects.filter(status='finished')

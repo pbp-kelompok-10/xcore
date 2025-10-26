@@ -1,92 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+{% block title %}Xcore - Real Time. More Time.{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --green-light: #eef8f6;
+        --green-normal: #56bda9;
+        --green-dark: #418e7f;
+        --green-darker: #1e423b;
+        --white-light: #ffffff;
+        --blue-normal: #546881;
+        --blue-dark: #1d242d;
+    }
+
+    body {
+        background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+        min-height: 100vh;
+        scroll-behavior: smooth;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background-color: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    }
+
+    .hero-container {
+        background: var(--white-light);
+        border-radius: 32px;
+        padding: 4rem 3rem;
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .tagline {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-name {
+        font-size: 5rem;
+        font-weight: 800;
+        color: var(--green-darker);
+        margin-bottom: 2.5rem;
+        letter-spacing: -2px;
+        line-height: 1;
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 3rem;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(86, 189, 169, 0.3);
+        cursor: pointer;
+        border: none;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(86, 189, 169, 0.4);
+        background: linear-gradient(135deg, var(--green-dark), var(--green-normal));
+    }
+
+    .cta-button:active {
+        transform: translateY(-1px);
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--green-darker);
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .feature-card {
+        background: var(--white-light);
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        animation: fadeInUp 0.8s ease-out;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .feature-description {
+        font-size: 1.1rem;
+        text-align: center;
+        color: var(--blue-normal);
+        line-height: 1.6;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 4rem 2rem 6rem;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--green-darker);
+        margin-bottom: 2rem;
+    }
+
+    .cta-button-large {
+        display: inline-block;
+        background: var(--green-darker);
+        color: var(--white-light);
+        font-size: 1.2rem;
+        font-weight: 600;
+        padding: 1.2rem 3.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(30, 66, 59, 0.3);
+    }
+
+    .cta-button-large:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(30, 66, 59, 0.4);
+        background: var(--green-dark);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
         }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #56BDA9 30%, #28574E 100%);
-            color: white;
-            min-height: 100vh;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .hero {
-            text-align: center;
-            padding: 100px 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-container {
+            padding: 3rem 2rem;
         }
-        
-        .hero h1 {
+
+        .brand-name {
             font-size: 3.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        
-        .hero p {
+
+        .tagline {
+            font-size: 1rem;
+        }
+
+        .cta-button {
+            font-size: 1rem;
+            padding: 0.875rem 2.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .feature-title {
             font-size: 1.5rem;
-            margin-bottom: 3rem;
-            opacity: 0.9;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .cta-button2 {
-            display: inline-block;
-            padding: 15px 30px;
-            background: #ff6b6b;
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: transform 0.3s, background 0.3s;
-        }
-        
-        .cta-button2:hover {
-            transform: translateY(-3px);
-            background: #ff5252;
         }
 
-        .cta-button2.alt {
-            background: #28574E;
-            border: 2px solid white;
+        .feature-description {
+            font-size: 1rem;
         }
 
-        .cta-button2.alt:hover {
-            background: #1e403a;
+        .cta-title {
+            font-size: 1.8rem;
         }
-        
-    </style>
-</head>
-<body>
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Welcome to Xcore!</h1>
-        <p>{{ tagline }}</p>
 
-        <div class="cta-buttons">
-            {% if user.is_authenticated %}
-                <a href="/scoreboard" class="cta-button2">Go to Dashboard</a>
-                <a href="{% url 'landingpage:logout' %}" class="cta-button2 alt">Logout</a>
-            {% else %}
-                <a href="{% url 'landingpage:login' %}" class="cta-button2">Login</a>
-                <a href="{% url 'landingpage:register' %}" class="cta-button2 alt">Register</a>
-            {% endif %}
-        </div>
-    </section>
-    
-</body>
-</html>
+        .cta-button-large {
+            font-size: 1rem;
+            padding: 1rem 2.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-section {
+            padding: 1rem;
+        }
+
+        .hero-container {
+            padding: 2.5rem 1.5rem;
+        }
+
+        .brand-name {
+            font-size: 2.8rem;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-container">
+        <p class="tagline">Real Time. More Time.</p>
+        <h1 class="brand-name">XCORE</h1>
+        <button class="cta-button" onclick="scrollToFeatures()">Let's Dig In</button>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <h2 class="section-title">What's on XCORE?</h2>
+
+    <div class="feature-card">
+        <h3 class="feature-title">Enjoy Real time Score and Statistics</h3>
+    </div>
+
+    <div class="feature-card">
+        <h3 class="feature-title">Too Busy to Watch the Match? Highlight Got You</h3>
+    </div>
+
+    <div class="feature-card">
+        <h3 class="feature-title">Looking for Interaction? Connect on Forum</h3>
+    </div>
+
+    <div class="feature-card">
+        <h3 class="feature-title">Predict the Winner of Upcoming Matches</h3>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <h2 class="cta-title">Interested Enough?</h2>
+    <a href="{% url 'landingpage:login' %}" class="cta-button-large">Join Us!</a>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function scrollToFeatures() {
+        document.getElementById('features').scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+</script>
+{% endblock %}

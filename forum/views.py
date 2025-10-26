@@ -78,14 +78,15 @@ def get_posts(request, forum_id):
         forum = Forum.objects.get(id=forum_id)
         posts = Post.objects.filter(forum=forum).order_by('created_at')
 
-        User = get_user_model()  # dynamically get your CustomUser model
+        User = get_user_model()
 
         posts_data = [
             {
                 'id': post.id,
                 'author_id': post.author.id,
-                'author_name': post.author.username,  # simpler and efficient
+                'author_name': post.author.username,
                 'message': post.message,
+                'author_picture': post.author.profile_picture.url if post.author.profile_picture else None,
                 'created_at': post.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'is_edited': post.is_edited,
                 'edited_at': post.edited_at.strftime('%Y-%m-%d %H:%M:%S') if post.edited_at else None,
@@ -105,9 +106,9 @@ def get_posts(request, forum_id):
 @require_POST
 def delete_post(request, forum_id, post_id):  
     try:
-        post = Post.objects.get(id=post_id, forum_id=forum_id, author=request.user)  # **FIX: CEK AUTHOR**
+        post = Post.objects.get(id=post_id, forum_id=forum_id, author=request.user)
         post.delete()
-        return JsonResponse({'message': 'Post deleted successfully!'})  # **FIX: JSON untuk AJAX**
+        return JsonResponse({'message': 'Post deleted successfully!'})
     except Post.DoesNotExist:
         return JsonResponse({'error': 'Post not found or unauthorized.'}, status=404)
     
