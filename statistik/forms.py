@@ -20,3 +20,16 @@ class StatistikForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         from scoreboard.models import Match
         self.fields['match'].queryset = Match.objects.filter(status__in=['live','finished'])
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        match = cleaned_data.get('match')
+        
+        # Validasi: hanya match dengan status live atau finished yang boleh punya statistik
+        if match and match.status not in ['live', 'finished']:
+            raise forms.ValidationError(
+                f"Tidak bisa menambah statistik untuk pertandingan dengan status: {match.status}. "
+                "Hanya pertandingan live atau finished yang bisa memiliki statistik."
+            )
+        
+        return cleaned_data

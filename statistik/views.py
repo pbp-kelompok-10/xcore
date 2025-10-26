@@ -7,10 +7,20 @@ from .models import Statistik
 from .forms import StatistikForm
 
 def add_statistik(request, match_id):
-
     from scoreboard.models import Match
     match = get_object_or_404(Match, id=match_id)
+    
     if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+        return redirect('statistik:statistik_display', match_id=match.id)
+    
+    #VALIDASI STATUS MATCH
+    if match.status not in ['live', 'finished']:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Tidak bisa menambah statistik untuk pertandingan dengan status: {match.status}. Hanya pertandingan LIVE atau FINISHED yang bisa memiliki statistik.'
+            })
+        messages.error(request, f'Tidak bisa menambah statistik untuk pertandingan dengan status: {match.status}')
         return redirect('statistik:statistik_display', match_id=match.id)
     
     # Cek apakah sudah ada statistik
