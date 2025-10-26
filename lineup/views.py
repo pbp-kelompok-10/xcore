@@ -56,28 +56,14 @@ class TeamUpdateView(SuperuserRequiredMixin, UpdateView):
     template_name = 'teams/team_form.html'
     success_url = reverse_lazy('lineup:team-list')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        team = self.object
-        if self.request.POST:
-            context['player_formset'] = PlayerInlineFormSet(self.request.POST, instance=team)
-        else:
-            context['player_formset'] = PlayerInlineFormSet(instance=team)
-        return context
-
     def form_valid(self, form):
-        context = self.get_context_data()
-        player_formset = context['player_formset']
+        self.object = form.save()
+        messages.success(self.request, "Team updated successfully!")
+        return redirect(self.get_success_url())
 
-        if player_formset.is_valid():
-            self.object = form.save()
-            player_formset.instance = self.object
-            player_formset.save()
-            messages.success(self.request, "Team and players updated successfully!")
-            return redirect(self.get_success_url())
-        else:
-            messages.error(self.request, "Please correct errors in player fields.")
-            return self.form_invalid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct errors in the form.")
+        return super().form_invalid(form)
 
 class PlayerDetailView(DetailView):
     model = Player
