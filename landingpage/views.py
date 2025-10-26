@@ -43,7 +43,7 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "You have successfully logged in.")
-            return redirect('landingpage:home')
+            return redirect('scoreboard:scoreboard_list')
 
    else:
       form = AuthenticationForm(request)
