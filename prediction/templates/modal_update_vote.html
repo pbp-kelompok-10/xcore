@@ -1,105 +1,217 @@
-<div id="confirm-modal" class="modal-overlay hidden">
-  <div class="modal-container confirm-modal">
-    <div class="confirm-content">
-      <div class="confirm-icon">⚠️</div>
-      <h3 class="confirm-title">Confirm Delete Vote</h3>
-      <p class="confirm-message" id="confirm-message">Are you sure you want to delete your vote?</p>
-      
-      <div class="confirm-buttons">
-        <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Cancel</button>
-        <button class="btn-confirm-yes" id="confirm-yes-btn">Yes, Delete Vote</button>
+<style>
+  /* Modal Styling sama seperti delete-modal */
+  .delete-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-modal.hidden {
+    display: none;
+  }
+
+  .delete-modal-overlay {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .delete-modal-content {
+    z-index: 2;
+    position: relative;
+    background: var(--white-light);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .delete-modal:not(.hidden) .delete-modal-content {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .modal-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s infinite;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+  }
+
+  .delete-modal-content h3 {
+    color: var(--green-darker);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-message {
+    color: var(--blue-normal);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-match-info {
+    background: var(--green-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .vote-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn-vote-option {
+    background: var(--white-light);
+    border: 2px solid var(--green-normal);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-vote-option:hover {
+    background: var(--green-light);
+  }
+
+  .vs-text {
+    font-weight: 700;
+    color: var(--green-darker);
+    font-size: 1.2rem;
+  }
+
+  .modal-current-vote {
+    font-weight: 600;
+    color: var(--green-darker);
+    margin-top: 0.5rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .btn-modal-delete {
+    flex: 1;
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-modal-delete:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+  }
+
+  .btn-modal-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-modal-cancel {
+    flex: 1;
+    background: var(--white-dark);
+    color: var(--green-darker);
+    border: 2px solid var(--green-light-active);
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-modal-cancel:hover {
+    background: var(--green-light);
+  }
+
+  @media (max-width: 640px) {
+    .delete-modal-content {
+      padding: 1.5rem;
+      width: 95%;
+    }
+    .modal-icon {
+      font-size: 3rem;
+    }
+    .delete-modal-content h3 {
+      font-size: 1.5rem;
+    }
+    .modal-actions {
+      flex-direction: column;
+    }
+  }
+
+</style>
+
+<div id="modal-update-vote" class="delete-modal hidden">
+  <div class="delete-modal-overlay"></div>
+  <div class="delete-modal-content">
+    <div class="modal-icon">✏️</div>
+    <h3 id="modal-title">Change Your Vote</h3>
+    <p class="modal-message" id="modal-subtitle">
+      Only available until 2 hours before match starts
+    </p>
+
+    <!-- Pilih Tim -->
+    <div class="modal-match-info" id="vote-options-section">
+      <div class="vote-buttons">
+        <button class="btn-vote-option" id="vote-home">
+          <span class="flag-icon" id="home-flag">🏳️</span>
+          <strong id="home-team-name">Home</strong>
+        </button>
+        <span class="vs-text">vs</span>
+        <button class="btn-vote-option" id="vote-away">
+          <span class="flag-icon" id="away-flag">🏳️</span>
+          <strong id="away-team-name">Away</strong>
+        </button>
       </div>
+      <div class="modal-current-vote">
+        Currently you voted for: <strong id="current-vote">Home</strong>
+      </div>
+    </div>
+
+    <!-- Konfirmasi -->
+    <div class="modal-match-info hidden" id="confirm-section">
+      <p>Are you sure you want to change your vote to:</p>
+      <strong id="confirm-choice">Home</strong>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="close-update-modal">Cancel</button>
+      <button class="btn-modal-delete hidden" id="confirm-update-btn">Yes, Change</button>
     </div>
   </div>
 </div>
-
-<style>
-/* Confirm Modal Styles */
-.confirm-modal {
-  max-width: 400px;
-  width: 90%;
-  padding: 2rem;
-  background: var(--white-light);
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease;
-}
-
-.confirm-content {
-  text-align: center;
-}
-
-.confirm-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.confirm-title {
-  color: var(--green-darker);
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.confirm-message {
-  color: var(--blue-normal);
-  font-size: 1rem;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
-
-.confirm-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.btn-confirm-cancel,
-.btn-confirm-yes {
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  font-size: 1rem;
-}
-
-.btn-confirm-cancel {
-  background: var(--white-dark);
-  color: var(--green-darker);
-  border: 2px solid var(--green-light);
-}
-
-.btn-confirm-cancel:hover {
-  background: var(--green-light);
-}
-
-.btn-confirm-yes {
-  background: linear-gradient(135deg, var(--red-normal), var(--red-dark));
-  color: var(--white-light);
-}
-
-.btn-confirm-yes:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  padding: 1rem;
-  backdrop-filter: blur(4px);
-}
-
-.modal-overlay.hidden {
-  display: none;
-}
-</style>
