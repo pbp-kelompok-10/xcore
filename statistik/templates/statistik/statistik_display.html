@@ -620,7 +620,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // kalau udah live/finished, disable voting
       if (status === "finished" || status === "live" || now > matchDate) {
         popupBody.innerHTML = `
-          <div class="no-vote-message">The match has finished. Voting is not allowed for this match.</div>
+          <div class="no-vote-message">The voting period has ended. Voting is not allowed for this match. Please go to Prediction to see your votes.</div>
         `;
       }
 
