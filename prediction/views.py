@@ -8,19 +8,21 @@ from .models import Prediction, Vote
 from django.utils import timezone
 
 def prediction_list(request):
-    upcoming_predictions = Prediction.objects.filter(match__status='upcoming')
-    live_predictions = Prediction.objects.filter(match__status='live')
-    finished_predictions = Prediction.objects.filter(match__status='finished')
+    upcoming_predictions = list(Prediction.objects.filter(match__status='upcoming'))
+    live_predictions = list(Prediction.objects.filter(match__status='live'))
+    finished_predictions = list(Prediction.objects.filter(match__status='finished'))
 
     if request.user.is_authenticated:
         user_votes = Vote.objects.filter(user=request.user)
         vote_map = {v.prediction_id: v for v in user_votes}
-        # Tambahkan atribut `user_vote` ke setiap prediction
-        for p in list(upcoming_predictions) + list(live_predictions) + list(finished_predictions):
+
+        for p in upcoming_predictions + live_predictions + finished_predictions:
             p.user_vote = vote_map.get(p.id)
+            print(f"[DEBUG] Prediction {p.id} | voted? {bool(p.user_vote)} | value = {p.user_vote}")
     else:
-        for p in list(upcoming_predictions) + list(live_predictions) + list(finished_predictions):
+        for p in upcoming_predictions + live_predictions + finished_predictions:
             p.user_vote = None
+            print(f"[DEBUG] Prediction {p.id} | voted? False (not authenticated)")
 
     return render(request, 'prediction_center.html', {
         'upcoming_predictions': upcoming_predictions,

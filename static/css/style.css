@@ -1277,27 +1277,3 @@ footer{
    ============================================ */
 
 /* Default: Sembunyikan voted badge, timestamp, change vote button, dan result info */
-.prediction-card .voted-badge,
-.prediction-card .vote-timestamp,
-.prediction-card .btn-change-vote,
-.prediction-card .vote-result-info {
-  display: none !important;
-}
-
-/* Vote Now button SELALU tampil di semua tab */
-.prediction-card .btn-vote:not(.btn-change-vote) {
-  display: block !important;
-}
-
-/* HANYA saat viewing-my-votes, tampilkan voted info */
-.viewing-my-votes .prediction-card[data-voted="true"] .voted-badge,
-.viewing-my-votes .prediction-card[data-voted="true"] .vote-timestamp,
-.viewing-my-votes .prediction-card[data-voted="true"] .btn-change-vote,
-.viewing-my-votes .prediction-card[data-voted="true"] .vote-result-info {
-  display: block !important;
-}
-
-/* Di My Votes saja, sembunyikan Vote Now untuk card yang udah voted */
-.viewing-my-votes .prediction-card[data-voted="true"] .btn-vote:not(.btn-change-vote) {
-  display: none !important;
-}

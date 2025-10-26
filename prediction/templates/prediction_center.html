@@ -206,21 +206,20 @@
       color: var(--white-light) !important;
   }
 
-  .voted-badge, .vote-timestamp, .change-vote-trigger, .delete-vote-btn {
-      display: none; /* Default hidden, shown via JS or when voted */
+  .voted-badge, .vote-timestamp, .change-vote-trigger, .delete-vote-btn, .voting-closed {
+      margin-bottom: 0.5rem;
   }
 
-  .prediction-card[data-voted="true"] .change-vote-trigger,
-  .prediction-card[data-voted="true"] .delete-vote-btn,
-  .prediction-card[data-voted="true"] .voted-badge,
-  .prediction-card[data-voted="true"] .vote-timestamp {
-      display: block; /* Ensure visibility when voted */
+  .vote-trigger {
+      margin-bottom: 0.5rem;
+      display: block;
   }
 
   .btn-vote, .change-vote-trigger, .delete-vote-btn, .vote-trigger {
       pointer-events: auto !important;
       position: relative;
       z-index: 10;
+      width: 100%;
   }
 
   .prediction-card {
@@ -311,21 +310,33 @@
             <div class="vote-timestamp">
               🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
             </div>
-            <button class="btn-vote btn-change-vote change-vote-trigger">✏️ Change Vote</button>
-            <button class="btn-vote btn-change-vote delete-vote-btn">🗑️ Delete Vote</button>
+            <button class="btn-vote btn-change-vote change-vote-trigger"
+                    data-prediction-id="{{ prediction.id }}"
+                    data-home="{{ prediction.match.home_team }}"
+                    data-away="{{ prediction.match.away_team }}">
+              🔄 Change Vote
+            </button>
+            <button class="btn-vote delete-vote-btn"
+                    data-vote-id="{{ user_vote.id }}"
+                    data-home-team="{{ prediction.match.home_team }}"
+                    data-away-team="{{ prediction.match.away_team }}"
+                    data-choice="{{ user_vote.choice }}">
+              ❌ Delete Vote
+            </button>
+          {% else %}
+            <button class="btn-vote vote-trigger"
+                    data-prediction-id="{{ prediction.id }}"
+                    data-home="{{ prediction.match.home_team }}"
+                    data-away="{{ prediction.match.away_team }}">
+              🗳️ Vote Now
+            </button>
           {% endif %}
-          <button class="btn-vote vote-trigger" 
-                  data-prediction-id="{{ prediction.id }}" 
-                  data-home="{{ prediction.match.home_team }}"
-                  data-away="{{ prediction.match.away_team }}"
-                  {% if user_vote %}style="display: none;"{% endif %}>
-            🗳️ Vote Now
-          </button>
         {% else %}
           <a href="{% url 'landingpage:login' %}" class="btn-vote">
             🗳️ Login to Vote
           </a>
         {% endif %}
+
 
         <div class="results-section">
           <div class="result-row">
@@ -381,25 +392,83 @@
             <span class="team-name">{{ prediction.match.away_team }}</span>
           </div>
         </div>
+        <div class="match-info-box">
+          <div class="info-row">
+            <span class="info-icon">📅</span>
+            <span class="info-text">{{ prediction.match.match_date|date:"d M Y, H:i" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <span class="info-text">{{ prediction.match.stadium }}</span>
+          </div>
+        </div>
         <div class="live-score-box">
           <span class="score-display">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
         </div>
-        {% if user.is_authenticated and user_vote %}
-          <div class="voted-badge">
-            ✅ You voted: 
-            {% if user_vote.choice|lower == 'home' %}
-              <strong>{{ prediction.match.home_team }}</strong>
-            {% elif user_vote.choice|lower == 'away' %}
-              <strong>{{ prediction.match.away_team }}</strong>
+        {% if user.is_authenticated %}
+          {% with match_date=prediction.match.match_date %}
+            {% if match_date|timeuntil > "2 hours" %}
+              {% if user_vote %}
+                <div class="voted-badge">
+                  ✅ You voted: 
+                  {% if user_vote.choice|lower == 'home' %}
+                    <strong>{{ prediction.match.home_team }}</strong>
+                  {% elif user_vote.choice|lower == 'away' %}
+                    <strong>{{ prediction.match.away_team }}</strong>
+                  {% else %}
+                    <strong>{{ user_vote.choice }}</strong>
+                  {% endif %}
+                </div>
+                <div class="vote-timestamp">
+                  🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
+                </div>
+                <button class="btn-vote btn-change-vote change-vote-trigger"
+                        data-prediction-id="{{ prediction.id }}"
+                        data-vote-id="{{ user_vote.id }}">
+                  ✏️ Change Vote
+                </button>
+                <button class="btn-vote btn-change-vote delete-vote-btn"
+                        data-prediction-id="{{ prediction.id }}"
+                        data-vote-id="{{ user_vote.id }}">
+                  🗑️ Delete Vote
+                </button>
+              {% else %}
+                <button class="btn-vote vote-trigger"
+                        data-prediction-id="{{ prediction.id }}"
+                        data-home="{{ prediction.match.home_team }}"
+                        data-away="{{ prediction.match.away_team }}">
+                  🗳️ Vote Now
+                </button>
+                <div class="voting-closed">
+                  ⏰ Voting closed: Match starts in less than 2 hours
+                </div>
+              {% endif %}
             {% else %}
-              <strong>{{ user_vote.choice }}</strong>
+              {% if user_vote %}
+                <div class="voted-badge">
+                  ✅ You voted: 
+                  {% if user_vote.choice|lower == 'home' %}
+                    <strong>{{ prediction.match.home_team }}</strong>
+                  {% elif user_vote.choice|lower == 'away' %}
+                    <strong>{{ prediction.match.away_team }}</strong>
+                  {% else %}
+                    <strong>{{ user_vote.choice }}</strong>
+                  {% endif %}
+                </div>
+                <div class="vote-timestamp">
+                  🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
+                </div>
+              {% else %}
+                <div class="voting-closed">
+                  ⏰ Voting closed: Match starts in less than 2 hours
+                </div>
+              {% endif %}
             {% endif %}
-          </div>
-          <div class="vote-timestamp">
-            🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
-          </div>
-          <button class="btn-vote btn-change-vote change-vote-trigger">✏️ Change Vote</button>
-          <button class="btn-vote btn-change-vote delete-vote-btn">🗑️ Delete Vote</button>
+          {% endwith %}
+        {% else %}
+          <a href="{% url 'landingpage:login' %}" class="btn-vote">
+            🗳️ Login to Vote
+          </a>
         {% endif %}
         <div class="results-section">
           <div class="result-row">
@@ -455,6 +524,16 @@
             <span class="team-name">{{ prediction.match.away_team }}</span>
           </div>
         </div>
+        <div class="match-info-box">
+          <div class="info-row">
+            <span class="info-icon">📅</span>
+            <span class="info-text">{{ prediction.match.match_date|date:"d M Y, H:i" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <span class="info-text">{{ prediction.match.stadium }}</span>
+          </div>
+        </div>
         <div class="final-score-box">
           <span class="score-display">{{ prediction.match.home_score }} - {{ prediction.match.away_score }}</span>
         </div>
@@ -472,8 +551,6 @@
           <div class="vote-timestamp">
             🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
           </div>
-          <button class="btn-vote btn-change-vote change-vote-trigger">✏️ Change Vote</button>
-          <button class="btn-vote btn-change-vote delete-vote-btn">🗑️ Delete Vote</button>
           <div class="vote-result-info">
             {% if user_vote.choice|lower == 'home' and prediction.match.home_score > prediction.match.away_score %}
               <span class="result-correct">🎉 You predicted correctly!</span>
@@ -525,7 +602,6 @@
 {% include 'toast.html' %}
 
 
-
 {% block extra_js %}
 <script>
 function getCookie(name) {
@@ -543,96 +619,136 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
-
-function refreshCardUI(card) {
-    console.log('Refreshing card:', {
-        predictionId: card.dataset.predictionId,
-        voted: card.dataset.voted,
-        voteId: card.dataset.voteId,
-        userChoice: card.dataset.userChoice,
-        status: card.dataset.status
+// Helper function to parse match date string and check time until match
+function checkTimeUntilMatch(card) {
+    // Parse date string in format "26 Oct 2025, 15:30"
+    const parts = card.dataset.matchDate.match(/(\d+)\s+(\w+)\s+(\d+),\s+(\d+):(\d+)/);
+    if (!parts) {
+        console.error('Invalid date format:', card.dataset.matchDate);
+        return 0;
+    }
+    
+    const months = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+    };
+    
+    const matchDate = new Date(
+        parseInt(parts[3]), // year
+        months[parts[2]], // month
+        parseInt(parts[1]), // day
+        parseInt(parts[4]), // hour
+        parseInt(parts[5]) // minute
+    );
+    
+    const now = new Date();
+    const hoursDiff = (matchDate - now) / (1000 * 60 * 60);
+    
+    console.log('Time check:', {
+        matchDate: matchDate.toISOString(),
+        now: now.toISOString(),
+        matchDateStr: card.dataset.matchDate,
+        diff: hoursDiff
     });
-
-    const voted = card.dataset.voted === 'true';
-    const activeTab = document.querySelector('.tab-btn.active');
-    const isMyVotesTab = activeTab && activeTab.dataset.filter === 'myvotes';
-    let votedBadge = card.querySelector('.voted-badge');
-    let voteTimestamp = card.querySelector('.vote-timestamp');
-    let changeVoteBtn = card.querySelector('.change-vote-trigger');
-    let deleteVoteBtn = card.querySelector('.delete-vote-btn');
-    const voteNowBtn = card.querySelector('.vote-trigger');
-
-    if (!card.querySelector('.results-section')) {
-        console.error('Results section not found for card:', card.dataset.predictionId);
-        return;
-    }
-
-    if (voted) {
-        if (!votedBadge) {
-            console.log('Creating voted badge for card:', card.dataset.predictionId);
-            votedBadge = document.createElement('div');
-            votedBadge.className = 'voted-badge';
-            votedBadge.innerHTML = `✅ You voted: <strong></strong>`;
-            card.insertBefore(votedBadge, card.querySelector('.results-section'));
-        }
-        if (!voteTimestamp) {
-            console.log('Creating vote timestamp for card:', card.dataset.predictionId);
-            voteTimestamp = document.createElement('div');
-            voteTimestamp.className = 'vote-timestamp';
-            card.insertBefore(voteTimestamp, card.querySelector('.results-section'));
-        }
-        if (!changeVoteBtn && isMyVotesTab) {
-            console.log('Creating change vote button for card:', card.dataset.predictionId);
-            changeVoteBtn = document.createElement('button');
-            changeVoteBtn.className = 'btn-vote btn-change-vote change-vote-trigger';
-            changeVoteBtn.textContent = '✏️ Change Vote';
-            card.insertBefore(changeVoteBtn, card.querySelector('.results-section'));
-        }
-        if (!deleteVoteBtn && isMyVotesTab) {
-            console.log('Creating delete vote button for card:', card.dataset.predictionId);
-            deleteVoteBtn = document.createElement('button');
-            deleteVoteBtn.className = 'btn-vote btn-change-vote delete-vote-btn';
-            deleteVoteBtn.textContent = '🗑️ Delete Vote';
-            card.insertBefore(deleteVoteBtn, card.querySelector('.results-section'));
-        }
-
-        if (votedBadge) {
-            votedBadge.style.display = isMyVotesTab ? 'block' : 'none';
-            const choice = (card.dataset.userChoice || '');
-            const strongEl = votedBadge.querySelector('strong');
-            if (strongEl) {
-                strongEl.textContent =
-                    choice.toLowerCase().includes('home') ? card.dataset.homeTeam :
-                    choice.toLowerCase().includes('away') ? card.dataset.awayTeam : choice || 'Unknown';
-            }
-        }
-        if (voteTimestamp && card.dataset.votedAt) {
-            voteTimestamp.style.display = isMyVotesTab ? 'block' : 'none';
-            voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
-        }
-        if (changeVoteBtn) {
-            changeVoteBtn.style.display = isMyVotesTab ? 'block' : 'none';
-            changeVoteBtn.disabled = false;
-        }
-        if (deleteVoteBtn) {
-            deleteVoteBtn.style.display = isMyVotesTab ? 'block' : 'none';
-            deleteVoteBtn.disabled = false;
-        }
-        if (voteNowBtn) {
-            voteNowBtn.style.display = 'none';
-        }
-    } else {
-        if (votedBadge) votedBadge.style.display = 'none';
-        if (voteTimestamp) voteTimestamp.style.display = 'none';
-        if (changeVoteBtn) changeVoteBtn.style.display = 'none';
-        if (deleteVoteBtn) deleteVoteBtn.style.display = 'none';
-        if (voteNowBtn) {
-            voteNowBtn.style.display = 'block';
-            voteNowBtn.disabled = false;
-        }
-    }
+    
+    return hoursDiff;
 }
+
+    function refreshCardUI(card) {
+        console.log('Debugging card:', {
+            hasVoteBtn: !!card.querySelector('.vote-trigger'),
+            hasVotedBadge: !!card.querySelector('.voted-badge'),
+            status: card.dataset.status,
+            voted: card.dataset.voted,
+            isMyVotesTab: !!document.querySelector('.tab-btn.active[data-filter="myvotes"]')
+        });
+
+        const voted = card.dataset.voted === 'true';
+        const status = card.dataset.status;
+        const activeTab = document.querySelector('.tab-btn.active');
+        const isMyVotesTab = activeTab && activeTab.dataset.filter === 'myvotes';
+        
+        // Find all voting-related elements
+        const elements = {
+            votedBadge: card.querySelector('.voted-badge'),
+            voteTimestamp: card.querySelector('.vote-timestamp'),
+            changeVoteBtn: card.querySelector('.change-vote-trigger'),
+            deleteVoteBtn: card.querySelector('.delete-vote-btn'),  // Removed .myvotes-only since we handle visibility in code
+            voteNowBtn: card.querySelector('.vote-trigger'),
+            votingClosedMsg: card.querySelector('.voting-closed')
+        };
+        
+        // Debug visibility state
+        console.log('Current visibility state:', {
+            voted,
+            status,
+            isMyVotesTab,
+            deleteBtn: elements.deleteVoteBtn ? elements.deleteVoteBtn.style.display : 'not found',
+            changeBtn: elements.changeVoteBtn ? elements.changeVoteBtn.style.display : 'not found'
+        });
+        
+        // Validate required sections
+        if (!card.querySelector('.results-section')) {
+            console.error('Results section not found for card:', card.dataset.predictionId);
+            return;
+        }
+
+        // Hide all voting elements initially
+        Object.values(elements).forEach(el => {
+            if (el) {
+                el.style.display = 'none';
+                el.disabled = true;
+            }
+        });
+
+        // Always show voting info if voted, regardless of tab
+        if (voted) {
+            if (elements.votedBadge) {
+                elements.votedBadge.style.display = 'block';
+                const choice = (card.dataset.userChoice || '').toLowerCase();
+                const strongEl = elements.votedBadge.querySelector('strong');
+                if (strongEl) {
+                    strongEl.textContent = choice.includes('home') ? card.dataset.homeTeam :
+                                         choice.includes('away') ? card.dataset.awayTeam :
+                                         card.dataset.userChoice || 'Unknown';
+                }
+            }
+
+            if (elements.voteTimestamp && card.dataset.votedAt) {
+                elements.voteTimestamp.style.display = 'block';
+                elements.voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
+            }
+
+            // Determine which action buttons to show based on tab and match state
+            const matchTime = checkTimeUntilMatch(card);
+            const canVote = status === 'upcoming' || (status === 'live' && matchTime > 2);
+
+            if (isMyVotesTab) {
+                // In My Votes tab, show ONLY delete button
+                if (elements.deleteVoteBtn) {
+                    elements.deleteVoteBtn.style.display = 'block';
+                    elements.deleteVoteBtn.disabled = false;
+                }
+            } else if (canVote) {
+                // In other tabs, show ONLY change vote button if voting is still allowed
+                if (elements.changeVoteBtn) {
+                    elements.changeVoteBtn.style.display = 'block';
+                    elements.changeVoteBtn.disabled = false;
+                }
+            }
+        } else if (!isMyVotesTab) { // Not voted and not in My Votes tab
+            // Determine if voting is allowed based on match status and timing
+            const matchTime = checkTimeUntilMatch(card);
+            const canVote = status === 'upcoming' || 
+                           (status === 'live' && matchTime > 2);
+            
+            if (canVote && elements.voteNowBtn) {
+                elements.voteNowBtn.style.display = 'block';
+                elements.voteNowBtn.disabled = false;
+            } else if (status === 'live' && elements.votingClosedMsg) {
+                elements.votingClosedMsg.style.display = 'block';
+            }
+        }}
 
 function refreshAllCards() {
     console.log('>>> refreshAllCards START');
@@ -724,7 +840,8 @@ function refreshAllCards() {
                 emptyState.style.display = 'none';
             }
         }
-
+        
+        
         console.log('refreshAllCards finished. visibleCount:', hasVisibleCards ? '>=1' : 0);
     } catch (err) {
         console.error('Error in refreshAllCards:', err);
@@ -808,7 +925,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.location.href = "/login/?next={{ request.path }}";
                 return;
             }
-            
+
             const card = target.closest('.prediction-card');
             if (card.dataset.voted === 'true') {
                 showToast('Warning', 'Kamu sudah vote! Gunakan "Change Vote".', 'warning');
@@ -1076,5 +1193,7 @@ document.addEventListener("DOMContentLoaded", function() {
         showToast('Error', 'Gagal memuat halaman!', 'error');
     }
 });
+
+
 </script>
 {% endblock %}
