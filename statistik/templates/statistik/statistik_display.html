@@ -464,38 +464,51 @@
             <div class="feature-buttons">
                 <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn-feature">💬 Forum</a>
                 <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn-feature">🎥 Highlight</a>
-                <a href="#" class="btn-feature vote-trigger" data-match-id="{{ match.id }}" data-home="{{ match.home_team }}" data-away="{{ match.away_team }}">⚽ Prediction</a>
+                <a href="#" 
+                class="btn-feature vote-trigger" 
+                data-match-id="{{ match.id }}" 
+                data-home="{{ match.home_team }}" 
+                data-away="{{ match.away_team }}" 
+                data-status="{{ match.status|lower }}"
+                data-date="{{ match.match_date|date:'c' }}">
+                ⚽ Prediction
+                </a>
                 <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">👥 Lineup</a>
             </div>
         </div>
 
         <!-- Header Pertandingan -->
-        <div class="match-header">
-            <h1>{{ match.stadium }}</h1>
-            <div class="teams-display">
-                <div class="team">
-                    <div class="flag-placeholder">
-                        <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png" 
-                             alt="{{ match.home_team }}"
-                             onerror="this.src='https://flagcdn.com/w80/unknown.png'">
-                    </div>
-                    <h2>{{ match.home_team }}</h2>
-                </div>
-                <div class="score">
-                    <div class="score-number">{{ match.home_score }}</div>
-                    <div class="score-separator">-</div>
-                    <div class="score-number">{{ match.away_score }}</div>
-                </div>
-                <div class="team">
-                    <div class="flag-placeholder">
-                        <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png" 
-                             alt="{{ match.away_team }}"
-                             onerror="this.src='https://flagcdn.com/w80/unknown.png'">
-                    </div>
-                    <h2>{{ match.away_team }}</h2>
-                </div>
+<div style="text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 2px solid #eef8f6;">
+    <h1 style="color: #1e423b; margin: 0 auto 20px auto; font-size: 2.2em; font-weight: 700; text-align: center; width: 100%; display: block;">{{ match.stadium }}</h1>
+    
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 30px; margin: 20px 0;">
+        <div style="text-align: center;">
+            <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png" 
+                     alt="{{ match.home_team }}"
+                     style="width: 80px; height: 53px; object-fit: contain;"
+                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
             </div>
+            <h2 style="margin: 0; color: #333333; font-size: 1.4em;">{{ match.home_team }}</h2>
         </div>
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 3em; font-weight: bold; color: #1e423b;">{{ match.home_score }}</div>
+            <div style="font-size: 2em; color: #666666;">-</div>
+            <div style="font-size: 3em; font-weight: bold; color: #1e423b;">{{ match.away_score }}</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png" 
+                     alt="{{ match.away_team }}"
+                     style="width: 80px; height: 53px; object-fit: contain;"
+                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
+            </div>
+            <h2 style="margin: 0; color: #333333; font-size: 1.4em;">{{ match.away_team }}</h2>
+        </div>
+    </div>
+</div>
 
         <!-- Team Statistics -->
         <div class="team-statistics">
@@ -504,9 +517,10 @@
             {% if statistik %}
                 <div class="stats-comparison">
                     <div class="stats-header">
-                        <div class="team-name">{{ match.home_team }}</div>
-                        <div class="stat-label">Statistic</div>
-                        <div class="team-name">{{ match.away_team }}</div>
+                    <div class="team-name" style="color: white !important;">{{ match.home_team }}</div>
+                    <div class="stat-label" style="color: white !important;">Statistics</div>
+                    <div class="team-name" style="color: white !important;">{{ match.away_team }}</div>
+              </div>
                     </div>
                     <div class="stat-row">
                         <div class="team-stat home-stat">{{ statistik.pass_home }}</div>
@@ -568,65 +582,59 @@
     </div>
 </div>
 
-{% include 'prediction/modal_poll.html' %}
+{% include 'modal_poll.html' %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const voteButtons = document.querySelectorAll(".vote-trigger");
   const pollPopup = document.getElementById("polling-popup");
+  const closeBtn = pollPopup?.querySelector(".popup-close-btn");
+  const teamHomeBtn = pollPopup?.querySelector(".team-home");
+  const teamAwayBtn = pollPopup?.querySelector(".team-away");
+  const popupTitle = pollPopup?.querySelector(".popup-title");
+  const popupSubtitle = pollPopup?.querySelector(".popup-subtitle");
+  const popupBody = pollPopup?.querySelector(".popup-body");
 
-  if (!pollPopup) {
-    console.error("❌ Modal polling-popup tidak ditemukan di halaman ini!");
-    return;
-  }
-
-  voteButtons.forEach(btn => {
-    btn.addEventListener("click", function (e) {
+  // buka modal dari tombol di statistik_display
+  document.querySelectorAll(".vote-trigger").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
       e.preventDefault();
+      const matchId = btn.dataset.matchId;
+      const home = btn.dataset.home;
+      const away = btn.dataset.away;
+      const status = btn.dataset.status;
+      const matchDate = new Date(btn.dataset.date);
+      const now = new Date();
 
-      const homeTeam = this.dataset.home;
-      const awayTeam = this.dataset.away;
-      const matchId = this.dataset.matchId;
+      popupTitle.textContent = `Who will win: ${home} vs ${away}?`;
+      popupSubtitle.style.display = "block";
+      popupBody.innerHTML = `
+        <div class="team-buttons">
+          <button class="team-btn team-home" data-team="home">${home}</button>
+          <div class="vs-divider">VS</div>
+          <button class="team-btn team-away" data-team="away">${away}</button>
+        </div>
+      `;
 
-      // Pastikan modal elemen tersedia
-      const popupTitle = pollPopup.querySelector(".popup-title");
-      const popupSubtitle = pollPopup.querySelector(".popup-subtitle");
-      const teamHomeBtn = pollPopup.querySelector(".team-home");
-      const teamAwayBtn = pollPopup.querySelector(".team-away");
-
-      if (!popupTitle || !teamHomeBtn || !teamAwayBtn) {
-        console.error("❌ Elemen dalam modal tidak ditemukan!");
-        return;
+      // kalau udah live/finished, disable voting
+      if (status === "finished" || status === "live" || now > matchDate) {
+        popupBody.innerHTML = `
+          <div class="no-vote-message">The match has finished. Voting is not allowed for this match.</div>
+        `;
       }
 
-      // Set isi modal sesuai match
-      popupTitle.textContent = `Who will win: ${homeTeam} vs ${awayTeam}?`;
-      popupSubtitle.textContent = "Cast your vote for the winner!";
-      teamHomeBtn.querySelector("span").textContent = homeTeam;
-      teamAwayBtn.querySelector("span").textContent = awayTeam;
-
-      // Simpan match_id di dataset modal (biar bisa dipakai di fetch vote nanti)
-      pollPopup.dataset.matchId = matchId;
-
-      // Tampilkan modal
       pollPopup.classList.remove("hidden");
-
-      console.log(`✅ Modal polling dibuka untuk ${homeTeam} vs ${awayTeam}`);
     });
   });
 
-  // Tutup modal
-  const closeBtn = pollPopup.querySelector(".popup-close-btn");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => pollPopup.classList.add("hidden"));
-  }
-
-  // Klik luar modal untuk tutup
-  pollPopup.addEventListener("click", e => {
+  // tombol close
+  closeBtn?.addEventListener("click", () => pollPopup.classList.add("hidden"));
+  pollPopup?.addEventListener("click", (e) => {
     if (e.target === pollPopup) pollPopup.classList.add("hidden");
   });
 });
+
+
 </script>
 {% endblock %}

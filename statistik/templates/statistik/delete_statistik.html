@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="page">
-  <h2 style="text-align:center;color:#e74c3c;margin-bottom:20px;">Hapus Statistik</h2>
+<div class="page" style="max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 16px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);">
+  <h2 style="text-align:center;color:#e74c3c;margin-bottom:25px;font-size:1.8em;font-weight:700;">Hapus Statistik</h2>
 
-  <div style="background:#fef2f2; padding:20px; border-radius:12px; border-left:4px solid #e74c3c; margin-bottom:25px;">
-    <h4 style="color:#dc2626;margin-top:0;">Konfirmasi Penghapusan</h4>
-    <p>Anda yakin ingin menghapus statistik untuk pertandingan:</p>
-    <p><strong>{{ match.home_team }} vs {{ match.away_team }}</strong></p>
-    <p style="color:#ef4444;font-size:14px;">Tindakan ini tidak dapat dibatalkan!</p>
+  <div style="background:#fef2f2; padding:25px; border-radius:12px; border-left:4px solid #e74c3c; margin-bottom:30px;">
+    <h4 style="color:#dc2626;margin-top:0;margin-bottom:15px;font-size:1.2em;font-weight:600;">Konfirmasi Penghapusan</h4>
+    <p style="margin-bottom:10px;color:#333;font-size:1em;">Anda yakin ingin menghapus statistik untuk pertandingan:</p>
+    <p style="margin:15px 0;font-size:1.3em;font-weight:700;color:#1e293b;"><strong>{{ match.home_team }} vs {{ match.away_team }}</strong></p>
+    <p style="color:#ef4444;font-size:14px;margin-top:15px;">Tindakan ini tidak dapat dibatalkan!</p>
   </div>
 
   <form method="POST" id="delete-form">
     {% csrf_token %}
-    <div style="display:flex;gap:15px;justify-content:center;">
-      <button type="submit" class="btn-delete-confirm" style="padding:12px 24px;background:#e74c3c;color:white;border:none;border-radius:6px;cursor:pointer;">
+    <div style="display:flex;gap:15px;justify-content:center;align-items:center;margin-top:25px;flex-wrap:wrap;">
+      <button type="submit" class="btn-delete-confirm" style="padding:12px 30px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;transition:all 0.3s ease;">
         Ya, Hapus Statistik
       </button>
-      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn-cancel" style="padding:12px 24px;background:#6c757d;color:white;text-decoration:none;border-radius:6px;">
+      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn-cancel" style="padding:12px 30px;background:#6c757d;color:white;text-decoration:none;border-radius:8px;font-weight:600;font-size:1em;transition:all 0.3s ease;display:inline-block;">
         Batal
       </a>
     </div>
