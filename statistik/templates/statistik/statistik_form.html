@@ -400,44 +400,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('statistik-form');
     const submitBtn = document.getElementById('submit-btn');
 
-    // SAMA PERSIS DENGAN DELETE
     window.showToast = function(title, message, type) {
-    // Buat toast element - UKURAN LEBIH BESAR
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: ${type === 'success' ? '#10b981' : '#ef4444'};
-        color: white;
-        padding: 20px 25px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        z-index: 10000;
-        max-width: 500px;
-        font-size: 16px;
-        font-family: 'Poppins', sans-serif;
-    `;
-    
-    toast.innerHTML = `
-        <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">${title}</div>
-        <div style="font-size: 15px;">${message}</div>
-    `;
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            max-width: 500px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+        `;
+        
+        toast.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">${title}</div>
+            <div style="font-size: 15px; white-space: pre-line;">${message}</div>
+        `;
 
-    document.body.appendChild(toast);
+        document.body.appendChild(toast);
 
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    }, 3000);
-};
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    };
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Show loading state - SAMA DENGAN DELETE
+        // Show loading state
         submitBtn.innerHTML = 'Loading...';
         submitBtn.style.opacity = '0.7';
         submitBtn.disabled = true;
@@ -445,6 +442,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(form);
         const data = {};
         formData.forEach((value, key) => (data[key] = value));
+
+        console.log("Submitting data:", data);
 
         fetch(window.location.href, {
             method: 'POST',
@@ -457,20 +456,31 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then((response) => response.json())
         .then((result) => {
+            console.log("Server response:", result);
+            
             if (result.status === 'success') {
                 showToast('Sukses', result.message, 'success');
                 setTimeout(() => {
                     window.location.href = result.redirect_url;
                 }, 1500);
             } else {
-                showToast('Error', result.message, 'error');
+                let errorMessage = result.message || 'Terjadi kesalahan';
+                // Tampilkan error detail jika ada
+                if (result.errors) {
+                    errorMessage += '\n\nDetail Error:';
+                    for (const field in result.errors) {
+                        errorMessage += `\n• ${field}: ${result.errors[field].join(', ')}`;
+                    }
+                }
+                showToast('Error', errorMessage, 'error');
                 submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
                 submitBtn.style.opacity = '1';
                 submitBtn.disabled = false;
             }
         })
         .catch((error) => {
-            showToast('Error', 'Terjadi kesalahan jaringan', 'error');
+            console.error("Error:", error);
+            showToast('Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
             submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
             submitBtn.style.opacity = '1';
             submitBtn.disabled = false;
