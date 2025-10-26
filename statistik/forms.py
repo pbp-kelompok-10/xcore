@@ -19,4 +19,4 @@ class StatistikForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from scoreboard.models import Match
-        self.fields['match'].queryset = Match.objects.filter(status='finished')
+        self.fields['match'].queryset = Match.objects.filter(status__in=['live', 'finished'])
