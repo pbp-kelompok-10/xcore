@@ -400,37 +400,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('statistik-form');
     const submitBtn = document.getElementById('submit-btn');
 
-    window.showToast = function(title, message, type) {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 20px 25px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
-            max-width: 500px;
-            font-size: 16px;
-            font-family: 'Poppins', sans-serif;
-        `;
-        
-        toast.innerHTML = `
-            <div style="font-weight: 700; margin-bottom: 8px; font-size: 18px;">${title}</div>
-            <div style="font-size: 15px; white-space: pre-line;">${message}</div>
-        `;
-
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 5000);
-    };
-
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -459,7 +428,13 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Server response:", result);
             
             if (result.status === 'success') {
-                showToast('Sukses', result.message, 'success');
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
+                    showToast('Sukses', result.message, 'success');
+                } else {
+                    // Fallback jika showToast tidak ada
+                    alert('Sukses: ' + result.message);
+                }
                 setTimeout(() => {
                     window.location.href = result.redirect_url;
                 }, 1500);
@@ -472,7 +447,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorMessage += `\n• ${field}: ${result.errors[field].join(', ')}`;
                     }
                 }
-                showToast('Error', errorMessage, 'error');
+                
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
+                    showToast('Error', errorMessage, 'error');
+                } else {
+                    // Fallback jika showToast tidak ada
+                    alert('Error: ' + errorMessage);
+                }
+                
                 submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
                 submitBtn.style.opacity = '1';
                 submitBtn.disabled = false;
@@ -480,7 +463,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch((error) => {
             console.error("Error:", error);
-            showToast('Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
+            
+            // Gunakan showToast dari base.html
+            if (typeof showToast === 'function') {
+                showToast('Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
+            } else {
+                // Fallback jika showToast tidak ada
+                alert('Error: Terjadi kesalahan jaringan');
+            }
+            
             submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
             submitBtn.style.opacity = '1';
             submitBtn.disabled = false;
