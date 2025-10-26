@@ -5,37 +5,39 @@ from django.http import JsonResponse
 from django.contrib import messages
 from scoreboard.models import Match
 from .models import Prediction, Vote
-
-
+from django.utils import timezone
 
 def prediction_list(request):
-    """Halaman utama untuk user melihat semua predictions"""
-    predictions = Prediction.objects.select_related('match').all()
-    
-    if request.user.is_authenticated:
-        votes = Vote.objects.filter(user=request.user).select_related("prediction")
-    else:
-        votes = Vote.objects.none()  # Empty queryset untuk user yang belum login
-    
-    upcoming_predictions = predictions.filter(match__status='upcoming')
-    live_predictions = predictions.filter(match__status='live')
-    finished_predictions = predictions.filter(match__status='finished')
+    upcoming_predictions = list(Prediction.objects.filter(match__status='upcoming'))
+    live_predictions = list(Prediction.objects.filter(match__status='live'))
+    finished_predictions = list(Prediction.objects.filter(match__status='finished'))
 
-    context = {
+    if request.user.is_authenticated:
+        user_votes = Vote.objects.filter(user=request.user)
+        vote_map = {v.prediction_id: v for v in user_votes}
+
+        for p in upcoming_predictions + live_predictions + finished_predictions:
+            p.user_vote = vote_map.get(p.id)
+            print(f"[DEBUG] Prediction {p.id} | voted? {bool(p.user_vote)} | value = {p.user_vote}")
+    else:
+        for p in upcoming_predictions + live_predictions + finished_predictions:
+            p.user_vote = None
+            print(f"[DEBUG] Prediction {p.id} | voted? False (not authenticated)")
+
+    return render(request, 'prediction_center.html', {
         'upcoming_predictions': upcoming_predictions,
         'live_predictions': live_predictions,
         'finished_predictions': finished_predictions,
-        'votes': votes,
-    }
-
-    return render(request, 'prediction_center.html', context)
-
+    })
 
 @login_required(login_url='/login')
 def submit_vote(request):
     if request.method == "POST":
         prediction_id = request.POST.get("prediction_id")
         choice = request.POST.get("choice")
+
+        if not prediction_id or not choice:
+            return JsonResponse({"status": "error", "message": "Missing required parameters"})
 
         try:
             prediction = Prediction.objects.get(id=prediction_id)
@@ -54,7 +56,12 @@ def submit_vote(request):
                 "message": "Kamu sudah vote! Mau ubah vote? Klik 'My Votes'"
             })
 
-        Vote.objects.create(user=request.user, prediction=prediction, choice=choice)
+        vote = Vote.objects.create(
+            user=request.user,
+            prediction=prediction,
+            choice=choice.lower().strip(),
+            voted_at=timezone.now()
+        )
 
         choice = choice.lower().strip()
         if "home" in choice:
@@ -66,19 +73,15 @@ def submit_vote(request):
         
         return JsonResponse({
             "status": "success",
-            "home": {
-                "team": prediction.match.home_team,
-                "votes": prediction.votes_home_team,
-                "percent": prediction.home_percentage
-            },
-            "away": {
-                "team": prediction.match.away_team,
-                "votes": prediction.votes_away_team,
-                "percent": prediction.away_percentage
-            }
+            "vote_id": str(vote.id),
+            "voted_at": vote.voted_at.isoformat(),
+            "votes_home_team": prediction.votes_home_team,
+            "votes_away_team": prediction.votes_away_team,
+            "home_percentage": float(prediction.home_percentage),
+            "away_percentage": float(prediction.away_percentage)
         })
 
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+    return JsonResponse({"status": "error", "message": "Invalid request method"})
 
 
 @login_required
@@ -129,9 +132,9 @@ def update_vote(request, vote_id=None):
             # Kurangi vote lama
             old_choice = vote.choice.lower().strip()
             if "home" in old_choice:
-                prediction.votes_home_team -= 1
+                prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
             elif "away" in old_choice:
-                prediction.votes_away_team -= 1
+                prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
             
             # Tambah vote baru
             new_choice = choice.lower().strip()
@@ -147,18 +150,19 @@ def update_vote(request, vote_id=None):
                     'message': 'Invalid choice'
                 })
             
+            vote.voted_at = timezone.now()
             vote.save()
             prediction.save()
             
             return JsonResponse({
                 'status': 'success',
-                'message': 'Vote berhasil diubah!',
-                'new_stats': {
-                    'home_votes': prediction.votes_home_team,
-                    'away_votes': prediction.votes_away_team,
-                    'home_percentage': float(prediction.home_percentage),
-                    'away_percentage': float(prediction.away_percentage)
-                }
+                'vote_id': str(vote.id),
+                "prediction_id": str(vote.prediction.id),
+                'voted_at': vote.voted_at.isoformat(),
+                'votes_home_team': prediction.votes_home_team,
+                'votes_away_team': prediction.votes_away_team,
+                'home_percentage': float(prediction.home_percentage),
+                'away_percentage': float(prediction.away_percentage)
             })
             
         except Vote.DoesNotExist:
@@ -187,17 +191,19 @@ def update_vote(request, vote_id=None):
         
         # Kurangi vote lama
         if "home" in old_choice:
-            prediction.votes_home_team -= 1
+            prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
         elif "away" in old_choice:
-            prediction.votes_away_team -= 1
+            prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
         
         # Tambah vote baru
         if "home" in new_choice:
             prediction.votes_home_team += 1
+            vote.choice = 'home'
         elif "away" in new_choice:
             prediction.votes_away_team += 1
+            vote.choice = 'away'
         
-        vote.choice = new_choice
+        vote.voted_at = timezone.now()
         vote.save()
         prediction.save()
         
@@ -235,9 +241,9 @@ def delete_vote(request, vote_id):
         choice = vote.choice.lower().strip()
         
         if "home" in choice:
-            prediction.votes_home_team -= 1
+            prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
         elif "away" in choice:
-            prediction.votes_away_team -= 1
+            prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
         
         prediction.save()
         
@@ -246,7 +252,12 @@ def delete_vote(request, vote_id):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
             return JsonResponse({
                 'status': 'success',
-                'message': 'Vote berhasil dihapus!'
+                'message': 'Vote berhasil dihapus!',
+                'prediction_id': str(prediction.id),
+                'votes_home_team': prediction.votes_home_team,
+                'votes_away_team': prediction.votes_away_team,
+                'home_percentage': float(prediction.home_percentage),
+                'away_percentage': float(prediction.away_percentage)
             })
         
         messages.success(request, "Vote berhasil dihapus!")

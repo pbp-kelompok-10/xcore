@@ -4,36 +4,7 @@
 
 {% block extra_css %}
 <style>
-    :root {
-        --primary-color: #1e423b;
-        --secondary-color: #56bda9;
-        --secondary-hover: #4daa96;
-        --light-bg: #eef8f6;
-        --white: #ffffff;
-        --text-dark: #333333;
-        --text-light: #666666;
-        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-        --navbar-height: 60px; /* Estimasi tinggi navbar */
-        --footer-height: 60px; /* Estimasi tinggi footer */
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
-        color: var(--text-dark);
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-    }
-
+    /* Field Pattern Background */
     .field-pattern {
         position: fixed;
         top: 0;
@@ -48,191 +19,260 @@
         opacity: 0.3;
     }
 
-    .content-wrapper {
-        flex: 1 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        padding-top: calc(var(--navbar-height) + 20px);
-        padding-bottom: calc(var(--footer-height) + 20px);
-        width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
+    /* Lineup Container */
     .lineup-container {
         width: 100%;
-        padding: 40px;
-        background: var(--white);
-        border-radius: 18px;
-        box-shadow: var(--card-shadow);
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 2.5rem;
+        background: var(--white-light);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         position: relative;
     }
 
+    /* Back Link */
     .back-link {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background-color: var(--secondary-color);
-        color: var(--white);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--green-normal);
+        color: var(--white-light);
         text-decoration: none;
-        padding: 10px 18px;
-        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
+        margin-bottom: 2rem;
     }
 
     .back-link:hover {
-        background-color: var(--primary-color);
+        background: var(--green-dark);
         transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
     }
 
-    h1 {
-        font-size: 30px;
+    /* Page Header */
+    .lineup-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .lineup-header h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
         font-weight: 700;
-        color: var(--primary-color);
-        text-align: center;
-        margin-top: 20px;
-        margin-bottom: 8px;
+        color: var(--green-darker);
+        margin-bottom: 0.5rem;
     }
 
-    h3 {
-        font-size: 16px;
-        color: var(--text-light);
-        text-align: center;
-        margin-bottom: 45px;
+    .lineup-header h3 {
+        font-size: 1.1rem;
+        color: var(--blue-normal);
+        font-weight: 500;
     }
 
+    /* Teams Wrapper */
     .teams-wrapper {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
     }
 
+    /* Team Lineup Card */
     .team-lineup {
-        flex: 1;
-        min-width: 300px;
-        background-color: var(--light-bg);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        padding: 25px;
-        text-align: center;
+        background: var(--white-dark);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
+        border: 2px solid var(--green-light);
     }
 
     .team-lineup:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        border-color: var(--green-normal);
     }
 
+    /* Team Header */
     .team-header {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--green-light);
     }
 
     .team-flag {
-        width: 28px;
-        height: 20px;
-        border-radius: 3px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        width: 32px;
+        height: 24px;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
-    .team-lineup h2 {
-        color: var(--primary-color);
+    .team-header h2 {
+        color: var(--green-darker);
         font-weight: 700;
+        font-size: 1.5rem;
         margin: 0;
     }
 
+    /* Player Grid */
     .player-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 15px;
+        gap: 1rem;
     }
 
+    /* Player Card */
     .player-card {
-        background-color: var(--white);
-        border-radius: 10px;
-        padding: 12px;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        background: var(--white-light);
+        border-radius: 12px;
+        padding: 1rem;
         text-align: center;
         text-decoration: none;
-        color: var(--text-dark);
-        font-weight: 500;
-        transition: all 0.25s ease;
+        color: var(--green-darker);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .player-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--green-normal), var(--green-dark));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .player-card:hover::before {
+        transform: scaleX(1);
     }
 
     .player-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
-        background-color: #e6f5f2;
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.2);
+        border-color: var(--green-normal);
+        background: var(--green-light);
     }
 
     .player-card span {
         display: block;
-        font-size: 12px;
-        color: var(--text-light);
-        margin-top: 4px;
+        font-size: 0.8rem;
+        color: var(--blue-normal);
+        margin-top: 0.5rem;
+        font-weight: 500;
     }
 
+    /* No Lineup State */
     .no-lineup {
         text-align: center;
-        color: var(--text-light);
-        font-style: italic;
-        margin-top: 60px;
-        margin-bottom: 20px;
+        padding: 4rem 2rem;
+        background: var(--white-dark);
+        border-radius: 16px;
+        border: 2px dashed var(--green-light-active);
     }
 
+    .no-lineup p {
+        color: var(--blue-normal);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Action Buttons */
     .action-buttons {
         text-align: center;
-        margin-top: 40px;
+        margin-top: 2.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .add-lineup-btn,
     .edit-lineup-btn {
-        display: inline-block;
-        background-color: var(--secondary-color);
-        color: var(--white);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
         text-decoration: none;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-        margin: 10px;
+        box-shadow: 0 6px 18px rgba(86, 189, 169, 0.35);
     }
 
     .add-lineup-btn:hover,
     .edit-lineup-btn:hover {
-        background-color: var(--primary-color);
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(86, 189, 169, 0.45);
+        background: linear-gradient(135deg, var(--green-normal-hover), var(--green-dark-hover));
+    }
+
+    .edit-lineup-btn {
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        box-shadow: 0 6px 18px rgba(84, 104, 129, 0.35);
+    }
+
+    .edit-lineup-btn:hover {
+        background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
+        box-shadow: 0 10px 25px rgba(84, 104, 129, 0.45);
     }
 
     /* Responsive */
     @media (max-width: 768px) {
         .lineup-container {
-            padding: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem auto;
         }
 
         .teams-wrapper {
-            flex-direction: column;
-            align-items: center;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
 
         .team-lineup {
-            width: 100%;
+            padding: 1.5rem;
         }
 
-        .back-link {
-            top: 10px;
-            left: 10px;
+        .player-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .lineup-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .lineup-header h3 {
+            font-size: 0.95rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .add-lineup-btn,
+        .edit-lineup-btn {
+            width: 100%;
+            justify-content: center;
         }
     }
 
@@ -241,31 +281,14 @@
             opacity: 0.2;
         }
 
-        h1 {
-            font-size: 24px;
-        }
-
-        h3 {
-            font-size: 14px;
-        }
-
         .team-flag {
-            width: 24px;
-            height: 16px;
-        }
-
-        .player-grid {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            width: 28px;
+            height: 20px;
         }
 
         .player-card {
-            padding: 10px;
-        }
-
-        .add-lineup-btn,
-        .edit-lineup-btn {
-            font-size: 14px;
-            padding: 10px 20px;
+            padding: 0.75rem;
+            font-size: 0.85rem;
         }
     }
 </style>
@@ -274,12 +297,16 @@
 {% block content %}
 <div class="field-pattern"></div>
 
-<div class="content-wrapper">
-    <div class="lineup-container">
-        <a href="{% url 'statistik:statistik_display' match.id %}" class="back-link">← Back to Statistik</a>
+<div class="container-xcore">
+    <div class="lineup-container fade-in">
+        <a href="{% url 'statistik:statistik_display' match.id %}" class="back-link">
+            ← Back to Statistik
+        </a>
 
-        <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
-        <h3>{{ match.stadium }} — {{ match.match_date|date:"l, d F Y" }}</h3>
+        <div class="lineup-header">
+            <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+            <h3>{{ match.stadium }} — {{ match.match_date|date:"l, d F Y" }}</h3>
+        </div>
 
         {% if home_lineup or away_lineup %}
             <div class="teams-wrapper">
@@ -325,7 +352,9 @@
             <!-- Edit Lineup button -->
             {% if request.user.is_admin %}
                 <div class="action-buttons">
-                    <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">✏️ Edit Lineup</a>
+                    <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">
+                        ✏️ Edit Lineup
+                    </a>
                 </div>
             {% endif %}
 
@@ -333,7 +362,11 @@
             <div class="no-lineup">
                 <p>No lineup has been created for this match yet.</p>
                 {% if request.user.is_admin %}
-                    <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">+ Add Lineup</a>
+                    <div class="action-buttons">
+                        <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">
+                            ➕ Add Lineup
+                        </a>
+                    </div>
                 {% endif %}
             </div>
         {% endif %}

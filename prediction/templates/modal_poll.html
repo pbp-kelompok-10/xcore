@@ -33,13 +33,6 @@
           <span>Away Team</span>
         </button>
       </div>
-
-      <button class="team-btn team-draw" data-team="draw">
-        <svg class="team-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        <span>Draw</span>
-      </button>
     </div>
   </div>
 </div>
@@ -57,7 +50,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -75,7 +68,7 @@
 }
 
 .popup-container {
-  background: var(--white);
+  background: #ffffff;
   border-radius: 16px;
   padding: 32px;
   width: 90%;
@@ -83,6 +76,7 @@
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
+  z-index: 2010;
 }
 
 @keyframes slideUp {
@@ -101,7 +95,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: var(--light-bg);
+  background: #f5f5f5;
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -111,11 +105,12 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--text-dark);
+  color: #333;
+  z-index: 2020;
 }
 
 .popup-close-btn:hover {
-  background: var(--secondary-hover);
+  background: #e0e0e0;
   transform: rotate(90deg);
 }
 
@@ -128,13 +123,13 @@
 .popup-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #2c7a7b;
   margin-bottom: 8px;
 }
 
 .popup-subtitle {
   font-size: 0.95rem;
-  color: var(--text-light);
+  color: #718096;
   font-weight: 500;
 }
 
@@ -155,14 +150,14 @@
 .vs-divider {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--secondary-color);
+  color: #4a5568;
   padding: 0 8px;
 }
 
 /* Team Buttons */
 .team-btn {
-  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
-  color: var(--white);
+  background: linear-gradient(135deg, #56bdad, #2c7a7b);
+  color: #ffffff;
   border: none;
   padding: 16px 24px;
   border-radius: 12px;
@@ -175,16 +170,23 @@
   align-items: center;
   gap: 8px;
   box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
+  pointer-events: auto;
 }
 
 .team-btn:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(86, 189, 169, 0.4);
-  background: linear-gradient(135deg, var(--green-dark), var(--green-darker));
+  background: linear-gradient(135deg, #2c7a7b, #1f6157);
 }
 
 .team-btn:active {
   transform: translateY(-2px);
+}
+
+.team-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .team-icon {
@@ -194,25 +196,6 @@
 
 .team-btn span {
   font-size: 0.9rem;
-}
-
-/* Draw Button (Full Width) */
-.team-draw {
-  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
-  box-shadow: 0 4px 12px rgba(84, 104, 129, 0.3);
-}
-
-.team-draw:hover {
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue-dark-hover));
-  box-shadow: 0 8px 20px rgba(84, 104, 129, 0.4);
-}
-
-/* Non-Voting Styles */
-.no-vote-message {
-  color: var(--text-dark);
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  text-align: center;
 }
 
 /* Responsive */
@@ -245,83 +228,3 @@
   }
 }
 </style>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const popup = document.getElementById("polling-popup");
-  const closeBtn = document.querySelector(".popup-close-btn");
-  let currentPredictionId = null;
-
-  // Close popup
-  closeBtn.addEventListener("click", () => popup.classList.add("hidden"));
-  
-  // Close popup when clicking outside
-  popup.addEventListener("click", (e) => {
-    if (e.target === popup) {
-      popup.classList.add("hidden");
-    }
-  });
-
-  // Handle team button clicks
-  document.querySelectorAll(".team-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const choice = btn.dataset.team;
-      
-      if (!currentPredictionId) {
-        alert("Prediction ID tidak ditemukan!");
-        return;
-      }
-
-      // Disable buttons while submitting
-      document.querySelectorAll(".team-btn").forEach(b => b.disabled = true);
-      
-      fetch("{% url 'prediction:submit_vote' %}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: `prediction_id=${currentPredictionId}&choice=${choice}`
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") {
-          // Success animation
-          btn.style.transform = "scale(1.1)";
-          setTimeout(() => {
-            alert("Vote berhasil! 🎉");
-            popup.classList.add("hidden");
-            btn.style.transform = "";
-          }, 300);
-        } else {
-          alert(data.message || "Terjadi kesalahan");
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("Terjadi kesalahan saat mengirim vote");
-      })
-      .finally(() => {
-        // Re-enable buttons
-        document.querySelectorAll(".team-btn").forEach(b => b.disabled = false);
-      });
-    });
-  });
-
-  // Helper function to get CSRF token
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-});
-</script>
