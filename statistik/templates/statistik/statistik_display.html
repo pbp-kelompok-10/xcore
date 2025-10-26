@@ -470,32 +470,37 @@
         </div>
 
         <!-- Header Pertandingan -->
-        <div class="match-header">
-            <h1>{{ match.stadium }}</h1>
-            <div class="teams-display">
-                <div class="team">
-                    <div class="flag-placeholder">
-                        <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png" 
-                             alt="{{ match.home_team }}"
-                             onerror="this.src='https://flagcdn.com/w80/unknown.png'">
-                    </div>
-                    <h2>{{ match.home_team }}</h2>
-                </div>
-                <div class="score">
-                    <div class="score-number">{{ match.home_score }}</div>
-                    <div class="score-separator">-</div>
-                    <div class="score-number">{{ match.away_score }}</div>
-                </div>
-                <div class="team">
-                    <div class="flag-placeholder">
-                        <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png" 
-                             alt="{{ match.away_team }}"
-                             onerror="this.src='https://flagcdn.com/w80/unknown.png'">
-                    </div>
-                    <h2>{{ match.away_team }}</h2>
-                </div>
+<div style="text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 2px solid #eef8f6;">
+    <h1 style="color: #1e423b; margin: 0 auto 20px auto; font-size: 2.2em; font-weight: 700; text-align: center; width: 100%; display: block;">{{ match.stadium }}</h1>
+    
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 30px; margin: 20px 0;">
+        <div style="text-align: center;">
+            <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png" 
+                     alt="{{ match.home_team }}"
+                     style="width: 80px; height: 53px; object-fit: contain;"
+                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
             </div>
+            <h2 style="margin: 0; color: #333333; font-size: 1.4em;">{{ match.home_team }}</h2>
         </div>
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 3em; font-weight: bold; color: #1e423b;">{{ match.home_score }}</div>
+            <div style="font-size: 2em; color: #666666;">-</div>
+            <div style="font-size: 3em; font-weight: bold; color: #1e423b;">{{ match.away_score }}</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png" 
+                     alt="{{ match.away_team }}"
+                     style="width: 80px; height: 53px; object-fit: contain;"
+                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
+            </div>
+            <h2 style="margin: 0; color: #333333; font-size: 1.4em;">{{ match.away_team }}</h2>
+        </div>
+    </div>
+</div>
 
         <!-- Team Statistics -->
         <div class="team-statistics">
@@ -504,9 +509,10 @@
             {% if statistik %}
                 <div class="stats-comparison">
                     <div class="stats-header">
-                        <div class="team-name">{{ match.home_team }}</div>
-                        <div class="stat-label">Statistic</div>
-                        <div class="team-name">{{ match.away_team }}</div>
+                    <div class="team-name" style="color: white !important;">{{ match.home_team }}</div>
+                    <div class="stat-label" style="color: white !important;">Statistics</div>
+                    <div class="team-name" style="color: white !important;">{{ match.away_team }}</div>
+              </div>
                     </div>
                     <div class="stat-row">
                         <div class="team-stat home-stat">{{ statistik.pass_home }}</div>
