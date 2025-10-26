@@ -327,92 +327,11 @@
             </div>
         {% endfor %}
 
-        <!-- Render Player Formset -->
-        <h2 class="form-title">Players</h2>
-        {{ player_formset.management_form }}
-        {% for form in player_formset %}
-            <div class="player-card">
-                {{ form.id }}
-                <div class="form-group{% if form.nama.errors %} error{% endif %}">
-                    <label for="{{ form.nama.id_for_label }}" class="required">Nama</label>
-                    {{ form.nama }}
-                    {% if form.nama.errors %}
-                        <div class="error-message">{{ form.nama.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group{% if form.asal.errors %} error{% endif %}">
-                    <label for="{{ form.asal.id_for_label }}" class="required">Asal</label>
-                    {{ form.asal }}
-                    {% if form.asal.errors %}
-                        <div class="error-message">{{ form.asal.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group{% if form.umur.errors %} error{% endif %}">
-                    <label for="{{ form.umur.id_for_label }}" class="required">Umur</label>
-                    {{ form.umur }}
-                    {% if form.umur.errors %}
-                        <div class="error-message">{{ form.umur.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-                <div class="form-group{% if form.nomor.errors %} error{% endif %}">
-                    <label for="{{ form.nomor.id_for_label }}" class="required">Nomor</label>
-                    {{ form.nomor }}
-                    {% if form.nomor.errors %}
-                        <div class="error-message">{{ form.nomor.errors.as_text }}</div>
-                    {% endif %}
-                </div>
-                {% if form.DELETE %}
-                    <label class="delete-checkbox">Delete: {{ form.DELETE }}</label>
-                {% endif %}
-            </div>
-        {% endfor %}
-
         <button type="submit" class="submit-button">{% if team %}Save Changes{% else %}Create Team{% endif %}</button>
         <a href="{% url 'lineup:team-list' %}" class="back-button cancel">Cancel</a>
-        <button type="button" class="add-row" onclick="addPlayerRow()">Add Player</button>
     </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    function addPlayerRow() {
-        const formset = document.querySelector('#id_form-TOTAL_FORMS');
-        const formCount = parseInt(formset.value);
-        const playerCardContainer = document.querySelector('.form-container');
-        const lastPlayerCard = document.querySelector('.player-card:last-child');
-
-        if (!lastPlayerCard || !formset) return;
-
-        // Clone the last player card
-        const newPlayerCard = lastPlayerCard.cloneNode(true);
-        const inputs = newPlayerCard.querySelectorAll('input, select');
-
-        // Update input names and IDs
-        inputs.forEach(input => {
-            const name = input.name.replace(/-(\d+)-/, `-${formCount}-`);
-            const id = input.id.replace(/-(\d+)-/, `-${formCount}-`);
-            input.name = name;
-            input.id = id;
-            if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-            } else if (input.type === 'checkbox') {
-                input.checked = false;
-            } else {
-                input.value = '';
-            }
-            // Clear error states
-            const group = input.closest('.form-group');
-            if (group) group.classList.remove('error');
-            const error = group.querySelector('.error-message');
-            if (error) error.textContent = '';
-        });
-
-        // Append new player card
-        lastPlayerCard.parentNode.insertBefore(newPlayerCard, lastPlayerCard.nextSibling);
-
-        // Update formset management
-        formset.value = formCount + 1;
-    }
-</script>
 {% endblock %}
