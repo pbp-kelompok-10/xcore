@@ -182,6 +182,12 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        width: 50%;
+        display: flex;
+        justify-content: center; /* Posisikan horizontal di tengah */
+        align-items: center;     /* Posisikan vertical di tengah (opsional) */
+        margin: 2rem auto;          /* Agar div-nya sendiri center kalau punya lebar tetap */
+        text-align: center;      /* Teks di dalamnya juga center */
     }
 
     .date-header::before {
@@ -224,6 +230,12 @@
         cursor: pointer;
         position: relative;
         overflow: hidden;
+
+        width: 80%;
+        display: flex;
+  justify-content: center; /* Posisikan horizontal di tengah */
+  align-items: center;     /* Posisikan vertical di tengah (opsional) */
+  margin: 0 auto;          /* Agar div-nya sendiri center kalau punya lebar tetap */
     }
 
     .match-card::before {
