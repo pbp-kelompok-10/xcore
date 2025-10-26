@@ -568,127 +568,65 @@
     </div>
 </div>
 
-{% include 'modal_poll.html' %}
+{% include 'prediction/modal_poll.html' %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const pollPopup = document.getElementById("polling-popup");
-        const closeBtn = document.querySelector(".popup-close-btn");
-        let currentPredictionId = null;
+document.addEventListener("DOMContentLoaded", function () {
+  const voteButtons = document.querySelectorAll(".vote-trigger");
+  const pollPopup = document.getElementById("polling-popup");
 
-        // Open prediction modal when Vote Trigger button is clicked
-        const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
-        document.querySelectorAll(".vote-trigger").forEach(voteBtn => {
-            voteBtn.addEventListener("click", function(e) {
-                e.preventDefault();
-                console.log("Vote trigger clicked!", this.dataset.matchId); // Debug
-                currentPredictionId = this.dataset.matchId;
-                const homeTeam = this.dataset.home;
-                const awayTeam = this.dataset.away;
+  if (!pollPopup) {
+    console.error("❌ Modal polling-popup tidak ditemukan di halaman ini!");
+    return;
+  }
 
-                if (!pollPopup) {
-                    console.error("Polling popup not found!");
-                    return;
-                }
+  voteButtons.forEach(btn => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
 
-                // Check and log available elements
-                const popupTitle = pollPopup.querySelector(".popup-title");
-                const popupSubtitle = pollPopup.querySelector(".popup-subtitle");
-                const teamHomeBtn = pollPopup.querySelector(".team-home");
-                const teamAwayBtn = pollPopup.querySelector(".team-away");
-                const teamDrawBtn = pollPopup.querySelector(".team-draw");
-                const popupBody = pollPopup.querySelector(".popup-body");
+      const homeTeam = this.dataset.home;
+      const awayTeam = this.dataset.away;
+      const matchId = this.dataset.matchId;
 
-                console.log("DOM Elements Found:", {
-                    popupTitle,
-                    popupSubtitle,
-                    teamHomeBtn,
-                    teamAwayBtn,
-                    teamDrawBtn,
-                    popupBody
-                });
+      // Pastikan modal elemen tersedia
+      const popupTitle = pollPopup.querySelector(".popup-title");
+      const popupSubtitle = pollPopup.querySelector(".popup-subtitle");
+      const teamHomeBtn = pollPopup.querySelector(".team-home");
+      const teamAwayBtn = pollPopup.querySelector(".team-away");
 
-                if (!popupTitle || !teamHomeBtn || !teamAwayBtn) {
-                    console.error("Required modal elements not found!");
-                    return;
-                }
+      if (!popupTitle || !teamHomeBtn || !teamAwayBtn) {
+        console.error("❌ Elemen dalam modal tidak ditemukan!");
+        return;
+      }
 
-                if (!isLoggedIn) {
-                    window.location.href = "/login/?next={{ request.path }}";
-                    return;
-                }
+      // Set isi modal sesuai match
+      popupTitle.textContent = `Who will win: ${homeTeam} vs ${awayTeam}?`;
+      popupSubtitle.textContent = "Cast your vote for the winner!";
+      teamHomeBtn.querySelector("span").textContent = homeTeam;
+      teamAwayBtn.querySelector("span").textContent = awayTeam;
 
-                // Set modal content
-                popupTitle.textContent = `Who will win: ${homeTeam} vs ${awayTeam}?`;
-                if (popupSubtitle) popupSubtitle.textContent = "Cast your vote for the winner!";
-                teamHomeBtn.textContent = homeTeam;
-                teamAwayBtn.textContent = awayTeam;
-                if (teamDrawBtn) teamDrawBtn.textContent = "Draw";
-                teamHomeBtn.querySelector("svg.team-icon").style.display = "inline";
-                teamAwayBtn.querySelector("svg.team-icon").style.display = "inline";
-                if (teamDrawBtn) teamDrawBtn.querySelector("svg.team-icon").style.display = "inline";
+      // Simpan match_id di dataset modal (biar bisa dipakai di fetch vote nanti)
+      pollPopup.dataset.matchId = matchId;
 
-                // Check match status and time
-                const matchDate = new Date("{{ match.match_date|date:'c' }}");
-                const now = new Date();
-                const twoHoursBefore = new Date(matchDate.getTime() - 2 * 60 * 60 * 1000);
+      // Tampilkan modal
+      pollPopup.classList.remove("hidden");
 
-                if ("{{ match.status|lower }}" === "finished" || ("{{ match.status|lower }}" === "live" && now > twoHoursBefore)) {
-                    popupTitle.textContent = "Match Details";
-                    if (popupSubtitle) popupSubtitle.style.display = "none";
-                    if (teamHomeBtn) teamHomeBtn.style.display = "none";
-                    if (teamAwayBtn) teamAwayBtn.style.display = "none";
-                    if (teamDrawBtn) teamDrawBtn.style.display = "none";
-                    if (popupBody) {
-                        popupBody.innerHTML = `
-                            <div class="no-vote-message">Voting is not allowed for this match.</div>
-                            <button class="ok-btn" onclick="pollPopup.classList.add('hidden')">OK</button>
-                        `;
-                    } else {
-                        console.warn("popupBody not found, cannot insert non-vote message.");
-                    }
-                } else {
-                    if (teamHomeBtn) teamHomeBtn.style.display = "flex";
-                    if (teamAwayBtn) teamAwayBtn.style.display = "flex";
-                    if (teamDrawBtn) teamDrawBtn.style.display = "flex";
-                }
-
-                pollPopup.classList.remove("hidden");
-                console.log("Modal visibility:", pollPopup.classList); // Debug
-            });
-        });
-
-        // Close poll modal (backup, handled by modal_poll.html)
-        if (closeBtn) {
-            closeBtn.addEventListener("click", () => {
-                if (pollPopup) pollPopup.classList.add("hidden");
-            });
-        }
-        if (pollPopup) {
-            pollPopup.addEventListener("click", (e) => {
-                if (e.target === pollPopup) {
-                    pollPopup.classList.add("hidden");
-                }
-            });
-        }
+      console.log(`✅ Modal polling dibuka untuk ${homeTeam} vs ${awayTeam}`);
     });
+  });
 
-    // Helper function to get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+  // Tutup modal
+  const closeBtn = pollPopup.querySelector(".popup-close-btn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => pollPopup.classList.add("hidden"));
+  }
+
+  // Klik luar modal untuk tutup
+  pollPopup.addEventListener("click", e => {
+    if (e.target === pollPopup) pollPopup.classList.add("hidden");
+  });
+});
 </script>
 {% endblock %}
