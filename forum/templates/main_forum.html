@@ -254,6 +254,7 @@
             <div class="feature-buttons">
                 <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn-feature">💬 Forum</a>
                 <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn-feature">🎥 Highlight</a>
+<<<<<<< HEAD
                 <a href="#" 
                 class="btn-feature vote-trigger" 
                 data-match-id="{{ match.id }}" 
@@ -263,6 +264,9 @@
                 data-date="{{ match.match_date|date:'c' }}">
                 ⚽ Prediction
                 </a>
+=======
+                <a href="{% url 'prediction:list' %}" class="btn-feature vote-trigger" data-match-id="{{ match.id }}" data-home="{{ match.home_team }}" data-away="{{ match.away_team }}">⚽ Prediction</a>
+>>>>>>> 0ec29a52aefcd95b3ca5bf6ceeb5304fbfff2451
                 <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">👥 Lineup</a>
             </div>
         </div>

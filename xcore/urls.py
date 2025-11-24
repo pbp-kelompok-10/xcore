@@ -13,6 +13,7 @@ urlpatterns = [
     path('', include('landingpage.urls')),
     path('forum/', include('forum.urls', namespace='forum')),
     path('user/', include('user.urls', namespace='user')),
+    path('auth/', include('authentication.urls', namespace='authentication')),
 ]
 
 if settings.DEBUG:
