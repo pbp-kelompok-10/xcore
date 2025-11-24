@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from collections import OrderedDict
@@ -12,6 +13,53 @@ from forum.models import Forum
 from django.contrib import messages
 from prediction.models import Prediction
 from django.http import HttpResponseForbidden
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def add_match_json(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        match = Match.objects.create(
+            home_team_code=data['home_team_code'],
+            away_team_code=data['away_team_code'],
+            match_date=data['match_date'],
+            stadium=data['stadium'],
+            round=data.get('round'),
+            group=data.get('group'),
+            status=data.get('status', 'upcoming'),
+        )
+        
+        return JsonResponse({
+            "status": "success",
+            "id": str(match.id)
+        })
+
+    return JsonResponse({"error": "POST only"}, status=400)
+
+
+def scoreboard_json(request):
+    matches = Match.objects.all().order_by('match_date')
+
+    data = []
+    for match in matches:
+        data.append({
+            "id": str(match.id),
+            "home_team": match.home_team,
+            "away_team": match.away_team,
+            "home_team_code": match.home_team_code,
+            "away_team_code": match.away_team_code,
+            "home_score": match.home_score,
+            "away_score": match.away_score,
+            "match_date": match.match_date,
+            "stadium": match.stadium,
+            "round": match.round,
+            "group": match.group,
+            "status": match.status,
+        })
+
+    return JsonResponse(data, safe=False)
 
 def scoreboard_list(request):
     matches = Match.objects.all().order_by('match_date')
