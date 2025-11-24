@@ -229,7 +229,7 @@ def delete_vote(request, vote_id):
         }, status=405)
     
     if not vote.can_modify():
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'error',
                 'message': 'Voting sudah ditutup! Tidak bisa hapus vote lagi.'
@@ -250,7 +250,7 @@ def delete_vote(request, vote_id):
         
         vote.delete()
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'success',
                 'message': 'Vote berhasil dihapus!',
@@ -263,3 +263,32 @@ def delete_vote(request, vote_id):
         
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
+
+def show_json(request):
+    predictions = Prediction.objects.all()
+
+    data = []
+
+    for p in predictions:
+        data.append({
+            'id': str(p.id),
+            'question': p.question,
+            'match': p.match.id,
+            'votes_home_team': p.votes_home_team,
+            'votes_away_team': p.votes_away_team,
+            'logo_home_team': p.logo_home_team,
+            'logo_away_team': p.logo_away_team,
+            'total_votes': p.total_votes,
+            'home_percentage': p.home_percentage,
+            'away_percentage': p.away_percentage,
+            'votes': [
+                {
+                    "user_id": v.user.id,
+                    "choice": v.choice,
+                    "voted_at": v.voted_at.isoformat(),
+                }
+                for v in p.votes.all()
+            ],
+        })
+
+    return JsonResponse(data, safe=False)
