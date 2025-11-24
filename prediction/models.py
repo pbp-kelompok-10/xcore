@@ -51,13 +51,9 @@ class Vote(models.Model):
     class Meta:
         unique_together = ('user', 'prediction')
 
-    def __str__(self):
-        return f"{self.user.username} voted {self.choice}"
-
     def can_modify(self):
         """Check apakah vote masih bisa diubah/dihapus (sebelum deadline)"""
         return self.prediction.is_voting_open()
-        unique_together = ('user', 'prediction')  # biar 1 user cuma bisa vote 1 kali per prediction
 
     def __str__(self):
         return f"{self.user.username} voted {self.choice} on '{self.prediction.question}'"

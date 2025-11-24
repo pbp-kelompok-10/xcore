@@ -56,6 +56,7 @@ def submit_vote(request):
                 "message": "Kamu sudah vote! Mau ubah vote? Klik 'My Votes'"
             })
 
+        # buat objek vote baru
         vote = Vote.objects.create(
             user=request.user,
             prediction=prediction,

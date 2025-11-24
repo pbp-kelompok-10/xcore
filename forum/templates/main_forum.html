@@ -254,7 +254,15 @@
             <div class="feature-buttons">
                 <a href="{% url 'forum:forum_detail' id=match.id %}" class="btn-feature">💬 Forum</a>
                 <a href="{% url 'highlights:match_highlights' match_id=match.id %}" class="btn-feature">🎥 Highlight</a>
-                <a href="#" class="btn-feature vote-trigger" data-match-id="{{ match.id }}" data-home="{{ match.home_team }}" data-away="{{ match.away_team }}">⚽ Prediction</a>
+                <a href="#" 
+                class="btn-feature vote-trigger" 
+                data-match-id="{{ match.id }}" 
+                data-home="{{ match.home_team }}" 
+                data-away="{{ match.away_team }}" 
+                data-status="{{ match.status|lower }}"
+                data-date="{{ match.match_date|date:'c' }}">
+                ⚽ Prediction
+                </a>
                 <a href="{% url 'lineup:lineup-detail' match_id=match.id %}" class="btn-feature">👥 Lineup</a>
             </div>
         </div>
@@ -277,8 +285,58 @@
 </div>
 {% endblock %}
 
+{% include 'modal_po'
+
 {% block extra_js %}
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const pollPopup = document.getElementById("polling-popup");
+    const closeBtn = pollPopup?.querySelector(".popup-close-btn");
+    const teamHomeBtn = pollPopup?.querySelector(".team-home");
+    const teamAwayBtn = pollPopup?.querySelector(".team-away");
+    const popupTitle = pollPopup?.querySelector(".popup-title");
+    const popupSubtitle = pollPopup?.querySelector(".popup-subtitle");
+    const popupBody = pollPopup?.querySelector(".popup-body");
+
+    // buka modal dari tombol di statistik_display
+    document.querySelectorAll(".vote-trigger").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const matchId = btn.dataset.matchId;
+        const home = btn.dataset.home;
+        const away = btn.dataset.away;
+        const status = btn.dataset.status;
+        const matchDate = new Date(btn.dataset.date);
+        const now = new Date();
+
+        popupTitle.textContent = `Who will win: ${home} vs ${away}?`;
+        popupSubtitle.style.display = "block";
+        popupBody.innerHTML = `
+            <div class="team-buttons">
+            <button class="team-btn team-home" data-team="home">${home}</button>
+            <div class="vs-divider">VS</div>
+            <button class="team-btn team-away" data-team="away">${away}</button>
+            </div>
+        `;
+
+        // kalau udah live/finished, disable voting
+        if (status === "finished" || status === "live" || now > matchDate) {
+            popupBody.innerHTML = `
+            <div class="no-vote-message">The voting period has ended. Voting is not allowed for this match. Please go to Prediction to see your votes.</div>
+            `;
+        }
+
+        pollPopup.classList.remove("hidden");
+        });
+    });
+
+    // tombol close
+    closeBtn?.addEventListener("click", () => pollPopup.classList.add("hidden"));
+    pollPopup?.addEventListener("click", (e) => {
+        if (e.target === pollPopup) pollPopup.classList.add("hidden");
+    });
+    });
+
     const defaultProfilePic = "{% static 'forum/image/default_pp.jpg' %}";
     const forumId = "{{ forum.id }}";
     const currentUserId = "{{ user.id }}";
