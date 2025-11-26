@@ -1,194 +1,482 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="page">
-  <h2 style="margin-bottom:20px;text-align:center;color:#1e293b;">
-    {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
-  </h2>
-  
-  <!-- INFO MATCH DARI SCOREBOARD -->
-  <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #56BDA9;">
-    <h4 style="color:#3F6E7F; margin-top:0;">Informasi Pertandingan:</h4>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-      <div>
-        <strong>Tim Home:</strong> {{ match.home_team }}<br>
-        <strong>Tim Away:</strong> {{ match.away_team }}
-      </div>
-      <div>
-        <strong>Skor:</strong> {{ match.home_score }} - {{ match.away_score }}<br>
-        <strong>Stadion:</strong> {{ match.stadium }}
-      </div>
-    </div>
-  </div>
-  
-  <form method="POST">
-    {% csrf_token %}
-    
-    <!-- SEMBUNYIKAN field match karena sudah di-set dari scoreboard -->
-    <input type="hidden" name="match" value="{{ match.id }}">
 
-    <!-- FORM STATISTIK -->
-    <div class="form-section">
-      <h3 style="color:#3F6E7F;border-bottom:2px solid #56BDA9;padding-bottom:8px;">Statistik Pertandingan</h3>
-      
-      <div class="stats-grid">
-        <!-- Passes -->
-        <div class="stat-row">
-          <label>Passes</label>
-          <div class="stat-inputs">
-            {{ form.pass_home }}
-            <span>vs</span>
-            {{ form.pass_away }}
-          </div>
-        </div>
-        
-        <!-- Shots -->
-        <div class="stat-row">
-          <label>Total Shots</label>
-          <div class="stat-inputs">
-            {{ form.shoot_home }}
-            <span>vs</span>
-            {{ form.shoot_away }}
-          </div>
-        </div>
-        
-        <!-- Shots on Target -->
-        <div class="stat-row">
-          <label>Shots on Target</label>
-          <div class="stat-inputs">
-            {{ form.on_target_home }}
-            <span>vs</span>
-            {{ form.on_target_away }}
-          </div>
-        </div>
-        
-        <!-- Ball Possession -->
-        <div class="stat-row">
-          <label>Ball Possession (%)</label>
-          <div class="stat-inputs">
-            {{ form.ball_possession_home }}
-            <span>vs</span>
-            {{ form.ball_possession_away }}
-          </div>
-        </div>
-        
-        <!-- Cards & Others -->
-        <div class="stat-row">
-          <label>Yellow Cards</label>
-          <div class="stat-inputs">
-            {{ form.yellow_card_home }}
-            <span>vs</span>
-            {{ form.yellow_card_away }}
-          </div>
-        </div>
-        
-        <div class="stat-row">
-          <label>Red Cards</label>
-          <div class="stat-inputs">
-            {{ form.red_card_home }}
-            <span>vs</span>
-            {{ form.red_card_away }}
-          </div>
-        </div>
-        
-        <div class="stat-row">
-          <label>Offside</label>
-          <div class="stat-inputs">
-            {{ form.offside_home }}
-            <span>vs</span>
-            {{ form.offside_away }}
-          </div>
-        </div>
-        
-        <div class="stat-row">
-          <label>Corners</label>
-          <div class="stat-inputs">
-            {{ form.corner_home }}
-            <span>vs</span>
-            {{ form.corner_away }}
-          </div>
-        </div>
-      </div>
-    </div>
+{% block title %}{{ match.stadium }} - Statistik - Xcore{% endblock %}
 
-    <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
-      <button type="submit" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #56BDA9; color: white; border: none; border-radius: 8px;">
-        {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
-      </button>
-      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn" style="flex: 1; padding: 15px; font-size: 1.1em; background: #6c757d; color: white; text-align: center; border-radius: 8px; text-decoration: none;">
-        Batal
-      </a>
-    </div>
-  </form>
-</div>
-
+{% block extra_css %}
 <style>
-.form-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background: #f8f9fb;
-  border-radius: 12px;
-}
+    :root {
+        --primary-color: #1e423b;
+        --secondary-color: #56bda9;
+        --secondary-hover: #4daa96;
+        --light-bg: #eef8f6;
+        --white: #ffffff;
+        --text-dark: #333333;
+        --text-light: #666666;
+        --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        --error-color: #e74c3c;
+        --error-bg: #ffeaea;
+        --navbar-height: 60px; /* Estimasi tinggi navbar */
+        --footer-height: 60px; /* Estimasi tinggi footer */
+    }
 
-.stats-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-.stat-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  align-items: center;
-  gap: 20px;
-}
+    body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #f8fbfa 0%, #f0f7f5 100%);
+        color: var(--text-dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
 
-.stat-inputs {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
+    .field-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+        background-size: 60px 60px;
+        z-index: -1;
+        opacity: 0.3;
+    }
 
-.stat-inputs input {
-  width: 80px;
-  text-align: center;
-  padding: 10px 12px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
+    .content-wrapper {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-top: calc(var(--navbar-height) + 20px);
+        padding-bottom: calc(var(--footer-height) + 20px);
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-.stat-inputs input:focus {
-  outline: none;
-  border-color: #56BDA9;
-}
+    .page {
+        width: 100%;
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        padding: 20px;
+    }
 
-.stat-row label {
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 5px;
-  display: block;
-}
+    .page h2 {
+        text-align: center;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        font-size: 1.8em;
+        font-weight: 700;
+    }
 
-.btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  transition: all 0.2s;
-}
+    /* Match Info */
+    .match-info {
+        background: var(--light-bg);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        border-left: 4px solid var(--secondary-color);
+    }
 
-@media (max-width: 768px) {
-  .stat-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .stat-inputs {
-    justify-content: center;
-  }
-  
-  .button-group {
-    flex-direction: column;
-  }
-}
+    .match-info h4 {
+        color: var(--primary-color);
+        margin-top: 0;
+        font-size: 1.2em;
+        font-weight: 600;
+    }
+
+    .match-info div {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .match-info strong {
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    /* Form Section */
+    .form-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .form-section h3 {
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--secondary-color);
+        padding-bottom: 8px;
+        font-size: 1.4em;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .stat-row label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 15px;
+    }
+
+    .stat-inputs {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-inputs input {
+        width: 80px;
+        text-align: center;
+        padding: 10px 12px;
+        border: 2px solid var(--light-bg);
+        border-radius: 8px;
+        font-size: 14px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+        color: var(--text-dark);
+    }
+
+    .stat-inputs input:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        background-color: var(--white);
+        box-shadow: 0 0 0 3px rgba(86, 189, 169, 0.2);
+    }
+
+    .stat-inputs input:hover {
+        background-color: #e6f5f2;
+    }
+
+    .stat-inputs span {
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    /* Button Group */
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 15px;
+        font-size: 1.1em;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn:first-child {
+        background: var(--secondary-color);
+        color: var(--white);
+    }
+
+    .btn:first-child:hover {
+        background: var(--secondary-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn:last-child {
+        background: #6c757d;
+        color: var(--white);
+    }
+
+    .btn:last-child:hover {
+        background: #5c636a;
+        transform: translateY(-2px);
+    }
+
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .match-info div {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-row {
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+        }
+
+        .stat-inputs input {
+            width: 70px;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .field-pattern {
+            opacity: 0.2;
+        }
+
+        .page h2 {
+            font-size: 1.5em;
+        }
+
+        .match-info h4 {
+            font-size: 1.1em;
+        }
+
+        .stat-row label {
+            font-size: 14px;
+        }
+
+        .stat-inputs input {
+            width: 60px;
+            font-size: 13px;
+        }
+
+        .btn {
+            font-size: 1em;
+            padding: 12px;
+        }
+    }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="field-pattern"></div>
+
+<div class="content-wrapper">
+    <div class="page">
+        <h2>
+            {% if action %}{{ action }}{% else %}Tambah{% endif %} Statistik untuk: {{ match.home_team }} vs {{ match.away_team }}
+        </h2>
+
+        <!-- INFO MATCH -->
+        <div class="match-info">
+            <h4>Informasi Pertandingan:</h4>
+            <div>
+                <div>
+                    <strong>Tim Home:</strong> {{ match.home_team }}<br>
+                    <strong>Tim Away:</strong> {{ match.away_team }}
+                </div>
+                <div>
+                    <strong>Skor:</strong> {{ match.home_score }} - {{ match.away_score }}<br>
+                    <strong>Stadion:</strong> {{ match.stadium }}
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="statistik-form">
+            {% csrf_token %}
+            <input type="hidden" name="match" value="{{ match.id }}">
+
+            <!-- FORM STATISTIK -->
+            <div class="form-section">
+                <h3>Statistik Pertandingan</h3>
+                <div class="stats-grid">
+                    <!-- Passes -->
+                    <div class="stat-row">
+                        <label>Passes</label>
+                        <div class="stat-inputs">
+                            {{ form.pass_home }}
+                            <span>vs</span>
+                            {{ form.pass_away }}
+                        </div>
+                    </div>
+                    <!-- Shots -->
+                    <div class="stat-row">
+                        <label>Total Shots</label>
+                        <div class="stat-inputs">
+                            {{ form.shoot_home }}
+                            <span>vs</span>
+                            {{ form.shoot_away }}
+                        </div>
+                    </div>
+                    <!-- Shots on Target -->
+                    <div class="stat-row">
+                        <label>Shots on Target</label>
+                        <div class="stat-inputs">
+                            {{ form.on_target_home }}
+                            <span>vs</span>
+                            {{ form.on_target_away }}
+                        </div>
+                    </div>
+                    <!-- Ball Possession -->
+                    <div class="stat-row">
+                        <label>Ball Possession (%)</label>
+                        <div class="stat-inputs">
+                            {{ form.ball_possession_home }}
+                            <span>vs</span>
+                            {{ form.ball_possession_away }}
+                        </div>
+                    </div>
+                    <!-- Cards & Others -->
+                    <div class="stat-row">
+                        <label>Yellow Cards</label>
+                        <div class="stat-inputs">
+                            {{ form.yellow_card_home }}
+                            <span>vs</span>
+                            {{ form.yellow_card_away }}
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <label>Red Cards</label>
+                        <div class="stat-inputs">
+                            {{ form.red_card_home }}
+                            <span>vs</span>
+                            {{ form.red_card_away }}
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <label>Offside</label>
+                        <div class="stat-inputs">
+                            {{ form.offside_home }}
+                            <span>vs</span>
+                            {{ form.offside_away }}
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <label>Corners</label>
+                        <div class="stat-inputs">
+                            {{ form.corner_home }}
+                            <span>vs</span>
+                            {{ form.corner_away }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn" id="submit-btn">
+                    {% if action == 'Update' %}Update{% else %}Simpan{% endif %} Statistik
+                </button>
+                <a href="{% url 'statistik:statistik_display' match.id %}" class="btn">Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('statistik-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Show loading state
+        submitBtn.innerHTML = 'Loading...';
+        submitBtn.style.opacity = '0.7';
+        submitBtn.disabled = true;
+
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => (data[key] = value));
+
+        console.log("Submitting data:", data);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': data.csrfmiddlewaretoken,
+            },
+            body: JSON.stringify(data),
+        })
+        .then((response) => response.json())
+        .then((result) => {
+            console.log("Server response:", result);
+            
+            if (result.status === 'success') {
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
+                    showToast('Sukses', result.message, 'success');
+                } else {
+                    // Fallback jika showToast tidak ada
+                    alert('Sukses: ' + result.message);
+                }
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 1500);
+            } else {
+                let errorMessage = result.message || 'Terjadi kesalahan';
+                // Tampilkan error detail jika ada
+                if (result.errors) {
+                    errorMessage += '\n\nDetail Error:';
+                    for (const field in result.errors) {
+                        errorMessage += `\n• ${field}: ${result.errors[field].join(', ')}`;
+                    }
+                }
+                
+                // Gunakan showToast dari base.html
+                if (typeof showToast === 'function') {
+                    showToast('Error', errorMessage, 'error');
+                } else {
+                    // Fallback jika showToast tidak ada
+                    alert('Error: ' + errorMessage);
+                }
+                
+                submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+                submitBtn.style.opacity = '1';
+                submitBtn.disabled = false;
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            
+            // Gunakan showToast dari base.html
+            if (typeof showToast === 'function') {
+                showToast('Error', 'Terjadi kesalahan jaringan: ' + error.message, 'error');
+            } else {
+                // Fallback jika showToast tidak ada
+                alert('Error: Terjadi kesalahan jaringan');
+            }
+            
+            submitBtn.innerHTML = '{% if action == "Update" %}Update{% else %}Simpan{% endif %} Statistik';
+            submitBtn.style.opacity = '1';
+            submitBtn.disabled = false;
+        });
+    });
+});
+</script>
 {% endblock %}

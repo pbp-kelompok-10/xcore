@@ -1,190 +1,475 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Teams</title>
-  <style>
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f9fafb;
-      color: #1e293b;
-      margin: 0;
-      padding: 40px;
-    }
+{% extends 'base.html' %}
+{% load static %}
 
-    .page {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+{% block title %}Teams - Xcore{% endblock %}
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #3F6E7F;
-      text-align: center;
-    }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .btn {
-      display: inline-block;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background-color 0.2s, transform 0.15s;
-      border: none;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .btn-add {
-      background-color: #56BDA9;
-      color: white;
-    }
-
-    .btn-add:hover {
-      background-color: #48a692;
-    }
-
-    .btn-back {
-      background-color: #3F6E7F;
-      color: white;
-    }
-
-    .btn-back:hover {
-      background-color: #2d5566;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    li {
-      background: #f8fafc;
-      padding: 18px 20px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s, transform 0.15s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    li:hover {
-      background: #f1f5f9;
-      transform: translateY(-1px);
-    }
-
-    li a.card-link {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-    }
-
-    .team-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 2;
-    }
-
-    .team-name {
-      font-weight: 600;
-      color: #1e293b;
-      font-size: 1.05rem;
-    }
-
-    .team-actions {
-      display: flex;
-      gap: 8px;
-      z-index: 2;
-    }
-
-    .btn-edit {
-      background-color: #2563eb;
-      color: white;
-      position: relative;
-      z-index: 3;
-    }
-
-    .btn-edit:hover {
-      background-color: #1e40af;
-    }
-
-    .empty {
-      text-align: center;
-      color: #64748b;
-      margin-top: 40px;
-      font-style: italic;
-    }
-
-    @media (max-width: 600px) {
-      .page {
-        padding: 20px;
-      }
-
-      .actions {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      li {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .team-actions {
-        margin-top: 10px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="page">
-    <h1>Teams</h1>
-
-    <div class="actions">
-      <a href="{% url 'lineup:team-create' %}" class="btn btn-add">+ Add New Team</a>
-      <a href="/" class="btn btn-back">← Back</a>
+{% block content %}
+<div class="container-xcore">
+  <!-- Header -->
+  <div class="prediction-header fade-in text-center">
+    <div>
+      <h1 class="prediction-title">Teams</h1>
+      <p class="prediction-subtitle">Discover all the teams in Xcore!</p>
     </div>
+  </div>
 
-    {% if teams %}
-      <ul>
+  <!-- Actions -->
+  <div class="tab-navigation-wrapper fade-in">
+    <div class="tab-group-left">
+      <a href="/scoreboard/" class="tab-btn btn-back">← Back</a>
+    </div>
+    {% if request.user.is_admin %}
+    <div class="tab-group-right">
+      <a href="{% url 'lineup:team-create' %}" class="tab-btn btn-add">+ Add New Team</a>
+      <button class="tab-btn btn-upload" onclick="openModal()">⬆️ Upload ZIP</button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- White Box for Team List -->
+    <div class="white-box">
+      {% if teams %}
+      <ul class="teams-grid">
         {% for team in teams %}
-        <li>
+        <li class="team-card fade-in">
           <a href="{% url 'lineup:team-detail' team.pk %}" class="card-link" aria-label="Open team details"></a>
           <div class="team-info">
+            <img src="https://flagcdn.com/24x18/{{ team.code }}.png" alt="{{ team.name }} flag">
             <div class="team-name">{{ team.name }}</div>
           </div>
+          {% if request.user.is_admin %}
           <div class="team-actions">
-            <a href="{% url 'lineup:team-update' team.pk %}" class="btn btn-edit">Edit</a>
+            <a href="{% url 'lineup:team-update' team.pk %}" class="btn-edit">✏️ Edit</a>
           </div>
+          {% endif %}
         </li>
         {% endfor %}
       </ul>
-    {% else %}
-      <p class="empty">No teams found.</p>
-    {% endif %}
+      {% else %}
+      <div class="empty-state-dynamic fade-in">
+        <div class="empty-icon">📭</div>
+        <h3 class="empty-title">No teams found</h3>
+        <p class="empty-message">Check back later!</p>
+      </div>
+      {% endif %}
+    </div>
   </div>
-</body>
-</html>
+
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="modal">
+    <div class="modal-content">
+      <h2 class="modal-title">Upload Teams (ZIP)</h2>
+      <form id="uploadForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="zipFile" name="file" accept=".zip" required>
+        <div class="modal-actions">
+          <button type="submit" class="btn-vote">Upload</button>
+          <button type="button" class="btn-vote close-btn" onclick="closeModal()">Cancel</button>
+        </div>
+      </form>
+      <p id="uploadStatus"></p>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ============================================
+   TEAMS STYLES (Aligned with Prediction Center and Players List)
+   ============================================ */
+
+:root {
+  --green-light: #eef8f6;
+  --green-normal: #56bda9;
+  --green-dark: #418e7f;
+  --green-darker: #1e423b;
+  --white-light: #ffffff;
+  --white-normal: #fcfdfd;
+  --white-dark: #f9fafb;
+  --blue-normal: #546881;
+  --blue-dark: #1d242d;
+  --navbar-height: 64px;
+  --footer-height: 60px;
+}
+
+.container-xcore {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: var(--navbar-height);
+  padding-bottom: 60px;
+  font-family: 'Poppins', sans-serif;
+  min-height: calc(100vh - var(--navbar-height) - var(--footer-height));
+}
+
+.prediction-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 3rem 0 2rem 0;
+  text-align: center !important;
+}
+
+.prediction-title {
+  font-size: 2.5rem;
+  color: var(--green-darker) !important;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  text-align: center !important;
+}
+
+.prediction-subtitle {
+  color: var(--blue-normal) !important;
+  font-size: 1.1rem;
+  text-align: center !important;
+}
+
+.content-wrapper {
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.tab-navigation-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background-color: transparent !important; 
+  box-shadow: none !important;
+}
+
+.tab-group-left, .tab-group-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tab-btn {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+  color: var(--white-light) !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+}
+
+.tab-btn.btn-back {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+}
+
+.tab-btn.btn-back:hover {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+}
+
+.tab-btn.btn-add {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+}
+
+.tab-btn.btn-add:hover {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+}
+
+.tab-btn.btn-upload {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark)) !important;
+}
+
+.tab-btn.btn-upload:hover {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-normal)) !important;
+}
+
+.white-box {
+  background: var(--white-normal);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.teams-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.team-card {
+  background: var(--white-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.team-card a.card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 2;
+}
+
+.team-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--green-darker);
+}
+
+.team-actions {
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  color: var(--white-light);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue-normal));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(84, 104, 129, 0.4);
+}
+
+.empty-state-dynamic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--white-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: var(--blue-normal);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-title {
+  font-size: 1.8rem;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+}
+
+.empty-message {
+  font-size: 1.2rem;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: var(--white-light);
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--green-darker);
+  margin-bottom: 1rem;
+}
+
+.modal-content input[type="file"] {
+  display: block;
+  margin: 1rem auto;
+  color: var(--blue-dark);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.btn-vote {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-vote:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+}
+
+.btn-vote.close-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.btn-vote.close-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+#uploadStatus {
+  margin-top: 1rem;
+  color: var(--blue-normal);
+  font-size: 0.9rem;
+}
+
+.fade-in {
+  animation: fade-in 0.5s ease-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .container-xcore {
+    width: 90%;
+    padding: var(--navbar-height) 1rem 2rem;
+  }
+
+  .prediction-title {
+    font-size: 2rem;
+  }
+
+  .tab-navigation-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-group-left, .tab-group-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .teams-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .team-actions {
+    margin-top: 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .btn-vote {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+</style>
+
+<script>
+  // --- Modal handlers ---
+  function openModal() {
+    document.getElementById("uploadModal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("uploadModal").style.display = "none";
+    document.getElementById("uploadStatus").textContent = "";
+  }
+
+  // --- Handle upload via AJAX ---
+  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById("zipFile");
+    const status = document.getElementById("uploadStatus");
+
+    if (!fileInput.files.length) {
+      status.textContent = "Please select a ZIP file first.";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    status.textContent = "Uploading...";
+
+    const response = await fetch("{% url 'lineup:upload-teams' %}", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+    if (result.status === "ok") {
+      status.style.color = "green";
+      status.textContent = `✅ Uploaded ${result.created.length} new teams. Skipped ${result.skipped.length}.`;
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      status.style.color = "red";
+      status.textContent = "❌ Upload failed: " + (result.error || "Unknown error");
+    }
+  });
+</script>
+{% endblock %}

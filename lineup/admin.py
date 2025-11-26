@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Team, Player, Lineup
 
-# --- PLAYER INLINE (for Teams) ---
+# --- PLAYER INLINE ---
 class PlayerInline(admin.TabularInline):
     model = Player
     extra = 1

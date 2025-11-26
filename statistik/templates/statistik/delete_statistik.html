@@ -1,28 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="page">
-  <div style="max-width: 500px; margin: 50px auto; text-align: center; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-    <h2 style="color: #e74c3c; margin-bottom: 20px;">Hapus Statistik</h2>
-    
-    <div style="background: #ffeaea; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-      <h4 style="color: #c0392b; margin-top: 0;">Apakah Anda yakin ingin menghapus statistik ini?</h4>
-      <p style="color: #7f8c8d; margin-bottom: 0;">
-        <strong>Pertandingan:</strong> {{ match.home_team }} vs {{ match.away_team }}<br>
-        <strong>Tanggal:</strong> {{ match.match_date|date:"d F Y" }}
-      </p>
-    </div>
 
-    <form method="POST">
-      {% csrf_token %}
-      <div style="display: flex; gap: 15px; justify-content: center;">
-        <button type="submit" style="padding: 12px 30px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
-          Ya, Hapus
-        </button>
-        <a href="{% url 'statistik:statistik_display' match.id %}" style="padding: 12px 30px; background: #95a5a6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
-          Batal
-        </a>
-      </div>
-    </form>
+<div class="page" style="max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 16px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);">
+  <h2 style="text-align:center;color:#e74c3c;margin-bottom:25px;font-size:1.8em;font-weight:700;">Hapus Statistik</h2>
+
+  <div style="background:#fef2f2; padding:25px; border-radius:12px; border-left:4px solid #e74c3c; margin-bottom:30px;">
+    <h4 style="color:#dc2626;margin-top:0;margin-bottom:15px;font-size:1.2em;font-weight:600;">Konfirmasi Penghapusan</h4>
+    <p style="margin-bottom:10px;color:#333;font-size:1em;">Anda yakin ingin menghapus statistik untuk pertandingan:</p>
+    <p style="margin:15px 0;font-size:1.3em;font-weight:700;color:#1e293b;"><strong>{{ match.home_team }} vs {{ match.away_team }}</strong></p>
+    <p style="color:#ef4444;font-size:14px;margin-top:15px;">Tindakan ini tidak dapat dibatalkan!</p>
   </div>
+
+  <form method="POST" id="delete-form">
+    {% csrf_token %}
+    <div style="display:flex;gap:15px;justify-content:center;align-items:center;margin-top:25px;flex-wrap:wrap;">
+      <button type="submit" class="btn-delete-confirm" style="padding:12px 30px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;transition:all 0.3s ease;">
+        Ya, Hapus Statistik
+      </button>
+      <a href="{% url 'statistik:statistik_display' match.id %}" class="btn-cancel" style="padding:12px 30px;background:#6c757d;color:white;text-decoration:none;border-radius:8px;font-weight:600;font-size:1em;transition:all 0.3s ease;display:inline-block;">
+        Batal
+      </a>
+    </div>
+  </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('delete-form');
+  const btn = document.querySelector('.btn-delete-confirm');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Show loading state
+    btn.innerHTML = 'Menghapus...';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(result => {
+      if (result.status === 'success') {
+        showToast('Sukses', result.message, 'success');
+        setTimeout(() => {
+          window.location.href = result.redirect_url;
+        }, 1500);
+      } else {
+        showToast('Error', result.message, 'error');
+        btn.innerHTML = 'Ya, Hapus Statistik';
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }
+    })
+    .catch(() => {
+      showToast('Error', 'Terjadi kesalahan jaringan', 'error');
+      btn.innerHTML = 'Ya, Hapus Statistik';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    });
+  });
+});
+</script>
+
 {% endblock %}

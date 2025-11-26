@@ -1,344 +1,731 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Scoreboard - Xcore{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --primary-color: #28574E;
-        --secondary-color: #56BDA9;
-        --light-bg: #f4f6f7;
-        --white: #ffffff;
-        --text-dark: #333333;
-        --text-light: #888888;
+    /* Minimal Football Background Elements */
+    .football-elements {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
     }
 
-    body {
-        background-color: var(--light-bg);
-        color: var(--text-dark);
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
+    .football-element {
+        position: absolute;
+        opacity: 0.03;
+        animation: float 20s infinite ease-in-out;
     }
 
-    /* === DATE HEADER === */
+    .hexagon {
+        width: 80px;
+        height: 46px;
+        background: var(--green-darker);
+        position: relative;
+        border-radius: 4px;
+    }
+
+    .hexagon:before,
+    .hexagon:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        border-left: 40px solid transparent;
+        border-right: 40px solid transparent;
+    }
+
+    .hexagon:before {
+        bottom: 100%;
+        border-bottom: 23px solid var(--green-darker);
+    }
+
+    .hexagon:after {
+        top: 100%;
+        border-top: 23px solid var(--green-darker);
+    }
+
+    .circle {
+        border-radius: 50%;
+        background: var(--green-normal);
+    }
+
+    .line {
+        background: var(--green-darker);
+        height: 2px;
+    }
+
+    .element-1 {
+        top: 15%;
+        left: 8%;
+        animation-delay: 0s;
+    }
+
+    .element-2 {
+        top: 70%;
+        right: 10%;
+        animation-delay: 5s;
+    }
+
+    .element-3 {
+        bottom: 25%;
+        left: 20%;
+        animation-delay: 10s;
+    }
+
+    .element-4 {
+        top: 35%;
+        right: 15%;
+        animation-delay: 3s;
+    }
+
+    .element-5 {
+        bottom: 15%;
+        right: 8%;
+        animation-delay: 7s;
+    }
+
+    .element-6 {
+        top: 60%;
+        left: 5%;
+        animation-delay: 12s;
+    }
+
+    .field-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+        background-size: 60px 60px;
+        z-index: -2;
+        opacity: 0.3;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        33% {
+            transform: translate(20px, 15px) rotate(120deg);
+        }
+        66% {
+            transform: translate(-10px, 25px) rotate(240deg);
+        }
+    }
+
+    /* Header */
+    .scoreboard-header {
+        text-align: center;
+        margin: 3rem 0 2.5rem 0;
+    }
+
+    .scoreboard-header h1 {
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        color: var(--green-darker);
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .scoreboard-header p {
+        color: var(--blue-normal);
+        font-size: 1.15rem;
+        font-weight: 500;
+    }
+
+    /* Add Button */
+    .add-button-container {
+        text-align: center;
+        margin: 2rem 0 3rem 0;
+    }
+
+    .btn-add-match {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(86, 189, 169, 0.35);
+    }
+
+    .btn-add-match:hover {
+        background: linear-gradient(135deg, var(--green-normal-hover), var(--green-dark-hover));
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(86, 189, 169, 0.45);
+    }
+
+    /* Date Section */
     .date-section {
-        margin: 25px 0 15px 0;
+        margin-bottom: 3rem;
     }
 
     .date-header {
+        background: linear-gradient(135deg, var(--white-light), var(--green-light));
+        border: 2px solid var(--green-light-active);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
         text-align: center;
-        color: var(--primary-color);
-        font-weight: 600;
-        font-size: 18px;
-        background-color: white;
-        padding: 12px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 900px;
-        margin: 0 auto 20px auto;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    /* === SCOREBOARD CONTAINER === */
-    .container {
-        width: 90%;
-        max-width: 900px;
-        margin: 20px auto;
-    }
-
-    /* === MATCH CARDS === */
-    .match-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .match-link:hover .match-card {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
-    }
-
-    .match-card {
-        background: var(--white);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin-bottom: 15px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 18px 25px;
         position: relative;
-        transition: transform 0.3s, box-shadow 0.3s, background-color 0.2s;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+        width: 50%;
+        display: flex;
+        justify-content: center; 
+        align-items: center;    
+        margin: 20px auto;    
     }
 
-    .edit-button {
+    .date-header::before {
+        content: "";
         position: absolute;
-        top: 10px;
-        right: 15px;
-        background-color: var(--secondary-color);
-        color: white;
-        text-decoration: none;
-        padding: 6px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 14px;
-        z-index: 10;
-        transition: background-color 0.3s, transform 0.2s;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--green-normal), var(--green-dark));
     }
 
-    .edit-button:hover {
-        background-color: var(--primary-color);
-        transform: scale(1.05);
+    .date-header h2 {
+        color: var(--green-darker);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Matches Container */
+    .matches-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Match Card Wrapper */
+    .match-card-wrapper {
+        position: relative;
+    }
+
+    /* Match Card */
+    .match-card {
+        background: var(--white-light);
+        border: 2px solid var(--green-light);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+
+        width: 80%;
+        display: flex;
+        justify-content: center; 
+        align-items: center;    
+        margin: 20px auto;          
+    }
+
+    .match-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--green-normal), var(--green-dark));
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
     }
 
     .match-card:hover {
-        background-color: #f8f9fa;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(86, 189, 169, 0.2);
+        border-color: var(--green-normal);
     }
 
-    .team {
+    .match-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    /* Match Content */
+    .match-content {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    /* Team Section */
+    .team-section {
         display: flex;
         align-items: center;
-        width: 35%;
-        z-index: 1;
+        gap: 1rem;
     }
 
-    .team img {
-        width: 36px;
-        height: 36px;
+    .team-section.away {
+        justify-content: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .team-flag {
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        margin-right: 12px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         object-fit: cover;
-        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 3px solid var(--white-light);
+        transition: transform 0.3s ease;
+    }
+
+    .match-card:hover .team-flag {
+        transform: scale(1.1);
     }
 
     .team-name {
-        font-weight: 600;
-        font-size: 16px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--green-darker);
     }
 
+    .team-section.away .team-name {
+        text-align: right;
+    }
+
+    /* Score Section */
     .score-section {
         text-align: center;
-        width: 30%;
-        z-index: 1;
+        padding: 1.5rem;
+        background: var(--green-light);
+        border-radius: 12px;
+        border: 2px solid var(--green-light-active);
     }
 
-    .score {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .ft {
-        font-size: 12px;
-        color: var(--text-light);
-        margin: 0 5px;
-    }
-
-    .match-info {
-        font-size: 13px;
-        color: var(--text-light);
-        margin-top: 5px;
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
     }
 
     .status-upcoming {
-        color: #e67e22;
-        font-weight: 600;
+        background: linear-gradient(135deg, #FEF3C7, #FCD34D);
+        color: #92400E;
+        box-shadow: 0 2px 8px rgba(252, 211, 77, 0.3);
     }
 
     .status-live {
-        color: #e74c3c;
-        font-weight: 600;
+        background: linear-gradient(135deg, #FCA5A5, #EF4444);
+        color: var(--white-light);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        animation: pulse-live 2s infinite;
     }
 
     .status-finished {
-        color: #27ae60;
+        background: linear-gradient(135deg, #BFDBFE, #60A5FA);
+        color: #1E3A8A;
+        box-shadow: 0 2px 8px rgba(96, 165, 250, 0.3);
+    }
+
+    @keyframes pulse-live {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+    }
+
+    .score-display {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 0.75rem;
+        letter-spacing: 2px;
+    }
+
+    .score-display .vs-text {
+        font-size: 2rem;
+        color: var(--blue-normal);
         font-weight: 600;
     }
 
-    /* === ADD BUTTON === */
-    .add-button {
-        display: block;
-        width: 220px;
-        margin: 25px auto;
-        padding: 12px;
-        background-color: var(--secondary-color);
-        color: white;
+    .ft-indicator {
+        color: var(--blue-normal);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0.5rem;
+    }
+
+    /* Match Info */
+    .match-info {
+        color: var(--blue-normal);
+        font-size: 0.95rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+
+    .match-info-row {
+        margin: 0.25rem 0;
+    }
+
+    /* Action Buttons Container */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Edit Button */
+    .btn-edit-match {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        color: var(--white-light);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
         text-decoration: none;
-        text-align: center;
-        border-radius: 8px;
         font-weight: 600;
-        transition: background-color 0.3s, transform 0.2s;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(84, 104, 129, 0.3);
     }
 
-    .add-button:hover {
-        background-color: var(--primary-color);
+    .btn-edit-match:hover {
+        background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
         transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(84, 104, 129, 0.45);
     }
 
-    /* === NO MATCHES === */
-    .no-matches {
-        text-align: center;
-        padding: 40px;
-        color: var(--text-light);
-        font-style: italic;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        margin: 20px 0;
-    }
-
-    /* === FOOTER === */
-    .footer {
-        text-align: center;
-        padding: 20px;
-        margin-top: 30px;
-        color: var(--text-light);
-        font-size: 14px;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    /* === FORUM BUTTON === */
-    .forum-button {
-        display: inline-block;
-        color: #28574E;
-        font-weight: 600;
+    /* Forum Button */
+    .btn-forum {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--white-dark);
+        color: var(--green-darker);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
         text-decoration: none;
-        font-size: 14px;
-        margin: 5px 0 20px auto;
-        text-align: right;
-        display: block;
-        width: fit-content;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: 2px solid var(--green-light-active);
     }
 
-    .forum-button:hover {
-        text-decoration: underline;
-        color: #1e4039;
+    .btn-forum:hover {
+        background: var(--green-light);
+        border-color: var(--green-normal);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.2);
     }
 
-    /* === RESPONSIVE === */
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: var(--white-light);
+        border-radius: 16px;
+        border: 2px dashed var(--green-light-active);
+        margin: 3rem 0;
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        color: var(--green-darker);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state p {
+        color: var(--blue-normal);
+        font-size: 1.05rem;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .match-card {
-            flex-direction: column;
-            padding: 15px;
+        .match-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
-        
-        .team {
+
+        .score-section {
+            order: -1;
+        }
+
+        .team-section {
+            justify-content: center;
+        }
+
+        .team-section.away {
+            justify-content: center;
+            flex-direction: row;
+        }
+
+        .team-section.away .team-name {
+            text-align: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-edit-match,
+        .btn-forum {
             width: 100%;
             justify-content: center;
-            margin-bottom: 10px;
-        }
-        
-        .score-section {
-            width: 100%;
-            order: -1;
-            margin-bottom: 15px;
-        }
-        
-        .team:last-child {
-            margin-bottom: 0;
         }
 
-        .team img {
-            width: 32px;
-            height: 32px;
+        .match-card {
+            padding: 1.5rem;
         }
 
-        .search-bar input {
-            width: 80%;
+        .team-flag {
+            width: 50px;
+            height: 50px;
         }
+
+        .team-name {
+            font-size: 1.05rem;
+        }
+
+        .score-display {
+            font-size: 2rem;
+        }
+
+        .football-element {
+            opacity: 0.02;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .field-pattern {
+            opacity: 0.2;
+        }
+
+        .football-element {
+            display: none;
+        }
+
+        .scoreboard-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .date-header {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .date-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .match-card {
+            padding: 1.25rem;
+        }
+
+        .score-display {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Background Elements -->
+<div class="football-elements">
+    <div class="field-pattern"></div>
+    <div class="football-element element-1 hexagon"></div>
+    <div class="football-element element-2 circle" style="width: 60px; height: 60px;"></div>
+    <div class="football-element element-3 circle" style="width: 30px; height: 30px;"></div>
+    <div class="football-element element-4 hexagon"></div>
+    <div class="football-element element-5 circle" style="width: 45px; height: 45px;"></div>
+    <div class="football-element element-6 line" style="width: 120px;"></div>
+</div>
 
-<div class="container">
-    <a href="{% url 'scoreboard:add_match' %}" class="add-button">+ Tambah Pertandingan</a>
+<div class="container-xcore">
+    <!-- Header -->
+    <div class="scoreboard-header fade-in">
+        <h1>⚽ Scoreboard</h1>
+        <p>Live Football Scores & Match Statistics</p>
+    </div>
 
+    <!-- Add Button (Admin Only) -->
+    {% if user.is_authenticated and user.is_admin %}
+    <div class="add-button-container">
+        <a href="{% url 'scoreboard:add_match' %}" class="btn-add-match">
+            ➕ Add New Match
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Matches by Date -->
     {% if matches_by_date %}
         {% for match_date, matches in matches_by_date.items %}
-        <div class="date-section">
-            <div class="date-header">{{ match_date|date:"l, d F Y" }}</div>
+        <div class="date-section fade-in">
+            <div class="date-header">
+                <h2>📅 {{ match_date|date:"l, d F Y" }}</h2>
+            </div>
 
-            {% for match in matches %}
-                {% if match.status == 'upcoming' %}
-                    <div class="match-link" onclick="window.location.href='{% url 'scoreboard:prediction' match.id %}'">
-                {% elif match.statistics.all %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:statistik_display' match.id %}'">
-                {% else %}
-                    <div class="match-link" onclick="window.location.href='{% url 'statistik:add_statistik' match.id %}'">
-                {% endif %}
-                        <div class="match-card">
-                            <a href="{% url 'scoreboard:update_score' match.id %}" class="edit-button">Edit Pertandingan</a>
-
-                            <div class="team">
-                                <img src="https://flagcdn.com/w40/{{ match.home_team_code }}.png"
+            <div class="matches-container">
+                {% for match in matches %}
+                <div class="match-card-wrapper">
+                    <!-- Match Card -->
+                    <div class="match-card" onclick="handleMatchClick('{{ match.status }}', '{{ match.id }}', {{ match.statistics.all|length }})">
+                        <div class="match-content">
+                            <!-- Home Team -->
+                            <div class="team-section home">
+                                <img src="https://flagcdn.com/w80/{{ match.home_team_code }}.png"
                                      alt="{{ match.home_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                     class="team-flag"
+                                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
                                 <div class="team-name">{{ match.home_team }}</div>
                             </div>
 
+                            <!-- Score Section -->
                             <div class="score-section">
-                                <div class="score">
+                                <!-- Status Badge -->
+                                {% if match.status == 'upcoming' %}
+                                    <div class="status-badge status-upcoming">Upcoming</div>
+                                {% elif match.status == 'live' %}
+                                    <div class="status-badge status-live">● Live</div>
+                                {% else %}
+                                    <div class="status-badge status-finished">Finished</div>
+                                {% endif %}
+
+                                <!-- Score Display -->
+                                <div class="score-display">
                                     {% if match.status == 'upcoming' %}
-                                        - : -
+                                        <div class="score-display">
+                                            <span class="vs-text">N/A</span>
+                                        </div>
                                     {% else %}
-                                        {{ match.home_score }} <span class="ft">FT</span> {{ match.away_score }}
+                                        <div class="score-display">
+                                            {{ match.home_score }}
+                                            <span class="ft-indicator">FT</span>
+                                            {{ match.away_score }}
+                                        </div>
                                     {% endif %}
                                 </div>
+
+                                <!-- Match Info -->
                                 <div class="match-info">
-                                    {% if match.status == 'upcoming' %}
-                                        <span class="status-upcoming">UPCOMING</span>
-                                    {% elif match.status == 'live' %}
-                                        <span class="status-live">LIVE</span>
-                                    {% else %}
-                                        <span class="status-finished">FINISHED</span>
-                                    {% endif %}
-                                    <br>
-                                    {{ match.round|default:"Round" }} · {{ match.group|default:"Group" }}<br>
-                                    {{ match.stadium }}
+                                    <div class="match-info-row">{{ match.round|default:"Round" }} • {{ match.group|default:"Group" }}</div>
+                                    <div class="match-info-row">🏟️ {{ match.stadium }}</div>
                                 </div>
                             </div>
 
-                            <div class="team" style="justify-content: flex-end;">
-                                <div class="team-name">{{ match.away_team }}</div>
-                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png"
+                            <!-- Away Team -->
+                            <div class="team-section away">
+                                <img src="https://flagcdn.com/w80/{{ match.away_team_code }}.png"
                                      alt="{{ match.away_team }}"
-                                     onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                                     class="team-flag"
+                                     onerror="this.src='https://flagcdn.com/w80/unknown.png'">
+                                <div class="team-name">{{ match.away_team }}</div>
                             </div>
                         </div>
                     </div>
 
-                {% if match.status != 'upcoming' %}
-                    <a href="{% url 'forum:forum_detail' match.id %}" class="forum-button">💬 Buka Forum</a>
-                {% endif %}
-            {% endfor %}
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <!-- Edit Button (Admin Only) -->
+                        {% if user.is_authenticated and user.is_admin %}
+                        <a href="{% url 'scoreboard:update_score' match.id %}" class="btn-edit-match" onclick="event.stopPropagation();">
+                            ✏️ Edit Match
+                        </a>
+                        {% endif %}
+
+                        <!-- Forum Button (For Finished Matches) -->
+                        {% if match.status != 'upcoming' %}
+                        <a href="{% url 'forum:forum_detail' match.id %}" class="btn-forum" onclick="event.stopPropagation();">
+                            💬 Discussion Forum
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endfor %}
     {% else %}
-        <div class="no-matches">
-            <p>Belum ada pertandingan yang ditambahkan.</p>
-            <p>Klik tombol "Tambah Pertandingan" untuk menambahkan pertandingan pertama Anda.</p>
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">⚽</div>
+            <h3>No Matches Available</h3>
+            <p>Start by adding your first match using the button above.</p>
         </div>
     {% endif %}
-</div>
-
-<div class="footer">
-    &copy; 2024 Xcore Scoreboard. All rights reserved.
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Prevent edit-button click from triggering parent card click
-    document.querySelectorAll('.edit-button').forEach(btn => {
+    // Handle match card click
+    function handleMatchClick(status, matchId, hasStatistics) {
+        if (status === 'upcoming') {
+            window.location.href = "{% url 'prediction:list' %}";
+        } else if (hasStatistics > 0) {
+            window.location.href = `/statistik/${matchId}/`;
+        } else {
+            window.location.href = `/statistik/add/${matchId}/`;
+        }
+    }
+
+    // Prevent buttons from triggering card click
+    document.querySelectorAll('.btn-edit-match, .btn-forum').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
+        });
+    });
+
+    // Staggered fade-in animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.match-card-wrapper');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
         });
     });
 </script>
