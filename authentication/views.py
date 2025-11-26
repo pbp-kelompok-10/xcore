@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+# Tambahkan di imports
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 # Get your custom user model - this is IMPORTANT!
 CustomUser = get_user_model()
@@ -127,3 +131,72 @@ def register_api(request):
         "message": "Registration failed.",
         "errors": errors
     }, status=400)
+
+
+# Tambahkan setelah fungsi yang ada
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_info(request):
+    """
+    Get current user information including admin status
+    """
+    user = request.user
+    return JsonResponse({
+        "status": True,
+        "user": {
+            "username": user.username,
+            "email": user.email,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_admin": user.is_staff or user.is_superuser
+        }
+    })
+
+@csrf_exempt
+def login_with_token(request):
+    """
+    Modified login that returns token for Flutter
+    """
+    if request.method != "POST":
+        return JsonResponse({
+            "status": False,
+            "message": "Only POST requests are allowed."
+        }, status=405)
+    
+    form = AuthenticationForm(request, data=request.POST)
+
+    if form.is_valid():
+        user = form.get_user()
+
+        if user is not None and user.is_active:
+            auth_login(request, user)
+            
+            # Get or create token for the user
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return JsonResponse({
+                "status": True,
+                "username": user.username,
+                "token": token.key,
+                "user_info": {
+                    "username": user.username,
+                    "email": user.email,
+                    "is_staff": user.is_staff,
+                    "is_superuser": user.is_superuser,
+                    "is_admin": user.is_staff or user.is_superuser
+                },
+                "message": "Login successful!"
+            }, status=200)
+        else:
+            return JsonResponse({
+                "status": False,
+                "message": "Account is disabled."
+            }, status=401)
+
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "Login failed.",
+            "errors": form.errors  
+        }, status=401)
