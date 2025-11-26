@@ -85,14 +85,31 @@ def login(request):
         }, status=401)
 
 @csrf_exempt
-@login_required
-def logout(request):
+def logout(request):  # HAPUS @login_required
+    """
+    Custom logout view that returns JSON
+    """
     if request.method == "POST":
-        auth_logout(request)
-        return JsonResponse({
-            "status": True,
-            "message": "Logout successful!"
-        }, status=200)
+        print("🔄 Processing logout request...")
+        
+        # Check if user is actually logged in
+        if request.user.is_authenticated:
+            username = request.user.username
+            auth_logout(request)
+            print(f"✅ User {username} logged out successfully")
+            
+            return JsonResponse({
+                "status": True,
+                "message": "Logout successful!",
+                "username": username
+            }, status=200)
+        else:
+            # User already logged out or not authenticated
+            print("ℹ️ User was not logged in")
+            return JsonResponse({
+                "status": True,
+                "message": "User was not logged in."
+            }, status=200)
     else:
         return JsonResponse({
             "status": False,
