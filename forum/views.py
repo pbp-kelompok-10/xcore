@@ -186,6 +186,9 @@ def get_posts_flutter(request, forum_id):
             }
             posts_data.append(post_data)
         
+        # debugging line
+        print(f"DEBUG: User is_authenticated = {request.user.is_authenticated}, User is_admin = {getattr(request.user, 'is_admin', False) if request.user.is_authenticated else 'N/A'}")
+        
         return JsonResponse({
             'posts': posts_data,
             'user_id': request.user.id if request.user.is_authenticated else None,
@@ -275,7 +278,7 @@ def delete_post_flutter(request, forum_id, post_id):
         post = Post.objects.get(id=post_id, forum=forum)
         
         # Check if user is the author (sementara skip auth untuk development)
-        if request.user != post.author:
+        if request.user != post.author and not getattr(request.user, "is_admin", False):
             return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
         
         post.delete()
