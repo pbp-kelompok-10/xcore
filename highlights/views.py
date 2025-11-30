@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
 from scoreboard.models import Match
 from .forms import HighlightForm
 from .models import Highlight
-
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 def highlight_detail(request, match_id):
     
@@ -98,3 +99,85 @@ def highlight_delete(request, match_id):
     highlight.delete()
     messages.success(request, "Highlight berhasil dihapus.")
     return redirect('highlights:match_highlights', match_id=match.id)
+
+def api_highlight_detail(request, match_id):
+    match = get_object_or_404(Match, id=match_id)
+    highlight = getattr(match, "highlight", None)
+
+    return JsonResponse({
+        "match": {
+            "id": match.id,
+            "home_team": match.home_team,
+            "away_team": match.away_team,
+            "home_team_code": match.home_team_code,
+            "away_team_code": match.away_team_code,
+            "home_score": match.home_score,
+            "away_score": match.away_score,
+            "match_date": match.match_date.isoformat(),
+            "stadium": match.stadium,
+            "round": match.round,
+            "group": match.group,
+            "status": match.status,
+        },
+        "highlight": {
+            "id": highlight.id if highlight else None,
+            "video": highlight.video if highlight else None,
+        }
+    })
+
+@csrf_exempt
+def api_highlight_create(request, match_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    match = get_object_or_404(Match, id=match_id)
+
+    # Prevent duplicate
+    if hasattr(match, "highlight"):
+        return JsonResponse({"error": "Highlight already exists"}, status=400)
+
+    body = json.loads(request.body.decode("utf-8"))
+    video_url = body.get("video", "")
+
+    highlight = Highlight.objects.create(match=match, video=video_url)
+
+    return JsonResponse({
+        "id": highlight.id,
+        "match_id": match.id,
+        "video": highlight.video,
+    })
+
+@csrf_exempt
+def api_highlight_update(request, match_id):
+    if request.method not in ["POST", "PUT"]:
+        return JsonResponse({"error": "POST or PUT required"}, status=405)
+
+    match = get_object_or_404(Match, id=match_id)
+    highlight = get_object_or_404(Highlight, match=match)
+
+    body = json.loads(request.body.decode("utf-8"))
+    video_url = body.get("video", "")
+
+    highlight.video = video_url
+    highlight.save()
+
+    return JsonResponse({
+        "id": highlight.id,
+        "match_id": match.id,
+        "video": highlight.video,
+    })
+
+@csrf_exempt
+def api_highlight_delete(request, match_id):
+    if request.method != "DELETE":
+        return JsonResponse({"error": "DELETE required"}, status=405)
+
+    match = get_object_or_404(Match, id=match_id)
+    highlight = get_object_or_404(Highlight, match=match)
+
+    highlight.delete()
+
+    return JsonResponse({"success": True})
+
+
+
