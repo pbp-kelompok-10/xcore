@@ -98,11 +98,12 @@ def get_posts(request, forum_id):
             }
             for post in posts
         ]
-
+        
         return JsonResponse({
             'posts': posts_data,
             'user_id': request.user.id if request.user.is_authenticated else None,
             'user_is_authenticated': request.user.is_authenticated,
+            'user_is_admin': getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
         }, status=200)
 
     except Forum.DoesNotExist:
@@ -111,11 +112,18 @@ def get_posts(request, forum_id):
 @require_POST
 def delete_post(request, forum_id, post_id):  
     try:
-        post = Post.objects.get(id=post_id, forum_id=forum_id, author=request.user)
+        # Dapatkan post tanpa filter author dulu
+        post = Post.objects.get(id=post_id, forum_id=forum_id)
+        
+        # Cek apakah user adalah author ATAU admin
+        is_admin = getattr(request.user, "is_admin", False)
+        if request.user != post.author and not is_admin:
+            return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
+        
         post.delete()
-        return JsonResponse({'message': 'Post deleted successfully!'})
+        return JsonResponse({'message': 'Post deleted successfully!'}, status=200)
     except Post.DoesNotExist:
-        return JsonResponse({'error': 'Post not found or unauthorized.'}, status=404)
+        return JsonResponse({'error': 'Post not found.'}, status=404)
     
     
 @require_POST
@@ -133,7 +141,7 @@ def edit_post(request, forum_id, post_id):
         post.is_edited = True
         post.save()
         
-        return JsonResponse({'message': 'Post updated successfully!'})
+        return JsonResponse({'message': 'Post updated successfully!'}, status = 200)
     except Post.DoesNotExist:
         return JsonResponse({'error': 'Post not found or unauthorized.'}, status=404)
     
@@ -172,7 +180,7 @@ def get_posts_flutter(request, forum_id):
                 'author_name': post.author.username,
                 'author_picture': post.author.profile_picture.url if post.author.profile_picture else None,
                 'message': post.message,
-                'creaated_at': post.created_at.isoformat(),  # Perhatikan typo disini
+                'created_at': post.created_at.isoformat(), 
                 'is_edited': post.is_edited,
                 'edited_at': post.edited_at.isoformat() if post.edited_at else None,
             }
@@ -182,27 +190,24 @@ def get_posts_flutter(request, forum_id):
     except Forum.DoesNotExist:
         return JsonResponse({'error': 'Forum not found.'}, status=404)
 
-# Add new post
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_post_flutter(request, forum_id):
     try:
-        data = json.loads(request.body)
-        message = data.get('message', '').strip()
+        # Cek autentikasi user
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated. Please login first.'}, status=401)
+        
+        # Ambil data dari POST (form data) 
+        message = request.POST.get('message', '').strip()
         
         if not message:
             return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
         
         forum = Forum.objects.get(id=forum_id)
         
-        # Untuk sementara, gunakan user pertama atau authenticated user
-        if request.user.is_authenticated:
-            author = request.user
-        else:
-            # Fallback untuk development - gunakan user pertama
-            author = CustomUser.objects.first()
-            if not author:
-                return JsonResponse({'error': 'No users available.'}, status=400)
+        # Gunakan user yang sedang login
+        author = request.user
         
         post = Post.objects.create(
             forum=forum,
@@ -218,8 +223,6 @@ def add_post_flutter(request, forum_id):
         
     except Forum.DoesNotExist:
         return JsonResponse({'error': 'Forum not found.'}, status=404)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -228,20 +231,21 @@ def add_post_flutter(request, forum_id):
 @require_http_methods(["POST"])
 def edit_post_flutter(request, forum_id, post_id):
     try:
-        data = json.loads(request.body)
-        new_message = data.get('message', '').strip()
+        # Ambil data dari POST (form data) 
+        new_message = request.POST.get('message', '').strip()
         
         if not new_message:
             return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
         
         forum = Forum.objects.get(id=forum_id)
         post = Post.objects.get(id=post_id, forum=forum)
+        new_date = timezone.now()
         
-        # Check if user is the author (sementara skip auth untuk development)
-        # if request.user != post.author:
-        #     return JsonResponse({'error': 'Not authorized to edit this post.'}, status=403)
+        if request.user != post.author:
+            return JsonResponse({'error': 'Not authorized to edit this post.'}, status=403)
         
         post.message = new_message
+        post.edited_at = new_date
         post.is_edited = True
         post.save()
         
@@ -266,8 +270,8 @@ def delete_post_flutter(request, forum_id, post_id):
         post = Post.objects.get(id=post_id, forum=forum)
         
         # Check if user is the author (sementara skip auth untuk development)
-        # if request.user != post.author:
-        #     return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
+        if request.user != post.author:
+            return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
         
         post.delete()
         

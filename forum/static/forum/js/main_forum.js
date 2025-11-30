@@ -162,15 +162,27 @@ $(document).ready(function () {
             type: "GET",
             success: function(response) {
                 $('#postsContainer').empty();
-                
+            
+
                 if (response.posts && response.posts.length > 0) {
                     response.posts.forEach(function(post) {
                         let deleteButton = '';
                         let editButton = '';
                         
-                        if (response.user_is_authenticated && response.user_id == post.author_id) {
-                            deleteButton = `<button class="btn btn-danger btn-sm delete-post" data-post-id="${post.id}">Delete</button>`;
-                            editButton = `<button class="btn btn-secondary btn-sm edit-post" data-post-id="${post.id}">Edit</button>`;
+                        if (response.user_is_authenticated) {
+                            // Admin bisa delete semua post
+                            if (response.user_is_admin) {
+                                deleteButton = `<button class="btn btn-danger btn-sm delete-post" data-post-id="${post.id}">Delete</button>`;
+                            }
+                            
+                            // User (termasuk admin) bisa edit dan delete post mereka sendiri
+                            if (response.user_id == post.author_id) {
+                                editButton = `<button class="btn btn-secondary btn-sm edit-post" data-post-id="${post.id}">Edit</button>`;
+                                // Hanya tambahkan delete button jika belum ada dari kondisi admin
+                                if (!deleteButton) {
+                                    deleteButton = `<button class="btn btn-danger btn-sm delete-post" data-post-id="${post.id}">Delete</button>`;
+                                }
+                            }
                         }
 
                         let postInfo = '';
