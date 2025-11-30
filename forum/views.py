@@ -186,7 +186,15 @@ def get_posts_flutter(request, forum_id):
             }
             posts_data.append(post_data)
         
-        return JsonResponse({'posts': posts_data}, status=200)
+        
+        print("status user:", getattr(request.user, "is_admin", False) if request.user.is_authenticated else False)
+        
+        return JsonResponse({
+            'posts': posts_data,
+            'user_id': request.user.id if request.user.is_authenticated else None,
+            'user_is_authenticated': request.user.is_authenticated,
+            'user_is_admin': getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
+        }, status=200)
     except Forum.DoesNotExist:
         return JsonResponse({'error': 'Forum not found.'}, status=404)
 
