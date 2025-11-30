@@ -186,9 +186,6 @@ def get_posts_flutter(request, forum_id):
             }
             posts_data.append(post_data)
         
-        
-        print("status user:", getattr(request.user, "is_admin", False) if request.user.is_authenticated else False)
-        
         return JsonResponse({
             'posts': posts_data,
             'user_id': request.user.id if request.user.is_authenticated else None,
