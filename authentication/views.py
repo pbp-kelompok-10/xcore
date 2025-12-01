@@ -218,3 +218,25 @@ def login_with_token(request):
             "message": "Login failed.",
             "errors": form.errors  
         }, status=401)
+        
+def status_admin(request):
+    """
+    Check if the current user is admin
+    """
+    
+    if request.user.is_authenticated:
+        is_admin = getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
+        
+        # Jika is_admin adalah tuple, ambil elemen pertama
+        if isinstance(is_admin, tuple):
+            is_admin = is_admin[0]  # Ambil True/False dari tuple
+            
+        return JsonResponse({
+            "status": True,
+            "is_admin": is_admin
+        }, status=200)
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "User is not authenticated."
+        }, status=401)
