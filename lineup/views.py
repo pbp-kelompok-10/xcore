@@ -141,6 +141,88 @@ class LineupDetailView(DetailView):
         })
         return context
 
+# API untuk Flutter - Get Lineup by Match
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupDetailView(View):
+    def get(self, request, match_id):
+        try:
+            match = get_object_or_404(Match, pk=match_id)
+            
+            home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
+            away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
+            
+            # Serialize match data
+            match_data = {
+                'id': str(match.id),
+                'home_team': match.home_team,
+                'away_team': match.away_team,
+                'home_team_code': match.home_team_code,
+                'away_team_code': match.away_team_code,
+                'home_score': match.home_score,
+                'away_score': match.away_score,
+                'match_date': match.match_date.isoformat(),
+                'stadium': match.stadium,
+                'round': match.round,
+                'group': match.group,
+                'status': match.status,
+            }
+            
+            # Serialize home lineup
+            home_lineup_data = None
+            if home_lineup:
+                home_lineup_data = {
+                    'id': str(home_lineup.id),
+                    'team': {
+                        'id': str(home_lineup.team.id),
+                        'name': home_lineup.team.name,
+                        'code': home_lineup.team.code,
+                    },
+                    'players': [
+                        {
+                            'id': str(player.id),
+                            'nama': player.nama,
+                            'asal': player.asal,
+                            'umur': player.umur,
+                            'nomor': player.nomor,
+                            'tim': str(player.tim.id),
+                        }
+                        for player in home_lineup.players.all()
+                    ]
+                }
+            
+            # Serialize away lineup
+            away_lineup_data = None
+            if away_lineup:
+                away_lineup_data = {
+                    'id': str(away_lineup.id),
+                    'team': {
+                        'id': str(away_lineup.team.id),
+                        'name': away_lineup.team.name,
+                        'code': away_lineup.team.code,
+                    },
+                    'players': [
+                        {
+                            'id': str(player.id),
+                            'nama': player.nama,
+                            'asal': player.asal,
+                            'umur': player.umur,
+                            'nomor': player.nomor,
+                            'tim': str(player.tim.id),
+                        }
+                        for player in away_lineup.players.all()
+                    ]
+                }
+            
+            response_data = {
+                'match': match_data,
+                'home_lineup': home_lineup_data,
+                'away_lineup': away_lineup_data,
+            }
+            
+            return JsonResponse(response_data)
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 class LineupCreateView(SuperuserRequiredMixin, CreateView):
     model = Lineup
@@ -205,6 +287,47 @@ class LineupCreateView(SuperuserRequiredMixin, CreateView):
 
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupCreateView(View):
+    def post(self, request, match_id):
+        try:
+            data = json.loads(request.body)
+            match = get_object_or_404(Match, pk=match_id)
+            team_code = data.get('team_code')
+            player_ids = data.get('players', [])
+            
+            if not team_code:
+                return JsonResponse({'error': 'Team code is required'}, status=400)
+            
+            if len(player_ids) != 11:
+                return JsonResponse({'error': 'Must have exactly 11 players'}, status=400)
+            
+            team = get_object_or_404(Team, code=team_code)
+            
+            # Check if lineup already exists
+            existing_lineup = Lineup.objects.filter(match=match, team=team).first()
+            if existing_lineup:
+                return JsonResponse({'error': 'Lineup already exists for this team'}, status=400)
+            
+            # Create new lineup
+            lineup = Lineup.objects.create(match=match, team=team)
+            
+            # Add players
+            players = Player.objects.filter(id__in=player_ids, tim=team)
+            if players.count() != 11:
+                lineup.delete()
+                return JsonResponse({'error': 'Invalid players or players do not belong to the team'}, status=400)
+            
+            lineup.players.set(players)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup created successfully',
+                'lineup_id': str(lineup.id)
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Lineup
@@ -255,6 +378,31 @@ class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
 
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
+class FlutterLineupUpdateView(View):
+    def put(self, request, lineup_id):
+        try:
+            data = json.loads(request.body)
+            player_ids = data.get('players', [])
+            
+            if len(player_ids) != 11:
+                return JsonResponse({'error': 'Must have exactly 11 players'}, status=400)
+            
+            lineup = get_object_or_404(Lineup, pk=lineup_id)
+            
+            # Update players
+            players = Player.objects.filter(id__in=player_ids, tim=lineup.team)
+            if players.count() != 11:
+                return JsonResponse({'error': 'Invalid players or players do not belong to the team'}, status=400)
+            
+            lineup.players.set(players)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup updated successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Lineup
@@ -273,6 +421,21 @@ class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['match'] = Match.objects.get(pk=self.kwargs['match_id'])
         return context
+
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupDeleteView(View):
+    def delete(self, request, lineup_id):
+        try:
+            lineup = get_object_or_404(Lineup, pk=lineup_id)
+            lineup.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup deleted successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 COUNTRY_MAP = {name: code for code, name in COUNTRY_CHOICES}
 
