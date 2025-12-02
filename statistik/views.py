@@ -5,6 +5,85 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Statistik
 from .forms import StatistikForm
+from scoreboard.models import Match
+
+def statistik_json(request, match_id):
+    """API untuk Flutter - Get statistik dalam format JSON"""
+    match = get_object_or_404(Match, id=match_id)
+    statistik = Statistik.objects.filter(match=match).first()
+    
+    if not statistik:
+        return JsonResponse({'error': 'Statistik not found'}, status=404)
+    
+    data = {
+        'id': str(statistik.id),
+        'match_id': str(match.id),
+        'home_team': match.home_team,
+        'away_team': match.away_team,
+        'home_score': match.home_score,
+        'away_score': match.away_score,
+        
+        # SESUAIKAN DENGAN MODEL YANG ADA
+        'home_shots': statistik.shoot_home,
+        'away_shots': statistik.shoot_away,
+        'home_shots_on_target': statistik.on_target_home,
+        'away_shots_on_target': statistik.on_target_away,
+        'home_corners': statistik.corner_home,
+        'away_corners': statistik.corner_away,
+        'home_yellow_cards': statistik.yellow_card_home,
+        'away_yellow_cards': statistik.yellow_card_away,
+        'home_red_cards': statistik.red_card_home,
+        'away_red_cards': statistik.red_card_away,
+        'home_offsides': statistik.offside_home,
+        'away_offsides': statistik.offside_away,
+        'home_passes': statistik.pass_home,
+        'away_passes': statistik.pass_away,
+        
+        # Ball possession sebagai persen (pastikan di model sudah dalam bentuk persen)
+        'home_possession': float(statistik.ball_possession_home),
+        'away_possession': float(statistik.ball_possession_away),
+        
+        'match_date': match.match_date.isoformat(),
+        'stadium': match.stadium,
+    }
+    
+    return JsonResponse(data)
+
+def statistik_list_json(request):
+    """API untuk Flutter - Get semua statistik"""
+    statistik_list = Statistik.objects.select_related('match').all()
+    
+    data = []
+    for statistik in statistik_list:
+        match = statistik.match
+        data.append({
+            'id': str(statistik.id),
+            'match_id': str(match.id),
+            'home_team': match.home_team,
+            'away_team': match.away_team,
+            'home_score': match.home_score,
+            'away_score': match.away_score,
+            'home_shots': statistik.shoot_home,
+            'away_shots': statistik.shoot_away,
+            'home_shots_on_target': statistik.on_target_home,
+            'away_shots_on_target': statistik.on_target_away,
+            'home_corners': statistik.corner_home,
+            'away_corners': statistik.corner_away,
+            'home_yellow_cards': statistik.yellow_card_home,
+            'away_yellow_cards': statistik.yellow_card_away,
+            'home_red_cards': statistik.red_card_home,
+            'away_red_cards': statistik.red_card_away,
+            'home_offsides': statistik.offside_home,
+            'away_offsides': statistik.offside_away,
+            'home_passes': statistik.pass_home,
+            'away_passes': statistik.pass_away,
+            'home_possession': float(statistik.ball_possession_home),  # sebagai persen
+            'away_possession': float(statistik.ball_possession_away),  # sebagai persen
+            'match_date': match.match_date.isoformat(),
+            'stadium': match.stadium,
+        })
+    
+    return JsonResponse(data, safe=False)
 
 def add_statistik(request, match_id):
     from scoreboard.models import Match
