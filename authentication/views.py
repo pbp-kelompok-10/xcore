@@ -221,22 +221,33 @@ def login_with_token(request):
         
 def status_admin(request):
     """
-    Check if the current user is admin
+    Check if the current user is admin - FIXED VERSION
     """
+    print("=== STATUS_ADMIN CALLED ===")
+    print(f"User: {request.user}")
+    print(f"Authenticated: {request.user.is_authenticated}")
     
-    if request.user.is_authenticated:
-        is_admin = getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
-        
-        # Jika is_admin adalah tuple, ambil elemen pertama
-        if isinstance(is_admin, tuple):
-            is_admin = is_admin[0]  # Ambil True/False dari tuple
-            
-        return JsonResponse({
-            "status": True,
-            "is_admin": is_admin
-        }, status=200)
-    else:
+    if not request.user.is_authenticated:
         return JsonResponse({
             "status": False,
             "message": "User is not authenticated."
         }, status=401)
+    
+    # FIX: Hapus koma di akhir!
+    is_admin = getattr(request.user, "is_admin", False)
+    
+    # Atau lebih baik:
+    is_admin = request.user.is_staff or request.user.is_superuser
+    
+    print(f"User is_staff: {request.user.is_staff}")
+    print(f"User is_superuser: {request.user.is_superuser}")
+    print(f"Final is_admin: {is_admin}")
+    
+    return JsonResponse({
+        "status": True,
+        "is_admin": is_admin,  # boolean, bukan tuple!
+        "username": request.user.username,
+        "is_staff": request.user.is_staff,
+        "is_superuser": request.user.is_superuser,
+        "debug": "Fixed version without comma bug"
+    })
