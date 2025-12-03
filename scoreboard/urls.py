@@ -1,5 +1,9 @@
 from django.urls import path, include
-from scoreboard.views import scoreboard_list,add_match, update_score, delete_match, scoreboard_json, add_match_json
+from scoreboard.views import (
+    scoreboard_list, add_match, update_score, delete_match, 
+    scoreboard_json, add_match_json, 
+    add_match_flutter, edit_match_flutter 
+) 
 from prediction.views import prediction_list
 from statistik.views import statistik_display
 
@@ -15,4 +19,6 @@ urlpatterns = [
     path('delete/<uuid:match_id>/', delete_match, name='delete_match'),
     path('json/', scoreboard_json, name='scoreboard_json'),
     path('add-json/', add_match_json, name='add_match_json'),
+    path('add_match_flutter/', add_match_flutter, name='add_match_flutter'),
+    path('edit_match_flutter/<uuid:match_id>/', edit_match_flutter, name='edit_match_flutter'),
 ]
