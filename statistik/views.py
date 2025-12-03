@@ -259,3 +259,233 @@ def statistik_display(request, match_id):
         'statistik': statistik,
     }
     return render(request, 'statistik/statistik_display.html', context)
+
+# ========== BARU: FLUTTER CRUD ENDPOINTS - SESUAI MODEL ==========
+@csrf_exempt
+def create_statistik_flutter(request):
+    """BARU: Create statistik dari Flutter - SESUAI MODEL"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print(f"BARU: Received create data: {data}")
+            
+            # Get match object
+            try:
+                match_id = data.get('match')
+                match = Match.objects.get(id=match_id)
+            except Match.DoesNotExist:
+                return JsonResponse({
+                    "status": False,
+                    "message": f"Match with id {match_id} not found"
+                }, status=404)
+            
+            # Check if statistik already exists for this match
+            if Statistik.objects.filter(match=match).exists():
+                return JsonResponse({
+                    "status": False,
+                    "message": "Statistik already exists for this match"
+                }, status=400)
+            
+            # Create new statistik - SESUAI DENGAN MODEL Statistik
+            statistik = Statistik.objects.create(
+                match=match,
+                # Field dari model Statistik
+                pass_home=data.get('home_passes', 0),
+                pass_away=data.get('away_passes', 0),
+                shoot_home=data.get('home_shots', 0),
+                shoot_away=data.get('away_shots', 0),
+                on_target_home=data.get('home_shots_on_target', 0),
+                on_target_away=data.get('away_shots_on_target', 0),
+                ball_possession_home=float(data.get('home_possession', 50.0)),
+                ball_possession_away=float(data.get('away_possession', 50.0)),
+                red_card_home=data.get('home_red_cards', 0),
+                red_card_away=data.get('away_red_cards', 0),
+                yellow_card_home=data.get('home_yellow_cards', 0),
+                yellow_card_away=data.get('away_yellow_cards', 0),
+                offside_home=data.get('home_offsides', 0),
+                offside_away=data.get('away_offsides', 0),
+                corner_home=data.get('home_corners', 0),
+                corner_away=data.get('away_corners', 0),
+            )
+            
+            return JsonResponse({
+                "status": True,
+                "message": "Statistik created successfully",
+                "statistik_id": str(statistik.id)
+            }, status=201)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                "status": False,
+                "message": "Invalid JSON data"
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                "status": False,
+                "message": f"Error creating statistik: {str(e)}"
+            }, status=400)
+    
+    return JsonResponse({
+        "status": False,
+        "message": "Only POST method allowed"
+    }, status=405)
+
+@csrf_exempt
+def update_statistik_flutter(request, match_id):
+    """BARU: Update statistik dari Flutter - SESUAI MODEL"""
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            print(f"BARU: Updating statistik for match {match_id} with data: {data}")
+            
+            # Get statistik by match_id
+            try:
+                statistik = Statistik.objects.get(match_id=match_id)
+            except Statistik.DoesNotExist:
+                return JsonResponse({
+                    "status": False,
+                    "message": f"Statistik not found for match {match_id}"
+                }, status=404)
+            
+            # Update fields - SESUAI DENGAN MODEL Statistik
+            statistik.pass_home = data.get('home_passes', statistik.pass_home)
+            statistik.pass_away = data.get('away_passes', statistik.pass_away)
+            statistik.shoot_home = data.get('home_shots', statistik.shoot_home)
+            statistik.shoot_away = data.get('away_shots', statistik.shoot_away)
+            statistik.on_target_home = data.get('home_shots_on_target', statistik.on_target_home)
+            statistik.on_target_away = data.get('away_shots_on_target', statistik.on_target_away)
+            statistik.ball_possession_home = float(data.get('home_possession', statistik.ball_possession_home))
+            statistik.ball_possession_away = float(data.get('away_possession', statistik.ball_possession_away))
+            statistik.red_card_home = data.get('home_red_cards', statistik.red_card_home)
+            statistik.red_card_away = data.get('away_red_cards', statistik.red_card_away)
+            statistik.yellow_card_home = data.get('home_yellow_cards', statistik.yellow_card_home)
+            statistik.yellow_card_away = data.get('away_yellow_cards', statistik.yellow_card_away)
+            statistik.offside_home = data.get('home_offsides', statistik.offside_home)
+            statistik.offside_away = data.get('away_offsides', statistik.offside_away)
+            statistik.corner_home = data.get('home_corners', statistik.corner_home)
+            statistik.corner_away = data.get('away_corners', statistik.corner_away)
+            
+            statistik.save()
+            
+            return JsonResponse({
+                "status": True,
+                "message": "Statistik updated successfully"
+            }, status=200)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                "status": False,
+                "message": "Invalid JSON data"
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                "status": False,
+                "message": f"Error updating statistik: {str(e)}"
+            }, status=400)
+    
+    return JsonResponse({
+        "status": False,
+        "message": "Only PUT method allowed"
+    }, status=405)
+
+@csrf_exempt
+def delete_statistik_flutter(request, match_id):
+    """BARU: Delete statistik dari Flutter"""
+    if request.method == 'DELETE':
+        try:
+            print(f"BARU: Deleting statistik for match {match_id}")
+            
+            # Get statistik by match_id
+            try:
+                statistik = Statistik.objects.get(match_id=match_id)
+            except Statistik.DoesNotExist:
+                return JsonResponse({
+                    "status": False,
+                    "message": f"Statistik not found for match {match_id}"
+                }, status=404)
+            
+            statistik.delete()
+            
+            return JsonResponse({
+                "status": True,
+                "message": "Statistik deleted successfully"
+            }, status=200)
+            
+        except Exception as e:
+            return JsonResponse({
+                "status": False,
+                "message": f"Error deleting statistik: {str(e)}"
+            }, status=400)
+    
+    return JsonResponse({
+        "status": False,
+        "message": "Only DELETE method allowed"
+    }, status=405)
+
+# BARU: Get user info untuk cek admin status
+@csrf_exempt
+def get_user_info(request):
+    """BARU: Get current user information including admin status"""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "status": False,
+            "message": "User not authenticated"
+        }, status=401)
+    
+    user = request.user
+    return JsonResponse({
+        "status": True,
+        "user": {
+            "username": user.username,
+            "email": user.email,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_admin": user.is_staff or user.is_superuser
+        }
+    })
+
+# BARU: Login dengan return user info
+@csrf_exempt
+def login_with_token(request):
+    """BARU: Modified login that returns user info"""
+    from django.contrib.auth import login as auth_login
+    from django.contrib.auth.forms import AuthenticationForm
+    
+    if request.method != "POST":
+        return JsonResponse({
+            "status": False,
+            "message": "Only POST requests are allowed."
+        }, status=405)
+    
+    form = AuthenticationForm(request, data=request.POST)
+
+    if form.is_valid():
+        user = form.get_user()
+
+        if user is not None and user.is_active:
+            auth_login(request, user)
+            
+            return JsonResponse({
+                "status": True,
+                "username": user.username,
+                "user_info": {
+                    "username": user.username,
+                    "email": user.email,
+                    "is_staff": user.is_staff,
+                    "is_superuser": user.is_superuser,
+                    "is_admin": user.is_staff or user.is_superuser
+                },
+                "message": "Login successful!"
+            }, status=200)
+        else:
+            return JsonResponse({
+                "status": False,
+                "message": "Account is disabled."
+            }, status=401)
+
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "Login failed.",
+            "errors": form.errors  
+        }, status=401)
