@@ -2,19 +2,17 @@ import io
 import json
 import zipfile
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy,reverse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Team, Player, Lineup, COUNTRY_CHOICES
-from .forms import LineupForm, TeamForm, PlayerInlineFormSet
+from .forms import LineupForm, TeamForm
 from scoreboard.models import Match
 from django.contrib import messages
-from django.forms import modelform_factory
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
 from django import forms
 from django.shortcuts import get_object_or_404
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -577,3 +575,294 @@ def get_players_for_team(request):
         return JsonResponse({'players': data})
     except Team.DoesNotExist:
         return JsonResponse({'players': []})
+
+from django.views.decorators.http import require_http_methods
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+
+@csrf_exempt
+def api_team_list(request):
+    """GET = list teams, POST = create team"""
+    if request.method == "GET":
+        teams = Team.objects.all().order_by("name")
+        data = [
+            {"id": t.id, "code": t.code, "name": t.name}
+            for t in teams
+        ]
+        return JsonResponse({"teams": data})
+
+    elif request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            code = body.get("code")
+            if code not in dict(COUNTRY_CHOICES):
+                return JsonResponse({"error": "Invalid country code"}, status=400)
+
+            team, created = Team.objects.get_or_create(code=code)
+            team.save()
+
+            return JsonResponse({
+                "id": team.id,
+                "code": team.code,
+                "name": team.name
+            }, status=201)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def api_team_detail(request, team_id):
+    """GET, PUT/PATCH, DELETE on a specific team"""
+    try:
+        team = Team.objects.get(pk=team_id)
+    except Team.DoesNotExist:
+        return JsonResponse({"error": "Team not found"}, status=404)
+
+    if request.method == "GET":
+        return JsonResponse({
+            "id": team.id,
+            "code": team.code,
+            "name": team.name,
+            "players": [
+                {
+                    "id": p.id,
+                    "nama": p.nama,
+                    "nomor": p.nomor,
+                    "umur": p.umur,
+                    "asal": p.asal
+                }
+                for p in team.players.all()
+            ]
+        })
+
+    elif request.method in ["PUT", "PATCH"]:
+        body = json.loads(request.body)
+        code = body.get("code")
+
+        if code and code in dict(COUNTRY_CHOICES):
+            team.code = code
+            team.save()
+        else:
+            return JsonResponse({"error": "Invalid country code"}, status=400)
+
+        return JsonResponse({"success": True})
+
+    elif request.method == "DELETE":
+        team.delete()
+        return JsonResponse({"deleted": True})
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def api_player_list(request):
+    """GET = list players, POST = create player"""
+    if request.method == "GET":
+        players = Player.objects.all().order_by("nama")
+        data = [
+            {
+                "id": p.id,
+                "nama": p.nama,
+                "asal": p.asal,
+                "umur": p.umur,
+                "nomor": p.nomor,
+                "team_id": p.tim.id,
+                "team_name": p.tim.name,
+            }
+            for p in players
+        ]
+        return JsonResponse({"players": data})
+
+    elif request.method == "POST":
+        try:
+            body = json.loads(request.body)
+
+            team_id = body.get("team_id")
+            nama = body.get("nama")
+            asal = body.get("asal", "")
+            umur = body.get("umur", 0)
+            nomor = body.get("nomor")
+
+            if not all([team_id, nama, nomor]):
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            team = Team.objects.get(pk=team_id)
+
+            player = Player.objects.create(
+                nama=nama,
+                asal=asal,
+                umur=umur,
+                nomor=nomor,
+                tim=team
+            )
+
+            return JsonResponse({"id": player.id}, status=201)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+def api_player_detail(request, player_id):
+    """GET, PUT/PATCH, DELETE specific player"""
+    try:
+        player = Player.objects.get(pk=player_id)
+    except Player.DoesNotExist:
+        return JsonResponse({"error": "Player not found"}, status=404)
+
+    if request.method == "GET":
+        return JsonResponse({
+            "id": player.id,
+            "nama": player.nama,
+            "asal": player.asal,
+            "umur": player.umur,
+            "nomor": player.nomor,
+            "team_id": player.tim.id,
+            "team_name": player.tim.name,
+        })
+
+    elif request.method in ["PUT", "PATCH"]:
+        body = json.loads(request.body)
+
+        player.nama = body.get("nama", player.nama)
+        player.asal = body.get("asal", player.asal)
+        player.umur = body.get("umur", player.umur)
+        player.nomor = body.get("nomor", player.nomor)
+
+        team_id = body.get("team_id")
+        if team_id:
+            player.tim = Team.objects.get(pk=team_id)
+
+        player.save()
+        return JsonResponse({"success": True})
+
+    elif request.method == "DELETE":
+        player.delete()
+        return JsonResponse({"deleted": True})
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_upload_teams(request):
+    zip_file = request.FILES.get('file')
+
+    if not zip_file:
+        return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+    created, skipped = [], []
+
+    try:
+        with zipfile.ZipFile(zip_file) as zf:
+            for filename in zf.namelist():
+                if not filename.endswith('.json'):
+                    continue
+
+                with zf.open(filename) as f:
+                    data = json.load(f)
+                    country_name = data.get('negara')
+
+                    if not country_name:
+                        skipped.append(filename)
+                        continue
+
+                    code = COUNTRY_MAP.get(country_name)
+                    if not code:
+                        skipped.append(filename)
+                        continue
+
+                    team, was_created = Team.objects.get_or_create(code=code)
+                    if was_created:
+                        created.append(team.name)
+                    else:
+                        skipped.append(team.name)
+
+        return JsonResponse({
+            "status": "ok",
+            "created": created,
+            "skipped": skipped
+        })
+
+    except zipfile.BadZipFile:
+        return JsonResponse({'error': 'Invalid ZIP file'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_upload_players(request):
+    zip_file = request.FILES.get('file')
+
+    if not zip_file:
+        return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+    added, skipped, missing_team, invalid = [], [], [], []
+
+    try:
+        with zipfile.ZipFile(zip_file) as zf:
+            for filename in zf.namelist():
+                if not filename.endswith('.json'):
+                    continue
+
+                with zf.open(filename) as f:
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        invalid.append(filename)
+                        continue
+
+                    players = data.get('players', [])
+                    if not isinstance(players, list):
+                        invalid.append(filename)
+                        continue
+
+                    for p in players:
+                        required = ['nama', 'tim', 'nomor']
+                        if not all(p.get(field) for field in required):
+                            skipped.append({
+                                'file': filename,
+                                'reason': f"Missing required fields for {p.get('nama','?')}"
+                            })
+                            continue
+
+                        team = Team.objects.filter(name=p['tim']).first()
+                        if not team:
+                            missing_team.append(p['tim'])
+                            continue
+
+                        if Player.objects.filter(nomor=p['nomor'], tim=team).exists():
+                            skipped.append({
+                                'file': filename,
+                                'reason': f"Duplicate jersey number {p['nomor']} in {team.name}"
+                            })
+                            continue
+
+                        player = Player.objects.create(
+                            nama=p['nama'],
+                            asal=p.get('asal', ''),
+                            umur=p.get('umur', 0),
+                            nomor=p['nomor'],
+                            tim=team
+                        )
+                        added.append(player.nama)
+
+        return JsonResponse({
+            "status": "ok",
+            "added": added,
+            "skipped": skipped,
+            "missing_teams": list(set(missing_team)),
+            "invalid_files": invalid,
+        })
+
+    except zipfile.BadZipFile:
+        return JsonResponse({'error': 'Invalid ZIP file'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
