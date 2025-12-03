@@ -1,72 +1,375 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>{{ match.home_team }} vs {{ match.away_team }}</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h1 { font-size: 28px; }
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      gap: 40px;
-      margin-top: 20px;
-    }
-    .team {
-      width: 48%;
-    }
-    .team h2 {
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      padding: 4px 0;
-      font-size: 16px;
-    }
-  </style>
-</head>
-<body>
-  <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
-  <h3>Match: {{ match.stadium }} — {{ match.match_date }}</h3>
+{% extends 'base.html' %}
 
-  <div class="teams">
-    <!-- HOME TEAM -->
-    <div class="team">
-      {% if home_lineup %}
-        <h2>{{ home_lineup.team.name }}</h2>
-        <ul>
-          {% for player in home_lineup.players.all %}
-            <li>{{ player.nama }} ({{ player.nomor }})</li>
-          {% empty %}
-            <li>No players selected yet.</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No lineup yet for home team.</p>
-      {% endif %}
+{% block title %}{{ match.home_team }} vs {{ match.away_team }} - Lineup - Xcore{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Field Pattern Background */
+    .field-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            linear-gradient(45deg, transparent 49%, rgba(86, 189, 169, 0.02) 49%, rgba(86, 189, 169, 0.02) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(30, 66, 59, 0.02) 49%, rgba(30, 66, 59, 0.02) 51%, transparent 51%);
+        background-size: 60px 60px;
+        z-index: -1;
+        opacity: 0.3;
+    }
+
+    /* Lineup Container */
+    .lineup-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 2.5rem;
+        background: var(--white-light);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        position: relative;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--green-normal);
+        color: var(--white-light);
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(86, 189, 169, 0.3);
+        margin-bottom: 2rem;
+    }
+
+    .back-link:hover {
+        background: var(--green-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.4);
+    }
+
+    /* Page Header */
+    .lineup-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .lineup-header h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 700;
+        color: var(--green-darker);
+        margin-bottom: 0.5rem;
+    }
+
+    .lineup-header h3 {
+        font-size: 1.1rem;
+        color: var(--blue-normal);
+        font-weight: 500;
+    }
+
+    /* Teams Wrapper */
+    .teams-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Team Lineup Card */
+    .team-lineup {
+        background: var(--white-dark);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 2px solid var(--green-light);
+    }
+
+    .team-lineup:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        border-color: var(--green-normal);
+    }
+
+    /* Team Header */
+    .team-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--green-light);
+    }
+
+    .team-flag {
+        width: 32px;
+        height: 24px;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .team-header h2 {
+        color: var(--green-darker);
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    /* Player Grid */
+    .player-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1rem;
+    }
+
+    /* Player Card */
+    .player-card {
+        background: var(--white-light);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--green-darker);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .player-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--green-normal), var(--green-dark));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .player-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .player-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(86, 189, 169, 0.2);
+        border-color: var(--green-normal);
+        background: var(--green-light);
+    }
+
+    .player-card span {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--blue-normal);
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* No Lineup State */
+    .no-lineup {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white-dark);
+        border-radius: 16px;
+        border: 2px dashed var(--green-light-active);
+    }
+
+    .no-lineup p {
+        color: var(--blue-normal);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        text-align: center;
+        margin-top: 2.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .add-lineup-btn,
+    .edit-lineup-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+        color: var(--white-light);
+        text-decoration: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(86, 189, 169, 0.35);
+    }
+
+    .add-lineup-btn:hover,
+    .edit-lineup-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(86, 189, 169, 0.45);
+        background: linear-gradient(135deg, var(--green-normal-hover), var(--green-dark-hover));
+    }
+
+    .edit-lineup-btn {
+        background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+        box-shadow: 0 6px 18px rgba(84, 104, 129, 0.35);
+    }
+
+    .edit-lineup-btn:hover {
+        background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
+        box-shadow: 0 10px 25px rgba(84, 104, 129, 0.45);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .lineup-container {
+            padding: 1.5rem;
+            margin: 1.5rem auto;
+        }
+
+        .teams-wrapper {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .team-lineup {
+            padding: 1.5rem;
+        }
+
+        .player-grid {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .lineup-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .lineup-header h3 {
+            font-size: 0.95rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .add-lineup-btn,
+        .edit-lineup-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .field-pattern {
+            opacity: 0.2;
+        }
+
+        .team-flag {
+            width: 28px;
+            height: 20px;
+        }
+
+        .player-card {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="field-pattern"></div>
+
+<div class="container-xcore">
+    <div class="lineup-container fade-in">
+        <a href="{% url 'statistik:statistik_display' match.id %}" class="back-link">
+            ← Back to Statistik
+        </a>
+
+        <div class="lineup-header">
+            <h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+            <h3>{{ match.stadium }} — {{ match.match_date|date:"l, d F Y" }}</h3>
+        </div>
+
+        {% if home_lineup or away_lineup %}
+            <div class="teams-wrapper">
+                {% if home_lineup %}
+                    <div class="team-lineup">
+                        <div class="team-header">
+                            <img src="https://flagcdn.com/w40/{{ home_lineup.team.code }}.png"
+                                 alt="{{ home_lineup.team.name }}" class="team-flag"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <h2>{{ home_lineup.team.name }}</h2>
+                        </div>
+                        <div class="player-grid">
+                            {% for player in home_lineup.players.all %}
+                                <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
+                                    {{ player.nama }}
+                                    <span>#{{ player.nomor }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if away_lineup %}
+                    <div class="team-lineup">
+                        <div class="team-header">
+                            <img src="https://flagcdn.com/w40/{{ away_lineup.team.code }}.png"
+                                 alt="{{ away_lineup.team.name }}" class="team-flag"
+                                 onerror="this.src='https://flagcdn.com/w40/unknown.png'">
+                            <h2>{{ away_lineup.team.name }}</h2>
+                        </div>
+                        <div class="player-grid">
+                            {% for player in away_lineup.players.all %}
+                                <a href="{% url 'lineup:player-detail' player.id %}" class="player-card">
+                                    {{ player.nama }}
+                                    <span>#{{ player.nomor }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Edit Lineup button -->
+            {% if request.user.is_admin %}
+                <div class="action-buttons">
+                    <a href="{% url 'lineup:lineup-update' match.id %}" class="edit-lineup-btn">
+                        ✏️ Edit Lineup
+                    </a>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="no-lineup">
+                <p>No lineup has been created for this match yet.</p>
+                {% if request.user.is_admin %}
+                    <div class="action-buttons">
+                        <a href="{% url 'lineup:lineup-create' match.id %}" class="add-lineup-btn">
+                            ➕ Add Lineup
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
-
-    <!-- AWAY TEAM -->
-    <div class="team">
-      {% if away_lineup %}
-        <h2>{{ away_lineup.team.name }}</h2>
-        <ul>
-          {% for player in away_lineup.players.all %}
-            <li>{{ player.nama }} ({{ player.nomor }})</li>
-          {% empty %}
-            <li>No players selected yet.</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No lineup yet for away team.</p>
-      {% endif %}
-    </div>
-  </div>
-
-  <br>
-  <a href="{% url 'lineup:lineup-list' %}">Back</a>
-</body>
-</html>
+</div>
+{% endblock %}

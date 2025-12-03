@@ -51,23 +51,17 @@ class Match(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    home_team = models.CharField(max_length=100)
-    home_team_code = models.CharField( 
-        max_length=3, 
-        choices=COUNTRY_CHOICES,
-        default=''    )
-    away_team = models.CharField(max_length=100)
-    away_team_code = models.CharField(  
-        max_length=3, 
-        choices=COUNTRY_CHOICES,
-        default=''
-    )
+    home_team_code = models.CharField(max_length=3, choices=COUNTRY_CHOICES)
+    away_team_code = models.CharField(max_length=3, choices=COUNTRY_CHOICES)
+    home_team = models.CharField(max_length=100, editable=False)
+    away_team = models.CharField(max_length=100, editable=False)
+
     home_score = models.PositiveIntegerField(default=0)
     away_score = models.PositiveIntegerField(default=0)
-    match_date = models.DateTimeField()  
+    match_date = models.DateTimeField()
     stadium = models.CharField(max_length=100)
     round = models.IntegerField(blank=True, null=True)
-    group = models.CharField(max_length=20, blank=True, null=True) 
+    group = models.CharField(max_length=20, blank=True, null=True)
     status = models.CharField(
         max_length=10,
         choices=[
@@ -78,8 +72,15 @@ class Match(models.Model):
         default='upcoming'
     )
 
+    def save(self, *args, **kwargs):
+        code_to_country = dict(self.COUNTRY_CHOICES)
+        self.home_team = code_to_country.get(self.home_team_code, self.home_team_code)
+        self.away_team = code_to_country.get(self.away_team_code, self.away_team_code)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
+<<<<<<< HEAD
     
     def save(self, *args, **kwargs):
         is_new = not Match.objects.filter(pk=self.pk).exists()
@@ -97,3 +98,5 @@ class Match(models.Model):
                     print(f"✅ Auto-created prediction for {self.home_team} vs {self.away_team}")
 
             transaction.on_commit(create_prediction)        
+=======
+>>>>>>> 523d9202db6f4faa050244adf309e4b939a66267

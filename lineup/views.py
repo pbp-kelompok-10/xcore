@@ -3,16 +3,34 @@ import json
 import zipfile
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Team, Player, Lineup, COUNTRY_CHOICES
 from .forms import LineupForm, TeamForm, PlayerInlineFormSet
 from scoreboard.models import Match
 from django.contrib import messages
 from django.forms import modelform_factory
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django import forms
+from django.shortcuts import get_object_or_404
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Restrict access to admin users only with toast message."""
+
+    def test_func(self):
+        return getattr(self.request.user, "is_admin", False)
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            messages.error(self.request, "Silakan login terlebih dahulu untuk melanjutkan.")
+            return redirect("landingpage:login")
+
+        messages.error(self.request, "Anda tidak memiliki izin untuk mengakses halaman ini.")
+        return redirect("/scoreboard/") 
+
 class TeamListView(ListView):
     model = Team
     template_name = 'teams/team_list.html'
@@ -25,83 +43,84 @@ class TeamDetailView(DetailView):
     context_object_name = 'team'
 
 
-class TeamCreateView(CreateView):
+class TeamCreateView(SuperuserRequiredMixin, CreateView):
     model = Team
     fields = ['code']
     template_name = 'teams/team_form.html'
-    success_url = reverse_lazy('team-list')
+    success_url = reverse_lazy('lineup:team-list')
 
 
-class TeamUpdateView(UpdateView):
+class TeamUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Team
     form_class = TeamForm
     template_name = 'teams/team_form.html'
-    success_url = reverse_lazy('team-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        team = self.object
-        if self.request.POST:
-            context['player_formset'] = PlayerInlineFormSet(self.request.POST, instance=team)
-        else:
-            context['player_formset'] = PlayerInlineFormSet(instance=team)
-        return context
+    success_url = reverse_lazy('lineup:team-list')
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        player_formset = context['player_formset']
+        self.object = form.save()
+        messages.success(self.request, "Team updated successfully!")
+        return redirect(self.get_success_url())
 
-        if player_formset.is_valid():
-            self.object = form.save()
-            player_formset.instance = self.object
-            player_formset.save()
-            messages.success(self.request, "Team and players updated successfully!")
-            return redirect(self.get_success_url())
-        else:
-            messages.error(self.request, "Please correct errors in player fields.")
-            return self.form_invalid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct errors in the form.")
+        return super().form_invalid(form)
 
 class PlayerDetailView(DetailView):
     model = Player
     template_name = 'players/player_detail.html'
     context_object_name = 'player'
 
-
-class PlayerCreateView(CreateView):
-    model = Player
-    fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
-    template_name = 'players/player_form.html'
-    success_url = reverse_lazy('player-list')
-
-
-class PlayerUpdateView(UpdateView):
-    model = Player
-    fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
-    template_name = 'players/player_form.html'
-    success_url = reverse_lazy('player-list')
-
-
-class PlayerDeleteView(DeleteView):
-    model = Player
-    success_url = reverse_lazy('player-list')
-
-class LineupListView(ListView):
-    model = Lineup
-    template_name = 'lineups/lineup_list.html'
-    context_object_name = 'lineups'
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        grouped = {}
-        for lineup in context['lineups']:
-            match = lineup.match
-            if match not in grouped:
-                grouped[match] = []
-            grouped[match].append(lineup)
-        context['grouped_lineups'] = grouped
+        player = self.object
+
+        lineup = player.lineups.first()
+        context['match'] = lineup.match if lineup else None
+        context['match_id_safe'] = lineup.match.id if lineup else None
         return context
 
 
+class PlayerCreateView(SuperuserRequiredMixin, CreateView):
+    model = Player
+    fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
+    template_name = 'players/player_form.html'
+    def get_success_url(self):
+        return reverse('lineup:player-list')
+
+
+class PlayerUpdateView(SuperuserRequiredMixin, UpdateView):
+    model = Player
+    fields = ['nama', 'asal', 'umur', 'nomor', 'tim']
+    template_name = 'players/player_form.html'
+
+    def get_success_url(self):
+        return reverse('lineup:player-detail', kwargs={'pk': self.object.pk})
+
+
+class PlayerDeleteView(SuperuserRequiredMixin, DeleteView):
+    model = Player
+
+    def get(self, request, *args, **kwargs):
+        return redirect(reverse('lineup:player-list'))
+
+    def post(self, request, *args, **kwargs):
+        player = get_object_or_404(Player, pk=self.kwargs['pk'])
+        player.delete()
+        return redirect(reverse('lineup:player-list'))
+    
+class PlayerListView(TemplateView):
+    template_name = 'players/player_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        teams = Team.objects.all().order_by('name')
+        grouped = {}
+        for team in teams:
+            players = team.players.all().order_by('nomor')
+            if players.exists():
+                grouped[team] = players
+        context['grouped_teams'] = grouped
+        return context
 
 class LineupDetailView(DetailView):
     model = Match
@@ -111,7 +130,7 @@ class LineupDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        match = self.object
+        match = self.get_object()
 
         home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
         away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
@@ -122,18 +141,111 @@ class LineupDetailView(DetailView):
         })
         return context
 
-class LineupCreateView(CreateView):
+# API untuk Flutter - Get Lineup by Match
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupDetailView(View):
+    def get(self, request, match_id):
+        try:
+            match = get_object_or_404(Match, pk=match_id)
+            
+            home_lineup = Lineup.objects.filter(match=match, team__code=match.home_team_code).first()
+            away_lineup = Lineup.objects.filter(match=match, team__code=match.away_team_code).first()
+            
+            # Serialize match data
+            match_data = {
+                'id': str(match.id),
+                'home_team': match.home_team,
+                'away_team': match.away_team,
+                'home_team_code': match.home_team_code,
+                'away_team_code': match.away_team_code,
+                'home_score': match.home_score,
+                'away_score': match.away_score,
+                'match_date': match.match_date.isoformat(),
+                'stadium': match.stadium,
+                'round': match.round,
+                'group': match.group,
+                'status': match.status,
+            }
+            
+            # Serialize home lineup
+            home_lineup_data = None
+            if home_lineup:
+                home_lineup_data = {
+                    'id': str(home_lineup.id),
+                    'team': {
+                        'id': str(home_lineup.team.id),
+                        'name': home_lineup.team.name,
+                        'code': home_lineup.team.code,
+                    },
+                    'players': [
+                        {
+                            'id': str(player.id),
+                            'nama': player.nama,
+                            'asal': player.asal,
+                            'umur': player.umur,
+                            'nomor': player.nomor,
+                            'tim': str(player.tim.id),
+                        }
+                        for player in home_lineup.players.all()
+                    ]
+                }
+            
+            # Serialize away lineup
+            away_lineup_data = None
+            if away_lineup:
+                away_lineup_data = {
+                    'id': str(away_lineup.id),
+                    'team': {
+                        'id': str(away_lineup.team.id),
+                        'name': away_lineup.team.name,
+                        'code': away_lineup.team.code,
+                    },
+                    'players': [
+                        {
+                            'id': str(player.id),
+                            'nama': player.nama,
+                            'asal': player.asal,
+                            'umur': player.umur,
+                            'nomor': player.nomor,
+                            'tim': str(player.tim.id),
+                        }
+                        for player in away_lineup.players.all()
+                    ]
+                }
+            
+            response_data = {
+                'match': match_data,
+                'home_lineup': home_lineup_data,
+                'away_lineup': away_lineup_data,
+            }
+            
+            return JsonResponse(response_data)
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class LineupCreateView(SuperuserRequiredMixin, CreateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
 
-    def get_success_url(self):
-        return reverse_lazy('lineup-detail', kwargs={'match_id': self.kwargs['match_id']})
+    def get_initial(self):
+        """Automatically prefill the match field from the URL."""
+        initial = super().get_initial()
+        match = Match.objects.get(pk=self.kwargs['match_id'])
+        initial['match'] = match
+        return initial
+
+    def get_form(self, form_class=None):
+        """Hide the match field so user can’t change it."""
+        form = super().get_form(form_class)
+        form.fields['match'].widget = forms.HiddenInput()
+        return form
 
     def get_context_data(self, **kwargs):
+        """Pass match and team info to the template."""
         context = super().get_context_data(**kwargs)
-        match_id = self.kwargs['match_id']
-        match = Match.objects.get(pk=match_id)
+        match = Match.objects.get(pk=self.kwargs['match_id'])
         context.update({
             'match': match,
             'is_edit': False,
@@ -141,6 +253,7 @@ class LineupCreateView(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """Handle lineup creation and player assignment."""
         match = Match.objects.get(pk=self.kwargs['match_id'])
         home_players_raw = request.POST.get('home_players', '')
         away_players_raw = request.POST.get('away_players', '')
@@ -156,28 +269,74 @@ class LineupCreateView(CreateView):
 
         if home_team:
             if len(home_ids) != 11:
-                return JsonResponse({'error': f'{home_team.name} must have 11 players'}, status=400)
-            Lineup.objects.update_or_create(match=match, team=home_team, defaults={})
-            home_lineup = Lineup.objects.get(match=match, team=home_team)
+                messages.error(request, f"{home_team.name} must have 11 players.")
+                return redirect(request.path)
+
+            home_lineup, _ = Lineup.objects.get_or_create(match=match, team=home_team)
             home_lineup.players.set(home_ids)
+            home_lineup.save()
 
         if away_team:
             if len(away_ids) != 11:
-                return JsonResponse({'error': f'{away_team.name} must have 11 players'}, status=400)
-            Lineup.objects.update_or_create(match=match, team=away_team, defaults={})
-            away_lineup = Lineup.objects.get(match=match, team=away_team)
+                messages.error(request, f"{away_team.name} must have 11 players.")
+                return redirect(request.path)
+
+            away_lineup, _ = Lineup.objects.get_or_create(match=match, team=away_team)
             away_lineup.players.set(away_ids)
+            away_lineup.save()
 
-        return redirect(self.get_success_url())
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
-class LineupUpdateView(UpdateView):
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupCreateView(View):
+    def post(self, request, match_id):
+        try:
+            data = json.loads(request.body)
+            match = get_object_or_404(Match, pk=match_id)
+            team_code = data.get('team_code')
+            player_ids = data.get('players', [])
+            
+            if not team_code:
+                return JsonResponse({'error': 'Team code is required'}, status=400)
+            
+            if len(player_ids) != 11:
+                return JsonResponse({'error': 'Must have exactly 11 players'}, status=400)
+            
+            team = get_object_or_404(Team, code=team_code)
+            
+            # Check if lineup already exists
+            existing_lineup = Lineup.objects.filter(match=match, team=team).first()
+            if existing_lineup:
+                return JsonResponse({'error': 'Lineup already exists for this team'}, status=400)
+            
+            # Create new lineup
+            lineup = Lineup.objects.create(match=match, team=team)
+            
+            # Add players
+            players = Player.objects.filter(id__in=player_ids, tim=team)
+            if players.count() != 11:
+                lineup.delete()
+                return JsonResponse({'error': 'Invalid players or players do not belong to the team'}, status=400)
+            
+            lineup.players.set(players)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup created successfully',
+                'lineup_id': str(lineup.id)
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
     model = Lineup
     form_class = LineupForm
     template_name = 'lineups/lineup_form.html'
 
     def get_object(self, queryset=None):
         match = Match.objects.get(pk=self.kwargs['match_id'])
-        return Lineup.objects.filter(match=match).first()  # not used directly; we handle both
+        return Lineup.objects.filter(match=match).first()  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -217,10 +376,35 @@ class LineupUpdateView(UpdateView):
             away_lineup, _ = Lineup.objects.get_or_create(match=match, team=away_team)
             away_lineup.players.set(away_ids)
 
-        return redirect(reverse_lazy('lineup-detail', kwargs={'match_id': match.id}))
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
+class FlutterLineupUpdateView(View):
+    def put(self, request, lineup_id):
+        try:
+            data = json.loads(request.body)
+            player_ids = data.get('players', [])
+            
+            if len(player_ids) != 11:
+                return JsonResponse({'error': 'Must have exactly 11 players'}, status=400)
+            
+            lineup = get_object_or_404(Lineup, pk=lineup_id)
+            
+            # Update players
+            players = Player.objects.filter(id__in=player_ids, tim=lineup.team)
+            if players.count() != 11:
+                return JsonResponse({'error': 'Invalid players or players do not belong to the team'}, status=400)
+            
+            lineup.players.set(players)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup updated successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
-class LineupDeleteView(DeleteView):
+class LineupDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Lineup
     template_name = 'lineups/lineup_confirm_delete.html'
 
@@ -231,18 +415,33 @@ class LineupDeleteView(DeleteView):
     def post(self, request, *args, **kwargs):
         match = Match.objects.get(pk=self.kwargs['match_id'])
         Lineup.objects.filter(match=match).delete()
-        return redirect(reverse_lazy('lineup-list'))
+        return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['match'] = Match.objects.get(pk=self.kwargs['match_id'])
         return context
 
+@method_decorator(csrf_exempt, name='dispatch')
+class FlutterLineupDeleteView(View):
+    def delete(self, request, lineup_id):
+        try:
+            lineup = get_object_or_404(Lineup, pk=lineup_id)
+            lineup.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Lineup deleted successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
 COUNTRY_MAP = {name: code for code, name in COUNTRY_CHOICES}
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadTeamsView(View):
+class UploadTeamsView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -282,9 +481,8 @@ class UploadTeamsView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-# ---------- Upload Players ZIP ----------
 @method_decorator(csrf_exempt, name='dispatch')
-class UploadPlayersView(View):
+class UploadPlayersView(SuperuserRequiredMixin, View):
     def post(self, request):
         zip_file = request.FILES.get('file')
         if not zip_file:
@@ -359,15 +557,6 @@ class UploadPlayersView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
-# ---------- Upload Page (HTML Form) ----------
-def upload_page(request):
-    return render(request, 'upload.html')
-
-
-# ============================================
-#   AJAX HELPERS
-# ============================================
 
 def get_teams_for_match(request):
     match_id = request.GET.get('match')

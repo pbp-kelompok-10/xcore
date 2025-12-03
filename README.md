@@ -92,7 +92,7 @@ Dataset negara :
 
 ```
 
-Pembagian :
+Pembagian Negara:
 1-9 : Alvin</br>
 10-18 : Zita</br>
 19-27 : Garuga</br>
@@ -109,7 +109,6 @@ https://alvin-christian-xcore.pbp.cs.ui.ac.id/
 
 ## Design
 https://www.figma.com/design/sTyMbtyzsur2K5reeIWjxo/Untitled?node-id=0-1&t=gH3GWdAi5VQOSjXW-1
-
 
 
 

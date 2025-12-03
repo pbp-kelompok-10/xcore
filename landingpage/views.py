@@ -1,18 +1,27 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
+<<<<<<< HEAD
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 
 
+=======
+from django.contrib.auth import authenticate, login,logout
+from user.forms import CustomUserCreationForm
+from django.contrib.auth.decorators import login_required
+from user.forms import EditProfileForm
+>>>>>>> 523d9202db6f4faa050244adf309e4b939a66267
 # Create your views here.
 def landing_home(request):
     context = {
         'title': 'Welcome to Xcore',
-        'tagline': 'Web scoring terbaik cihuyyyyyyy',
+        'tagline': 'Your Ultimate Football Companion',
         'features': [
             'Scoreboard',
             'Statistic', 
@@ -23,15 +32,16 @@ def landing_home(request):
     return render(request, 'landing.html', context)
 
 def register(request):
-    form = UserCreationForm()
-
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Your account has been successfully created!')
+            user = form.save()
+            messages.success(request, "Your account has been successfully created!")
             return redirect('landingpage:login')
-    context = {'form':form}
+    else:
+        form = CustomUserCreationForm()
+
+    context = {'form': form}
     return render(request, 'register.html', context)
 
 def login_user(request):
@@ -41,7 +51,8 @@ def login_user(request):
       if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('landingpage:home')
+            messages.success(request, "You have successfully logged in.")
+            return redirect('scoreboard:scoreboard_list')
 
    else:
       form = AuthenticationForm(request)
@@ -52,10 +63,26 @@ def logout_user(request):
     logout(request)
     response = HttpResponseRedirect(reverse('landingpage:home'))
     response.delete_cookie('last_login')
+    messages.success(request, "You have successfully logged out.")
     return response
 
-def profile_user(request):
+@login_required
+def profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile has been updated successfully!")
+            return redirect('landingpage:profile')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = EditProfileForm(instance=user)
+
     context = {
-        'name': request.user.username,
+        'form': form,
+        'user': user
     }
     return render(request, 'profile.html', context)

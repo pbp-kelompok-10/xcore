@@ -61,6 +61,7 @@ body {
     min-height: 100vh;
     display: flex;          
     flex-direction: column;  
+    background-color: var(--green-light); 
 }
 
 /* Background Gradient Utilities */
@@ -78,18 +79,23 @@ body {
 .navbar-xcore {
     background: linear-gradient(90deg, var(--green-darker), var(--green-light-active), var(--green-normal));
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed; 
     top: 0;
-    z-index: 100;
+    left: 0;
     width: 100%;
+    padding: 1rem 0; /* Tambahin ini biar lebih tinggi */
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    gap: 15px;
+    padding: 1rem 4rem; /* Ubah dari 12px 20px jadi 1rem 2rem biar lebih tinggi dan lebar */
+    gap: 2rem; /* Ubah dari 15px jadi 2rem biar spacing lebih lebar */
+    max-width: 100%; /* Pastikan full width */
+    margin: 0 auto;
+    justify-content: space-between; /* Bikin components spread ke ujung-ujung */
 }
+
 
 /* Menu Icon (Mobile) */
 .menu-icon {
@@ -163,7 +169,7 @@ body {
 
 .nav-link-item {
     color: var(--green-darker);
-    font-weight: 500;
+    font-weight: 700;
     font-size: 15px;
     text-decoration: none;
     transition: opacity 0.2s;
@@ -462,9 +468,11 @@ body {
 
 /* Container */
 .container-xcore {
-    max-width: 1200px;
+    width: 95%;  /* ← Pakai 95% dari screen */
     margin: 0 auto;
-    padding: 0 20px;
+    flex: 1 0 auto;
+    min-height: calc(100vh - var(--navbar-height) - 200px);
+    padding-bottom: 2rem;
 }
 
 /* Card Styles */
@@ -537,14 +545,18 @@ h3 {
    HERO SECTION (Landing Page)
    ============================================ */
 .hero-section {
-    background: var(--white-dark);
-    min-height: calc(100vh - var(--navbar-height));
-    color: var(--green-darker);
+  background: var(--white-dark);
+  min-height: 100vh; /* Ganti dari calc(100vh - var(--navbar-height)) jadi full 100vh */
+  color: var(--green-darker);
+  display: flex; /* Tambahan untuk centering */
+  align-items: center; /* Vertical center */
+  justify-content: center; /* Horizontal center */
 }
 
 .hero-content {
-    text-align: center;
-    padding: 100px 20px;
+  text-align: center;
+  padding: 100px 20px;
+  width: 100%; /* Biar full width */
 }
 
 .hero-content h1 {
@@ -580,6 +592,7 @@ h3 {
 footer{
     width: 100%;
     margin-top: auto;
+    flex-shrink: 0;
     background: var(--green-dark);
     color: var(--white-light);
     padding: 48px;
@@ -590,7 +603,8 @@ footer{
     line-height: normal;
 }
 
-.row{
+
+.row {
     width: 85%;
     margin: auto;
     display: flex;
@@ -604,3 +618,662 @@ footer{
     font-weight: 700;         
     text-align: center;
 }
+
+
+/* ============================================
+   PREDICTION CENTER STYLES
+   (Tambahin ini di PALING BAWAH style.css)
+   ============================================ */
+
+/* Page Header */
+.prediction-header {
+  margin: 3rem 0 2rem 0;
+}
+
+.prediction-title {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  color: var(--green-darker);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.prediction-subtitle {
+  color: var(--blue-normal);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+/* Tab Navigation */
+.tab-navigation-wrapper {
+  background-color: transparent !important; 
+  box-shadow: none !important;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tab-group-left {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tab-group-right {
+  margin-left: auto;
+}
+
+.tab-btn {
+  background: var(--white-dark);
+  color: var(--green-darker);
+  border: 2px solid transparent;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: var(--green-light);
+  border-color: var(--green-normal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(86, 189, 169, 0.2);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border-color: var(--green-normal);
+  box-shadow: 0 4px 16px rgba(86, 189, 169, 0.35);
+}
+
+.tab-my-votes {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  color: var(--white-light);
+  border-color: var(--blue-normal);
+  box-shadow: 0 4px 16px rgba(84, 104, 129, 0.25);
+}
+
+.tab-my-votes:hover {
+  background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
+  box-shadow: 0 6px 20px rgba(84, 104, 129, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Predictions Grid */
+.predictions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);  /* 3 kolom di desktop */
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .predictions-grid {
+    grid-template-columns: repeat(2, 1fr);  /* 2 kolom di tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .predictions-grid {
+    grid-template-columns: 1fr;  /* 1 kolom di mobile */
+  }
+}
+
+
+/* Prediction Card */
+.prediction-card {
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid var(--green-light);
+}
+
+.prediction-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  border-color: var(--green-normal);
+}
+
+.prediction-card.hidden {
+  display: none;
+}
+
+/* Status Badge */
+.status-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.status-upcoming {
+  background: linear-gradient(135deg, #FEF3C7, #FCD34D);
+  color: #92400E;
+  box-shadow: 0 3px 10px rgba(252, 211, 77, 0.4);
+}
+
+.status-live {
+  background: linear-gradient(135deg, #FCA5A5, #EF4444);
+  color: var(--white-light);
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.5);
+  animation: pulse-live 2s infinite;
+}
+
+.status-finished {
+  background: linear-gradient(135deg, #BFDBFE, #60A5FA);
+  color: #1E3A8A;
+  box-shadow: 0 3px 10px rgba(96, 165, 250, 0.4);
+}
+
+@keyframes pulse-live {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+/* Match Header */
+.match-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2.5rem 0 1.5rem 0;
+  gap: 1rem;
+}
+
+.team-section {
+  flex: 1;
+  text-align: center;
+}
+
+.team-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green-darker);
+  line-height: 1.3;
+  display: block;
+}
+
+.vs-separator {
+  background: linear-gradient(135deg, var(--green-light-active), var(--green-normal));
+  color: var(--green-darker);
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 10px rgba(86, 189, 169, 0.25);
+  flex-shrink: 0;
+}
+
+/* Match Info Box */
+.match-info-box {
+  background: var(--green-light);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--green-light-active);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+}
+
+.info-icon {
+  font-size: 1rem;
+}
+
+.info-text {
+  color: var(--blue-normal);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Score Box */
+.live-score-box,
+.final-score-box {
+  background: var(--green-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border: 2px solid var(--green-light-active);
+}
+
+.score-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--green-darker);
+  letter-spacing: 3px;
+}
+
+/* Voted Badge */
+.voted-badge {
+  background: linear-gradient(135deg, var(--green-light), var(--green-light-active));
+  color: var(--green-darker);
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border: 2px solid var(--green-normal);
+  font-size: 0.95rem;
+}
+
+.voted-badge strong {
+  color: var(--green-darker);
+  font-weight: 700;
+}
+
+/* Vote Button */
+.btn-vote {
+  width: 100%;
+  background: linear-gradient(135deg, var(--green-normal), var(--green-dark));
+  color: var(--white-light);
+  border: none;
+  padding: 1.1rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(86, 189, 169, 0.35);
+}
+
+.btn-vote:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(86, 189, 169, 0.45);
+  background: linear-gradient(135deg, var(--green-normal-hover), var(--green-dark-hover));
+}
+
+.btn-vote:active {
+  transform: translateY(-1px);
+}
+
+.btn-view-votes {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  box-shadow: 0 6px 18px rgba(84, 104, 129, 0.35);
+}
+
+.btn-view-votes:hover {
+  background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
+  box-shadow: 0 10px 25px rgba(84, 104, 129, 0.45);
+}
+
+/* Results Section */
+.results-section {
+  background: var(--green-light);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 2px solid var(--green-light-active);
+}
+
+.result-row {
+  margin-bottom: 1.25rem;
+}
+
+.result-row:last-child {
+  margin-bottom: 0;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.result-team {
+  font-weight: 700;
+  color: var(--green-darker);
+  font-size: 1rem;
+}
+
+.result-percent {
+  font-weight: 700;
+  color: var(--green-normal);
+  font-size: 1.1rem;
+}
+
+.result-bar {
+  background: var(--white-light);
+  height: 32px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--green-light-active);
+  position: relative;
+}
+
+.result-fill {
+  background: linear-gradient(90deg, var(--green-normal), var(--green-dark));
+  height: 100%;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px rgba(86, 189, 169, 0.4);
+  position: relative;
+  border-radius: 8px;
+}
+
+.result-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.result-votes {
+  font-size: 0.9rem;
+  color: var(--blue-normal);
+  font-weight: 600;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .predictions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-navigation-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-group-left,
+  .tab-group-right {
+    width: 100%;
+  }
+
+  .tab-group-left {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tab-btn {
+    text-align: center;
+  }
+
+  .match-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .vs-separator {
+    width: 100%;
+    text-align: center;
+  }
+
+  .prediction-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-group-left {
+    grid-template-columns: 1fr;
+  }
+  
+  .score-display {
+    font-size: 2rem;
+  }
+}
+
+
+/* ============================================
+   MY VOTES INTEGRATION - ADDITIONAL STYLES
+   (Tambahin ini di bagian prediction center di style.css)
+   ============================================ */
+
+/* Vote Timestamp */
+.vote-timestamp {
+  background: var(--green-light);
+  color: var(--blue-normal);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  border: 1px solid var(--green-light-active);
+}
+
+/* Change Vote Button */
+.btn-change-vote {
+  background: linear-gradient(135deg, var(--blue-normal), var(--blue-dark));
+  box-shadow: 0 6px 18px rgba(84, 104, 129, 0.35);
+}
+
+.btn-change-vote:hover {
+  background: linear-gradient(135deg, var(--blue-normal-hover), var(--blue-dark-hover));
+  box-shadow: 0 10px 25px rgba(84, 104, 129, 0.45);
+}
+
+/* Vote Result Info (untuk finished matches) */
+.vote-result-info {
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.result-correct {
+  display: block;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px solid #28a745;
+}
+
+.result-wrong {
+  display: block;
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px solid #dc3545;
+}
+
+
+
+/* Highlight voted cards when in My Votes tab */
+.tab-btn[data-filter="myvotes"].active ~ .predictions-grid .prediction-card[data-voted="true"] {
+  border-color: var(--green-normal);
+  box-shadow: 0 8px 24px rgba(86, 189, 169, 0.2);
+}
+
+/* Special styling for cards with votes */
+.prediction-card[data-voted="true"] .voted-badge {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Voted card indicator (small dot) */
+.prediction-card[data-voted="true"]::before {
+  content: '✓';
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: var(--green-normal);
+  color: var(--white-light);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(86, 189, 169, 0.4);
+}
+
+/* ============================================
+   FIX: EMPTY STATE PROPERLY CENTERED
+   ============================================ */
+
+/* Empty State Static (yang di HTML langsung) */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 2rem;
+  background: var(--white-light);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 2px dashed var(--green-light-active);
+  
+  /* Proper centering */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.empty-state .empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.empty-state h3,
+.empty-state .empty-title {
+  color: var(--green-darker);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.empty-state p,
+.empty-state .empty-message {
+  color: var(--blue-normal);
+  font-size: 1.05rem;
+}
+
+/* Empty State Dynamic (yang muncul dari JavaScript) */
+.empty-state-dynamic {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 2rem;
+  background: var(--white-light);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 2px dashed var(--green-light-active);
+  
+  /* Proper centering */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.empty-state-dynamic .empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.empty-state-dynamic .empty-title {
+  color: var(--green-darker);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.empty-state-dynamic .empty-message {
+  color: var(--blue-normal);
+  font-size: 1.05rem;
+}
+
+/* Empty State My Votes */
+.empty-state-myvotes {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 2rem;
+  background: var(--white-light);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 2px dashed var(--green-light-active);
+  
+  /* Proper centering */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.empty-state-myvotes .empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.empty-state-myvotes h3 {
+  color: var(--green-darker);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.empty-state-myvotes p {
+  color: var(--blue-normal);
+  font-size: 1.05rem;
+}
+
+/* ============================================
+   FIX: HIDE VOTED INFO & CHANGE VOTE BY DEFAULT
+   Only show in My Votes tab
+   ============================================ */
+
+/* Default: Sembunyikan voted badge, timestamp, change vote button, dan result info */

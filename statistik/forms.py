@@ -5,7 +5,7 @@ class StatistikForm(forms.ModelForm):
     class Meta:
         model = Statistik
         fields = [
-            'match', 'team_home', 'team_away', 'score_home', 'score_away', 'stadium',
+            'match', 
             'pass_home', 'pass_away', 'shoot_home', 'shoot_away', 
             'on_target_home', 'on_target_away', 'ball_possession_home', 
             'ball_possession_away', 'red_card_home', 'red_card_away',
@@ -13,7 +13,10 @@ class StatistikForm(forms.ModelForm):
             'offside_away', 'corner_home', 'corner_away'
         ]
         widgets = {
-            'team_home': forms.TextInput(attrs={'placeholder': 'Nama Tim Home'}),
-            'team_away': forms.TextInput(attrs={'placeholder': 'Nama Tim Away'}),
-            'stadium': forms.TextInput(attrs={'placeholder': 'Nama Stadion'}),
+            'match': forms.HiddenInput(),  
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from scoreboard.models import Match
+        self.fields['match'].queryset = Match.objects.filter(status__in=['live', 'finished'])

@@ -9,7 +9,6 @@ class Highlight(models.Model):
         on_delete=models.CASCADE,
         related_name='highlight'
     )
-    # use EmbedVideoField instead of URLField
     video = EmbedVideoField(help_text="YouTube, Vimeo, or other embed link", blank=True, null=True)
 
     def __str__(self):

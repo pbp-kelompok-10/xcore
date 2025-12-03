@@ -6,3 +6,6 @@ requests
 urllib3
 python-dotenv
 django-embed-video
+pillow
+django-cors-headers
+djangorestframework

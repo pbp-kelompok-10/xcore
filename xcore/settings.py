@@ -30,10 +30,17 @@ DEBUG = True
 
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1" ,"alvin-christian-xcore.pbp.cs.ui.ac.id", "10.0.2.2"]
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://alvin-christian-xcore.pbp.cs.ui.ac.id", 
+    "https://alvin-christian-xcore.pbp.cs.ui.ac.id", 
     "http://127.0.0.1:8000", 
     "http://localhost:8000"
 ]
@@ -48,10 +55,28 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'prediction',
     'scoreboard',
-    'forum',
-    'landingpage',
     'statistik',
+    'embed_video',
+    'highlights',
+    'lineup',
+    'landingpage',
+    'forum',
+    'user',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+# REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,6 +87,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'xcore.urls'
@@ -130,6 +156,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'user.CustomUser'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -146,7 +175,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-
 STATIC_URL = '/static/'
 if DEBUG:
     STATICFILES_DIRS = [
@@ -156,7 +184,6 @@ else:
     STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 import os
 
 # Default primary key field type
