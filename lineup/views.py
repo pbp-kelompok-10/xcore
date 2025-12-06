@@ -376,6 +376,7 @@ class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
 
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
+@method_decorator(csrf_exempt, name='dispatch')
 class FlutterLineupUpdateView(View):
     def put(self, request, lineup_id):
         try:
@@ -425,6 +426,9 @@ class FlutterLineupDeleteView(View):
     def delete(self, request, lineup_id):
         try:
             lineup = get_object_or_404(Lineup, pk=lineup_id)
+            
+            print ("Deleting lineup:", lineup_id)
+            print ("Lineup details:", lineup.match, lineup.team)
             lineup.delete()
             
             return JsonResponse({
