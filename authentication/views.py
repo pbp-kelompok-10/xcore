@@ -225,7 +225,7 @@ def status_admin(request):
     """
     
     if request.user.is_authenticated:
-        is_admin = getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
+        is_admin = getattr(request.user, "is_admin", False) if request.user.is_authenticated else False
         
         # Jika is_admin adalah tuple, ambil elemen pertama
         if isinstance(is_admin, tuple):

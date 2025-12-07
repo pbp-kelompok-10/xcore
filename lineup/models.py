@@ -51,7 +51,6 @@ COUNTRY_CHOICES = [
     ('in', 'India')
 ]
 
-
 class Team(models.Model):
     code = models.CharField(max_length=3, choices=COUNTRY_CHOICES, unique=True)
     name = models.CharField(max_length=100, unique=True, editable=False)
