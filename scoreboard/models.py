@@ -80,23 +80,3 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team}"
-<<<<<<< HEAD
-    
-    def save(self, *args, **kwargs):
-        is_new = not Match.objects.filter(pk=self.pk).exists()
-        super().save(*args, **kwargs)
-
-        if is_new:
-            from prediction.models import Prediction
-
-            def create_prediction():
-                if not Prediction.objects.filter(match=self).exists():
-                    Prediction.objects.create(
-                        match=self,
-                        question=f"Who will win: {self.home_team} vs {self.away_team}?"
-                    )
-                    print(f"✅ Auto-created prediction for {self.home_team} vs {self.away_team}")
-
-            transaction.on_commit(create_prediction)        
-=======
->>>>>>> 523d9202db6f4faa050244adf309e4b939a66267

@@ -4,19 +4,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
-<<<<<<< HEAD
-from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, JsonResponse
-from django.urls import reverse
-
-
-
-=======
 from django.contrib.auth import authenticate, login,logout
 from user.forms import CustomUserCreationForm
 from django.contrib.auth.decorators import login_required
 from user.forms import EditProfileForm
->>>>>>> 523d9202db6f4faa050244adf309e4b939a66267
 # Create your views here.
 def landing_home(request):
     context = {

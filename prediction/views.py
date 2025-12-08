@@ -32,7 +32,6 @@ def prediction_list(request):
 
 @login_required(login_url='/login')
 def submit_vote(request):
-    """CREATE - User vote pertama kali"""
     if request.method == "POST":
         prediction_id = request.POST.get("prediction_id")
         choice = request.POST.get("choice")
@@ -222,47 +221,88 @@ def update_vote(request, vote_id=None):
 def delete_vote(request, vote_id):
     """DELETE - User hapus vote sendiri (sebelum deadline)"""
     vote = get_object_or_404(Vote, id=vote_id, user=request.user)
+
+    if request.method != "POST":
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Method not allowed. Use POST to delete a vote.'
+        }, status=405)
     
-    # Check apakah masih bisa dihapus
     if not vote.can_modify():
-        # Return JSON for AJAX
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'error',
                 'message': 'Voting sudah ditutup! Tidak bisa hapus vote lagi.'
             })
-        # Fallback for regular request
         messages.error(request, "Voting sudah ditutup! Tidak bisa hapus vote lagi.")
         return redirect('prediction:my_votes')
     
     if request.method == 'POST':
-        # Update vote count
         prediction = vote.prediction
         choice = vote.choice.lower().strip()
         
         if "home" in choice:
-            prediction.votes_home_team -= 1
+            prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
         elif "away" in choice:
-            prediction.votes_away_team -= 1
+            prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
         
         prediction.save()
         
-        # Delete vote
         vote.delete()
         
-        # Return JSON for AJAX request
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'success',
-                'message': 'Vote berhasil dihapus!'
+                'message': 'Vote berhasil dihapus!',
+                'prediction_id': str(prediction.id),
+                'votes_home_team': prediction.votes_home_team,
+                'votes_away_team': prediction.votes_away_team,
+                'home_percentage': float(prediction.home_percentage),
+                'away_percentage': float(prediction.away_percentage)
             })
         
-        # Fallback for regular form submission
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
-    
-    # GET request - show confirmation page (fallback)
-    context = {
-        'vote': vote
-    }
-    return render(request, 'delete_vote.html', context)
+
+def show_json(request):
+    predictions = Prediction.objects.select_related('match').prefetch_related('votes').all()
+
+    data = []
+
+    for p in predictions:
+        match_status = "UPCOMING"
+        if hasattr(p.match, 'status') and p.match.status:
+            match_status = p.match.status.upper() 
+        elif p.match.match_date < timezone.now():
+            match_status = "FINISHED"
+
+        data.append({
+            'id': str(p.id),
+            'match_id': str(p.match.id),
+            
+            'home_team': p.match.home_team, 
+            'away_team': p.match.away_team, 
+            'match_date': p.match.match_date.isoformat(),
+            'stadium': p.match.stadium,     
+            'status': match_status,
+
+            'logo_home_team': p.logo_home_team if p.logo_home_team else None,
+            'logo_away_team': p.logo_away_team if p.logo_away_team else None,
+
+            'votes_home_team': p.votes_home_team,
+            'votes_away_team': p.votes_away_team,
+            'total_votes': p.total_votes,
+            'home_percentage': p.home_percentage,
+            'away_percentage': p.away_percentage,
+            
+            'votes': [
+                {
+                    "user_id": v.user.id,
+                    "choice": v.choice,
+                    "voted_at": v.voted_at.isoformat(),
+                }
+                for v in p.votes.all()
+            ],
+        })
+
+    return JsonResponse(data, safe=False)
