@@ -264,37 +264,42 @@ def delete_vote(request, vote_id):
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
 
+from django.http import JsonResponse
+from django.utils import timezone
+from .models import Prediction
+
 def show_json(request):
     predictions = Prediction.objects.select_related('match').prefetch_related('votes').all()
 
     data = []
 
     for p in predictions:
-        match_status = "UPCOMING"
+        # Determine match status
         if hasattr(p.match, 'status') and p.match.status:
-            match_status = p.match.status.upper() 
-        elif p.match.match_date < timezone.now():
-            match_status = "FINISHED"
+            match_status = p.match.status.upper()
+        else:
+            match_status = "FINISHED" if p.match.match_date < timezone.now() else "UPCOMING"
 
-        data.append({
+        # Build JSON item
+        item = {
             'id': str(p.id),
             'match_id': str(p.match.id),
-            
-            'home_team': p.match.home_team, 
-            'away_team': p.match.away_team, 
+
+            'home_team': p.match.home_team,
+            'away_team': p.match.away_team,
             'match_date': p.match.match_date.isoformat(),
-            'stadium': p.match.stadium,     
+            'stadium': p.match.stadium,
             'status': match_status,
 
-            'logo_home_team': p.logo_home_team if p.logo_home_team else None,
-            'logo_away_team': p.logo_away_team if p.logo_away_team else None,
+            'logo_home_team': p.logo_home_team or None,
+            'logo_away_team': p.logo_away_team or None,
 
             'votes_home_team': p.votes_home_team,
             'votes_away_team': p.votes_away_team,
             'total_votes': p.total_votes,
             'home_percentage': p.home_percentage,
             'away_percentage': p.away_percentage,
-            
+
             'votes': [
                 {
                     "user_id": v.user.id,
@@ -303,6 +308,8 @@ def show_json(request):
                 }
                 for v in p.votes.all()
             ],
-        })
+        }
+
+        data.append(item)
 
     return JsonResponse(data, safe=False)
