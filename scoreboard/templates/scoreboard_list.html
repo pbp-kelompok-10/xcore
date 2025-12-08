@@ -618,7 +618,6 @@
                                      onerror="this.src='https://flagcdn.com/w80/unknown.png'">
                                 <div class="team-name">{{ match.home_team }}</div>
                             </div>
-                            <div class="match-info">
 
                             <!-- Score Section -->
                             <div class="score-section">
@@ -673,15 +672,6 @@
                         </a>
                         {% endif %}
 
-                            <div class="team" style="justify-content: flex-end;">
-                                <div class="team-name">{{ match.away_team }}</div>
-                                <img src="https://flagcdn.com/w40/{{ match.away_team_code }}.png" 
-                                    alt="{{ match.away_team }}"
-                                    onerror="this.src='https://flagcdn.com/w40/unknown.png'">
-                            </div>
-                        </div>
-                </a>
-            {% endfor %}
                         <!-- Forum Button (For Finished Matches) -->
                         {% if match.status != 'upcoming' %}
                         <a href="{% url 'forum:forum_detail' match.id %}" class="btn-forum" onclick="event.stopPropagation();">
@@ -693,6 +683,7 @@
                 {% endfor %}
             </div>
         </div>
+        {% endfor %}
     {% else %}
         <!-- Empty State -->
         <div class="empty-state">
