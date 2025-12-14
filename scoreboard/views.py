@@ -16,6 +16,25 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 
+@require_http_methods(["POST"])
+@csrf_exempt
+@user_passes_test(is_admin_user, login_url='/auth/login/flutter/', redirect_field_name=None)
+def delete_match_flutter(request, match_id):
+    try:
+        match = get_object_or_404(Match, id=match_id)
+        
+        match.delete()
+
+        return JsonResponse({
+            "status": "success", 
+            "message": "Match berhasil dihapus!"
+        }, status=200)
+
+    except Exception as e:
+        return JsonResponse({
+            "status": "error", 
+            "message": f"Gagal menghapus match: {str(e)}"
+        }, status=400)
 
 def is_admin_user(user):
     return user.is_authenticated and getattr(user, "is_admin", False)
