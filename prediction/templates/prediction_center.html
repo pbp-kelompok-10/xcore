@@ -377,14 +377,7 @@ html, body {
           <a href="{% url 'landingpage:login' %}" class="btn-vote">🗳️ Login to Vote</a>
         {% endif %}
 
-        <!-- Default hidden vote button for JS to show when eligible -->
-        <button class="btn-vote vote-trigger" style="display:none;"
-                data-prediction-id="{{ prediction.id }}"
-                data-home="{{ prediction.match.home_team }}"
-                data-away="{{ prediction.match.away_team }}">
-          🗳️ Vote Now
-        </button>
-
+        
         <div class="results-section">
           <div class="result-row">
             <div class="result-header">

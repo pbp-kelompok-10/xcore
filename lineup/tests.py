@@ -11,7 +11,6 @@ from scoreboard.models import Match
 
 User = get_user_model()
 
-
 class BaseSetup(TestCase):
     def setUp(self):
         self.client = Client()

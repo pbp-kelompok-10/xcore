@@ -1,0 +1,336 @@
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="delete-modal hidden">
+  <div class="delete-modal-overlay"></div>
+  <div class="delete-modal-content">
+    <div class="modal-icon">⚠️</div>
+    <h3>Delete Vote?</h3>
+    <p class="modal-message">Are you sure you want to delete your vote for this match?</p>
+    
+    <div class="modal-match-info">
+      <div class="modal-match-teams">
+        <strong id="modal-match-home"></strong>
+        <span class="vs-text">vs</span>
+        <strong id="modal-match-away"></strong>
+      </div>
+      <div class="modal-vote-info">
+        Your vote: <span id="modal-vote-choice"></span>
+      </div>
+    </div>
+
+    <div class="modal-warning">
+      ⚠️ This action cannot be undone!
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-delete" onclick="confirmDelete()">
+        🗑️ Yes, Delete
+      </button>
+      <button class="btn-modal-cancel" onclick="closeDeleteModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ============================================
+   DELETE MODAL STYLES
+   ============================================ */
+
+.delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-modal.hidden {
+  display: none;
+}
+
+.delete-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.delete-modal-content {
+  position: relative;
+  background: var(--white-light);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.modal-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.delete-modal-content h3 {
+  color: var(--green-darker);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-message {
+  color: var(--blue-normal);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-match-info {
+  background: var(--green-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.modal-match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  color: var(--green-darker);
+  margin-bottom: 0.75rem;
+}
+
+.modal-match-teams .vs-text {
+  color: var(--green-normal);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.modal-vote-info {
+  color: var(--green-normal);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.modal-warning {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  color: #856404;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-modal-delete {
+  flex: 1;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-modal-delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+}
+
+.btn-modal-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-modal-cancel {
+  flex: 1;
+  background: var(--white-dark);
+  color: var(--green-darker);
+  border: 2px solid var(--green-light-active);
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-modal-cancel:hover {
+  background: var(--green-light);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .delete-modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .modal-icon {
+    font-size: 3rem;
+  }
+
+  .delete-modal-content h3 {
+    font-size: 1.5rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+let currentVoteId = null;
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function openDeleteModal(voteId, homeTeam, awayTeam, voteChoice) {
+    currentVoteId = voteId;
+    
+    // Update modal content
+    document.getElementById('modal-match-home').textContent = homeTeam;
+    document.getElementById('modal-match-away').textContent = awayTeam;
+    document.getElementById('modal-vote-choice').textContent = voteChoice;
+    
+    // Show modal
+    const modal = document.getElementById('delete-modal');
+    modal.classList.remove('hidden');
+    
+    // Add animation
+    setTimeout(() => {
+        modal.querySelector('.delete-modal-content').style.transform = 'scale(1)';
+        modal.querySelector('.delete-modal-content').style.opacity = '1';
+    }, 10);
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('delete-modal');
+    const content = modal.querySelector('.delete-modal-content');
+    
+    // Animate out
+    content.style.transform = 'scale(0.9)';
+    content.style.opacity = '0';
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        currentVoteId = null;
+    }, 300);
+}
+
+function confirmDelete() {
+    if (!currentVoteId) {
+        alert('Error: Vote ID not found');
+        return;
+    }
+
+    // Disable button
+    const deleteBtn = document.querySelector('.btn-modal-delete');
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = '⏳ Deleting...';
+
+    // Send DELETE request
+    fetch(`/prediction/my-votes/delete/${currentVoteId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            showToast('Vote deleted successfully!', 'success');
+            
+            // Close modal
+            closeDeleteModal();
+            
+            // Remove the vote card from DOM with animation
+            const voteCard = document.querySelector(`[data-vote-id="${currentVoteId}"]`);
+            if (voteCard) {
+                voteCard.style.transition = 'all 0.3s ease';
+                voteCard.style.opacity = '0';
+                voteCard.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    voteCard.remove();
+                    
+                    // Check if no votes left
+                    const votesGrid = document.querySelector('.votes-grid');
+                    if (votesGrid && votesGrid.children.length === 0) {
+                        // Show empty state
+                        window.location.reload();
+                    }
+                }, 300);
+            } else {
+                // If can't find card, just reload
+                window.location.reload();
+            }
+        } else {
+            showToast('❌ Error: ' + (data.message || 'Failed to delete vote'), 'error');
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = '🗑️ Yes, Delete';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('❌ Error: ' + (data.message || 'Failed to delete vote'), 'error');
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = '🗑️ Yes, Delete';
+    });
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('delete-modal');
+    if (e.target === modal || e.target.classList.contains('delete-modal-overlay')) {
+        closeDeleteModal();
+    }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+    }
+});
+</script>

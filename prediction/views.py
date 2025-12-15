@@ -6,6 +6,10 @@ from django.contrib import messages
 from scoreboard.models import Match
 from .models import Prediction, Vote
 from django.utils import timezone
+import json
+from django.views.decorators.csrf import csrf_exempt
+
+
 
 def prediction_list(request):
     upcoming_predictions = list(Prediction.objects.filter(match__status='upcoming'))
@@ -56,6 +60,7 @@ def submit_vote(request):
                 "message": "Kamu sudah vote! Mau ubah vote? Klik 'My Votes'"
             })
 
+        # buat objek vote baru
         vote = Vote.objects.create(
             user=request.user,
             prediction=prediction,
@@ -228,7 +233,7 @@ def delete_vote(request, vote_id):
         }, status=405)
     
     if not vote.can_modify():
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'error',
                 'message': 'Voting sudah ditutup! Tidak bisa hapus vote lagi.'
@@ -249,7 +254,7 @@ def delete_vote(request, vote_id):
         
         vote.delete()
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.match_type == 'application/json':
             return JsonResponse({
                 'status': 'success',
                 'message': 'Vote berhasil dihapus!',
@@ -262,3 +267,259 @@ def delete_vote(request, vote_id):
         
         messages.success(request, "Vote berhasil dihapus!")
         return redirect('prediction:my_votes')
+
+from django.http import JsonResponse
+from django.utils import timezone
+from .models import Prediction
+
+def show_json(request):
+    predictions = Prediction.objects.select_related('match').prefetch_related('votes').all()
+
+    data = []
+
+    for p in predictions:
+        # Determine match status
+        if hasattr(p.match, 'status') and p.match.status:
+            match_status = p.match.status.upper()
+        else:
+            match_status = "FINISHED" if p.match.match_date < timezone.now() else "UPCOMING"
+
+        # Build JSON item
+        item = {
+            'id': str(p.id),
+            'match_id': str(p.match.id),
+
+            'home_team': p.match.home_team,
+            'away_team': p.match.away_team,
+            'match_date': p.match.match_date.isoformat(),
+            'stadium': p.match.stadium,
+            'status': match_status,
+
+            'logo_home_team': p.logo_home_team or None,
+            'logo_away_team': p.logo_away_team or None,
+
+            'votes_home_team': p.votes_home_team,
+            'votes_away_team': p.votes_away_team,
+            'total_votes': p.total_votes,
+            'home_percentage': p.home_percentage,
+            'away_percentage': p.away_percentage,
+
+            'votes': [
+                {
+                    "user_id": v.user.id,
+                    "choice": v.choice,
+                    "voted_at": v.voted_at.isoformat(),
+                }
+                for v in p.votes.all()
+            ],
+        }
+
+        data.append(item)
+
+    return JsonResponse(data, safe=False)
+
+
+# =================================================================
+# FLUTTER API
+# =================================================================
+
+@csrf_exempt
+def submit_vote_flutter(request):
+    if request.method == 'POST':
+        try:
+            # 1. Cek Login
+            if not request.user.is_authenticated:
+                return JsonResponse({'status': 'error', 'message': 'Kamu harus login untuk voting.'}, status=401)
+            
+            # --- BAGIAN PENTING: BACA DATA (JSON atau FORM) ---
+            data = {}
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                data = request.POST # Fallback ke Form Data
+            
+            if not data:
+                return JsonResponse({'status': 'error', 'message': 'Data tidak diterima'}, status=400)
+            # --------------------------------------------------
+
+            prediction_id = data.get('prediction_id')
+            choice = data.get('choice', '').lower().strip()
+
+            if not prediction_id or not choice:
+                 return JsonResponse({'status': 'error', 'message': 'Data tidak lengkap.'}, status=400)
+
+            try:
+                prediction = Prediction.objects.get(id=prediction_id)
+            except Prediction.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Prediksi tidak ditemukan.'}, status=404)
+
+            if not prediction.is_voting_open():
+                return JsonResponse({'status': 'error', 'message': 'Voting sudah ditutup!'}, status=403)
+
+            if Vote.objects.filter(user=request.user, prediction=prediction).exists():
+                return JsonResponse({'status': 'error', 'message': 'Kamu sudah voting!'}, status=409)
+
+            Vote.objects.create(
+                user=request.user,
+                prediction=prediction,
+                choice=choice,
+                voted_at=timezone.now()
+            )
+
+            if "home" in choice:
+                prediction.votes_home_team += 1
+            elif "away" in choice:
+                prediction.votes_away_team += 1
+            
+            prediction.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Vote berhasil disimpan!'})
+        
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+
+@csrf_exempt
+def update_vote_flutter(request):
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                return JsonResponse({'status': 'error', 'message': 'Belum login'}, status=401)
+
+            # --- BAGIAN PENTING: BACA DATA ---
+            data = {}
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                data = request.POST
+            # ---------------------------------
+
+            prediction_id = data.get('prediction_id')
+            new_choice = data.get('choice', '').lower().strip()
+
+            try:
+                vote = Vote.objects.get(user=request.user, prediction_id=prediction_id)
+            except Vote.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Kamu belum pernah vote.'}, status=404)
+
+            # Asumsi model Vote punya method can_modify, kalau tidak ada hapus baris ini
+            if hasattr(vote, 'can_modify') and not vote.can_modify():
+                return JsonResponse({'status': 'error', 'message': 'Voting sudah ditutup.'}, status=403)
+
+            old_choice = vote.choice.lower().strip()
+            if old_choice == new_choice:
+                return JsonResponse({'status': 'warning', 'message': 'Pilihan sama.'})
+
+            prediction = vote.prediction
+
+            if "home" in old_choice:
+                prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
+            elif "away" in old_choice:
+                prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
+
+            if "home" in new_choice:
+                prediction.votes_home_team += 1
+                vote.choice = 'home'
+            elif "away" in new_choice:
+                prediction.votes_away_team += 1
+                vote.choice = 'away'
+            
+            vote.voted_at = timezone.now()
+            vote.save()
+            prediction.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Vote berhasil diubah!'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+
+@csrf_exempt
+def delete_vote_flutter(request):
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                return JsonResponse({'status': 'error', 'message': 'Belum login'}, status=401)
+
+            # --- BAGIAN PENTING: BACA DATA ---
+            data = {}
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                data = request.POST
+            # ---------------------------------
+
+            prediction_id = data.get('prediction_id')
+
+            try:
+                vote = Vote.objects.get(user=request.user, prediction_id=prediction_id)
+            except Vote.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Vote tidak ditemukan.'}, status=404)
+
+            if hasattr(vote, 'can_modify') and not vote.can_modify():
+                return JsonResponse({'status': 'error', 'message': 'Voting sudah ditutup.'}, status=403)
+
+            prediction = vote.prediction
+            choice = vote.choice.lower().strip()
+
+            if "home" in choice:
+                prediction.votes_home_team = max(0, prediction.votes_home_team - 1)
+            elif "away" in choice:
+                prediction.votes_away_team = max(0, prediction.votes_away_team - 1)
+            
+            prediction.save()
+            vote.delete()
+
+            return JsonResponse({'status': 'success', 'message': 'Vote berhasil dihapus!'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=405)
+
+@login_required
+def show_my_votes_json(request):
+    # Ambil prediksi dimana ada vote dari user yang sedang login
+    predictions = Prediction.objects.filter(votes__user=request.user).select_related('match').prefetch_related('votes').distinct()
+
+    data = []
+
+    for p in predictions:
+        # Determine match status
+        match_status = "UPCOMING"
+        if hasattr(p.match, 'status') and p.match.status:
+            match_status = p.match.status.upper()
+        elif p.match.match_date < timezone.now():
+            match_status = "FINISHED"
+
+        item = {
+            'id': str(p.id),
+            'match_id': str(p.match.id),
+            'home_team': p.match.home_team,
+            'away_team': p.match.away_team,
+            'match_date': p.match.match_date.isoformat(),
+            'stadium': p.match.stadium,
+            'status': match_status,
+            'logo_home_team': p.logo_home_team or None,
+            'logo_away_team': p.logo_away_team or None,
+            'votes_home_team': p.votes_home_team,
+            'votes_away_team': p.votes_away_team,
+            'total_votes': p.total_votes,
+            'home_percentage': p.home_percentage,
+            'away_percentage': p.away_percentage,
+            'votes': [
+                {
+                    "user_id": v.user.id,
+                    "choice": v.choice,
+                    "voted_at": v.voted_at.isoformat(),
+                }
+                for v in p.votes.all()
+            ],
+        }
+        data.append(item)
+
+    return JsonResponse(data, safe=False)
