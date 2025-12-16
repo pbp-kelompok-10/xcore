@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+# Tambahkan di imports
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 # Get your custom user model - this is IMPORTANT!
 CustomUser = get_user_model()
@@ -64,6 +68,7 @@ def login(request):
             auth_login(request, user)
             return JsonResponse({
                 "status": True,
+                "user_id" : user.id,
                 "username": user.username,
                 "message": "Login successful!"
             }, status=200)
@@ -81,14 +86,31 @@ def login(request):
         }, status=401)
 
 @csrf_exempt
-@login_required
-def logout(request):
+def logout(request):  # HAPUS @login_required
+    """
+    Custom logout view that returns JSON
+    """
     if request.method == "POST":
-        auth_logout(request)
-        return JsonResponse({
-            "status": True,
-            "message": "Logout successful!"
-        }, status=200)
+        print("🔄 Processing logout request...")
+        
+        # Check if user is actually logged in
+        if request.user.is_authenticated:
+            username = request.user.username
+            auth_logout(request)
+            print(f"✅ User {username} logged out successfully")
+            
+            return JsonResponse({
+                "status": True,
+                "message": "Logout successful!",
+                "username": username
+            }, status=200)
+        else:
+            # User already logged out or not authenticated
+            print("ℹ️ User was not logged in")
+            return JsonResponse({
+                "status": True,
+                "message": "User was not logged in."
+            }, status=200)
     else:
         return JsonResponse({
             "status": False,
@@ -127,3 +149,94 @@ def register_api(request):
         "message": "Registration failed.",
         "errors": errors
     }, status=400)
+
+
+# Tambahkan setelah fungsi yang ada
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_info(request):
+    """
+    Get current user information including admin status
+    """
+    user = request.user
+    return JsonResponse({
+        "status": True,
+        "user": {
+            "username": user.username,
+            "email": user.email,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_admin": user.is_staff or user.is_superuser
+        }
+    })
+
+@csrf_exempt
+def login_with_token(request):
+    """
+    Modified login that returns token for Flutter
+    """
+    if request.method != "POST":
+        return JsonResponse({
+            "status": False,
+            "message": "Only POST requests are allowed."
+        }, status=405)
+    
+    form = AuthenticationForm(request, data=request.POST)
+
+    if form.is_valid():
+        user = form.get_user()
+
+        if user is not None and user.is_active:
+            auth_login(request, user)
+            
+            # Get or create token for the user
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return JsonResponse({
+                "status": True,
+                "username": user.username,
+                "token": token.key,
+                "user_info": {
+                    "username": user.username,
+                    "email": user.email,
+                    "is_staff": user.is_staff,
+                    "is_superuser": user.is_superuser,
+                    "is_admin": user.is_staff or user.is_superuser
+                },
+                "message": "Login successful!"
+            }, status=200)
+        else:
+            return JsonResponse({
+                "status": False,
+                "message": "Account is disabled."
+            }, status=401)
+
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "Login failed.",
+            "errors": form.errors  
+        }, status=401)
+        
+def status_admin(request):
+    """
+    Check if the current user is admin
+    """
+    
+    if request.user.is_authenticated:
+        is_admin = getattr(request.user, "is_admin", False) if request.user.is_authenticated else False
+        
+        # Jika is_admin adalah tuple, ambil elemen pertama
+        if isinstance(is_admin, tuple):
+            is_admin = is_admin[0]  # Ambil True/False dari tuple
+            
+        return JsonResponse({
+            "status": True,
+            "is_admin": is_admin
+        }, status=200)
+    else:
+        return JsonResponse({
+            "status": False,
+            "message": "User is not authenticated."
+        }, status=401)

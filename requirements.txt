@@ -8,3 +8,4 @@ python-dotenv
 django-embed-video
 pillow
 django-cors-headers
+djangorestframework
