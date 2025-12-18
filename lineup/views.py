@@ -745,7 +745,6 @@ def api_player_detail(request, player_id):
             "asal": player.asal,
             "umur": player.umur,
             "nomor": player.nomor,
-            "team_id": player.tim.id,
             "team_name": player.tim.name,
         })
 
@@ -757,9 +756,12 @@ def api_player_detail(request, player_id):
         player.umur = body.get("umur", player.umur)
         player.nomor = body.get("nomor", player.nomor)
 
-        team_id = body.get("team_id")
-        if team_id:
-            player.tim = Team.objects.get(pk=team_id)
+        team_name = body.get("team_name")
+        if team_name:
+            team = Team.objects.filter(name=team_name).first()
+            if not team:
+                return JsonResponse({"error": "Team not found"}, status=404)
+            player.tim = team
 
         player.save()
         return JsonResponse({"success": True})
