@@ -25,8 +25,8 @@ urlpatterns = [
     
     path('flutter/<uuid:match_id>/', FlutterLineupDetailView.as_view(), name='flutter-lineup-detail'),
     path('flutter/create/<uuid:match_id>/', FlutterLineupCreateView.as_view(), name='flutter-lineup-create'),
-    path('flutter/update/<uuid:lineup_id>/', FlutterLineupUpdateView.as_view(), name='flutter-lineup-update'),
-    path('flutter/delete/<uuid:lineup_id>/', FlutterLineupDeleteView.as_view(), name='flutter-lineup-delete'),
+    path('flutter/update/<int:lineup_id>/', FlutterLineupUpdateView.as_view(), name='flutter-lineup-update'),
+    path('flutter/delete/<int:lineup_id>/', FlutterLineupDeleteView.as_view(), name='flutter-lineup-delete'),
 
     path('ajax/get-teams/', get_teams_for_match, name='ajax-get-teams'),
     path('ajax/get-players/', get_players_for_team, name='ajax-get-players'),
