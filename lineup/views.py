@@ -637,7 +637,6 @@ def api_team_list(request):
 
 @csrf_exempt
 def api_team_detail(request, team_id):
-    """GET, PUT/PATCH, DELETE on a specific team"""
     try:
         team = Team.objects.get(pk=team_id)
     except Team.DoesNotExist:
@@ -659,22 +658,6 @@ def api_team_detail(request, team_id):
                 for p in team.players.all()
             ]
         })
-
-    elif request.method in ["PUT", "PATCH"]:
-        body = json.loads(request.body)
-        code = body.get("code")
-
-        if code and code in dict(COUNTRY_CHOICES):
-            team.code = code
-            team.save()
-        else:
-            return JsonResponse({"error": "Invalid country code"}, status=400)
-
-        return JsonResponse({"success": True})
-
-    elif request.method == "DELETE":
-        team.delete()
-        return JsonResponse({"deleted": True})
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
