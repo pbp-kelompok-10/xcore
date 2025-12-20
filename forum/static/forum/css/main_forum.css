@@ -112,3 +112,208 @@
     font-size: 15px;
     padding: 40px 0;
 }
+
+/* SEARCH, FILTER, AND SORT - Enhanced Design */
+
+.controls-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(30, 66, 59, 0.08);
+    margin-bottom: 20px;
+    border: 1px solid rgba(86, 189, 169, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.controls-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+}
+
+.controls-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-label {
+    font-size: 0.875em;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+
+.control-input,
+.control-select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--white);
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-dark);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.control-input:hover,
+.control-select:hover {
+    border-color: var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(86, 189, 169, 0.15);
+}
+
+.control-input:focus,
+.control-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 4px rgba(86, 189, 169, 0.15);
+    transform: translateY(-1px);
+}
+
+.control-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2356bda9' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 35px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.btn-control {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-control::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-control:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-apply {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #4daa96 100%);
+    color: var(--white);
+    position: relative;
+}
+
+.btn-apply:hover {
+    background: linear-gradient(135deg, #4daa96 0%, #3d8976 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(86, 189, 169, 0.3);
+}
+
+.btn-apply:active {
+    transform: translateY(0);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    color: var(--text-dark);
+}
+
+.btn-reset:hover {
+    background: linear-gradient(135deg, #e8e8e8 0%, #d8d8d8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.results-info {
+    margin-top: 15px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--light-bg) 0%, #e0f5f1 100%);
+    border-radius: 10px;
+    border-left: 4px solid var(--secondary-color);
+    font-size: 0.9em;
+    color: var(--primary-color);
+    text-align: center;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(86, 189, 169, 0.1);
+}
+
+/* Responsive Controls */
+@media (max-width: 968px) {
+    .controls-row {
+        grid-template-columns: 1fr;
+    }
+
+    .control-buttons {
+        width: 100%;
+    }
+
+    .btn-control {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .controls-container {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .controls-container {
+        padding: 14px;
+    }
+
+    .control-input,
+    .control-select {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+
+    .btn-control {
+        padding: 10px 14px;
+        font-size: 0.85em;
+    }
+    
+    .control-label {
+        font-size: 0.7em;
+    }
+}
