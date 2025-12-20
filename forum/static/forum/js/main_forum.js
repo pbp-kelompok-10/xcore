@@ -1,6 +1,40 @@
 $(document).ready(function () {
     displayPosts();
 
+    // ========================================
+    // FILTER CONTROLS
+    // ========================================
+
+    // Apply Filters Button
+    $("#applyFilters").on('click', function() {
+        displayPosts();
+    });
+
+    // Reset Filters Button
+    $("#resetFilters").on('click', function() {
+        $("#searchInput").val('');
+        $("#authorFilter").val('all');
+        $("#sortSelect").val('newest');
+        displayPosts();
+    });
+
+    // Enter key untuk search
+    $("#searchInput").on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            displayPosts();
+        }
+    });
+
+    // Sort/Filter select change - auto apply
+    $("#sortSelect, #authorFilter").on('change', function() {
+        displayPosts();
+    });
+
+    // ========================================
+    // POST FORM
+    // ========================================
+
     $("#postForm").on('submit', function(event) {
         event.preventDefault();
         let postContent = $("#postContent").val().trim();
@@ -29,7 +63,6 @@ $(document).ready(function () {
             error: function (xhr, status, error) {
                 let errorMessage = 'Error sending post.';
 
-                // Coba ambil pesan error dari JSON response
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;
                 }
@@ -40,15 +73,21 @@ $(document).ready(function () {
         });
     });
 
+    // ========================================
+    // EDIT POST
+    // ========================================
+
     // Edit Post Trigger
     $(document).on('click', '.edit-post', function(e) {
         e.preventDefault();
         let postId = $(this).data('post-id');
         let $postCard = $(this).closest('.match-card');
         
+        // Close all other edit modes
         $('.edit-mode').removeClass('active');
         $('.post-display').removeClass('editing');
         
+        // Toggle this post's edit mode
         $postCard.find('.post-display').toggleClass('editing');
         $postCard.find('.edit-mode').toggleClass('active');
     });
@@ -88,7 +127,10 @@ $(document).ready(function () {
         }
     });
 
-    // Delete Post Trigger
+    // ========================================
+    // DELETE POST
+    // ========================================
+
     $(document).on('click', '.delete-post', function(e) {
         e.preventDefault();
         let postId = $(this).data('post-id');
@@ -108,6 +150,10 @@ $(document).ready(function () {
             }
         });
     });
+
+    // ========================================
+    // HELPER FUNCTIONS
+    // ========================================
 
     function editPost(postId, newMessage, $postCard) { 
         $.ajax({
@@ -157,13 +203,47 @@ $(document).ready(function () {
     }
 
     function displayPosts() {
+        // Ambil nilai filter
+        const searchQuery = $("#searchInput").val().trim();
+        const authorFilter = $("#authorFilter").val();
+        const sortBy = $("#sortSelect").val();
+
+        // Build query parameters
+        let queryParams = {};
+        if (searchQuery) queryParams.search = searchQuery;
+        if (authorFilter) queryParams.author_filter = authorFilter;
+        if (sortBy) queryParams.sort = sortBy;
+
         $.ajax({
             url: `/forum/${forumId}/get_posts/`,
             type: "GET",
+            data: queryParams,
             success: function(response) {
                 $('#postsContainer').empty();
-            
+                
+                // ========================================
+                // UPDATE RESULTS INFO
+                // ========================================
+                const activeFilters = [];
+                if (searchQuery) activeFilters.push(`Search: "${searchQuery}"`);
+                if (authorFilter === 'my_posts') activeFilters.push(`Filter: My Posts`);
+                if (sortBy !== 'newest') {
+                    const sortLabel = sortBy === 'oldest' ? 'Oldest First' : 'Recently Edited';
+                    activeFilters.push(`Sort: ${sortLabel}`);
+                }
 
+                if (activeFilters.length > 0 || authorFilter === 'my_posts') {
+                    $("#resultsInfo").html(
+                        `📊 ${response.posts.length} post(s) found` + 
+                        (activeFilters.length > 0 ? ` | ${activeFilters.join(' • ')}` : '')
+                    ).show();
+                } else {
+                    $("#resultsInfo").hide();
+                }
+
+                // ========================================
+                // RENDER POSTS
+                // ========================================
                 if (response.posts && response.posts.length > 0) {
                     response.posts.forEach(function(post) {
                         let deleteButton = '';
@@ -222,11 +302,21 @@ $(document).ready(function () {
                         $('#postsContainer').append(postHtml);
                     });
                 } else {
-                    $('#postsContainer').html('<p>No posts yet.</p>');
+                    // ========================================
+                    // NO POSTS MESSAGE
+                    // ========================================
+                    let noResultsMsg = '<p>No posts yet. Be the first to post!</p>';
+                    if (authorFilter === 'my_posts') {
+                        noResultsMsg = '<p>You haven\'t posted anything yet.</p>';
+                    } else if (searchQuery) {
+                        noResultsMsg = '<p>No posts found matching your criteria. Try adjusting your filters.</p>';
+                    }
+                    $('#postsContainer').html(noResultsMsg);
                 }
             },
             error: function(xhr, status, error) {
                 $('#postsContainer').html('<p>Error loading posts.</p>');
+                $("#resultsInfo").hide();
             }
         });
     }
