@@ -101,11 +101,11 @@ def highlight_delete(request, match_id):
     return redirect('highlights:match_highlights', match_id=match.id)
 
 def api_highlight_detail(request, match_id):
-    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return JsonResponse({"error": "Authentication required"}, status=401)
+    # if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+    #     return JsonResponse({"error": "Authentication required"}, status=401)
     match = get_object_or_404(Match, id=match_id)
     highlight = getattr(match, "highlight", None)
-
+    
     return JsonResponse({
         "match": {
             "id": match.id,
@@ -129,10 +129,8 @@ def api_highlight_detail(request, match_id):
 
 @csrf_exempt
 def api_highlight_create(request, match_id):
-
-
-    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return JsonResponse({"error": "Authentication required"}, status=401)
+    # if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+    #     return JsonResponse({"error": "Authentication required"}, status=401)
 
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
@@ -157,8 +155,8 @@ def api_highlight_create(request, match_id):
 @csrf_exempt
 def api_highlight_update(request, match_id):
 
-    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return JsonResponse({"error": "Authentication required"}, status=401)
+    # if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+    #     return JsonResponse({"error": "Authentication required"}, status=401)
     if request.method not in ["POST", "PUT"]:
         return JsonResponse({"error": "POST or PUT required"}, status=405)
 
@@ -179,8 +177,8 @@ def api_highlight_update(request, match_id):
 
 @csrf_exempt
 def api_highlight_delete(request, match_id):
-    if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
-        return JsonResponse({"error": "Authentication required"}, status=401)
+    # if not request.user.is_authenticated or not getattr(request.user, "is_admin", False):
+    #     return JsonResponse({"error": "Authentication required"}, status=401)
     if request.method != "DELETE":
         return JsonResponse({"error": "DELETE required"}, status=405)
 

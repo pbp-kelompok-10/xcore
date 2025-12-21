@@ -8,11 +8,10 @@ from django.urls import reverse
 from .models import Forum, Post
 from scoreboard.models import Match
 from django.utils import timezone
-from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Forum, Post
 from user.models import CustomUser
+from django.db import models as db_models  
 import json
 
 def show_main(request, id):
@@ -81,9 +80,29 @@ def add_post(request, forum_id):
 def get_posts(request, forum_id):
     try:
         forum = Forum.objects.get(id=forum_id)
-        posts = Post.objects.filter(forum=forum).order_by('created_at')
-
-        User = get_user_model()
+        posts = Post.objects.filter(forum=forum)
+        
+        # Search functionality
+        search_query = request.GET.get('search', '').strip()
+        if search_query:
+            posts = posts.filter(
+                db_models.Q(message__icontains=search_query) | 
+                db_models.Q(author__username__icontains=search_query)
+            )
+        
+        # Filter by author (my posts or all posts)
+        author_filter = request.GET.get('author_filter', 'all')
+        if author_filter == 'my_posts' and request.user.is_authenticated:
+            posts = posts.filter(author=request.user)
+        
+        # Sort functionality
+        sort_by = request.GET.get('sort', 'newest')
+        if sort_by == 'oldest':
+            posts = posts.order_by('created_at')
+        elif sort_by == 'edited':
+            posts = posts.filter(is_edited=True).order_by('-edited_at')
+        else:  # newest (default)
+            posts = posts.order_by('-created_at')
 
         posts_data = [
             {
@@ -103,7 +122,7 @@ def get_posts(request, forum_id):
             'posts': posts_data,
             'user_id': request.user.id if request.user.is_authenticated else None,
             'user_is_authenticated': request.user.is_authenticated,
-            'user_is_admin': getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
+            'user_is_admin': request.user.is_admin if request.user.is_authenticated else False,
         }, status=200)
 
     except Forum.DoesNotExist:
@@ -116,7 +135,7 @@ def delete_post(request, forum_id, post_id):
         post = Post.objects.get(id=post_id, forum_id=forum_id)
         
         # Cek apakah user adalah author ATAU admin
-        is_admin = getattr(request.user, "is_admin", False)
+        is_admin = request.user.is_admin if request.user.is_authenticated else False
         if request.user != post.author and not is_admin:
             return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
         
@@ -170,7 +189,29 @@ def get_forum_json(request, match_id):
 def get_posts_flutter(request, forum_id):
     try:
         forum = Forum.objects.get(id=forum_id)
-        posts = Post.objects.filter(forum=forum).order_by('-created_at')
+        posts = Post.objects.filter(forum=forum)
+        
+        # Search functionality
+        search_query = request.GET.get('search', '').strip()
+        if search_query:
+            posts = posts.filter(
+                db_models.Q(message__icontains=search_query) | 
+                db_models.Q(author__username__icontains=search_query)
+            )
+        
+        # Filter by author (my posts or all posts)
+        author_filter = request.GET.get('author_filter', 'all')
+        if author_filter == 'my_posts' and request.user.is_authenticated:
+            posts = posts.filter(author=request.user)
+        
+        # Sort functionality
+        sort_by = request.GET.get('sort', 'newest')
+        if sort_by == 'oldest':
+            posts = posts.order_by('created_at')
+        elif sort_by == 'edited':
+            posts = posts.filter(is_edited=True).order_by('-edited_at')
+        else:  # newest (default)
+            posts = posts.order_by('-created_at')
         
         posts_data = []
         for post in posts:
@@ -187,13 +228,13 @@ def get_posts_flutter(request, forum_id):
             posts_data.append(post_data)
         
         # debugging line
-        print(f"DEBUG: User is_authenticated = {request.user.is_authenticated}, User is_admin = {getattr(request.user, 'is_admin', False) if request.user.is_authenticated else 'N/A'}")
+        print(f"DEBUG: User is_authenticated = {request.user.is_authenticated}, User is_admin = {request.user.is_admin if request.user.is_authenticated else 'N/A'}")
         
         return JsonResponse({
             'posts': posts_data,
             'user_id': request.user.id if request.user.is_authenticated else None,
             'user_is_authenticated': request.user.is_authenticated,
-            'user_is_admin': getattr(request.user, "is_admin", False) if request.user.is_authenticated else False,
+            'user_is_admin': request.user.is_admin if request.user.is_authenticated else False,
         }, status=200)
     except Forum.DoesNotExist:
         return JsonResponse({'error': 'Forum not found.'}, status=404)
@@ -277,8 +318,9 @@ def delete_post_flutter(request, forum_id, post_id):
         forum = Forum.objects.get(id=forum_id)
         post = Post.objects.get(id=post_id, forum=forum)
         
-        # Check if user is the author (sementara skip auth untuk development)
-        if request.user != post.author and not getattr(request.user, "is_admin", False):
+        # Check if user is the author or admin
+        is_admin = request.user.is_admin if request.user.is_authenticated else False
+        if request.user != post.author and not is_admin:
             return JsonResponse({'error': 'Not authorized to delete this post.'}, status=403)
         
         post.delete()

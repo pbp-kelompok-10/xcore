@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django import forms
 from django.shortcuts import get_object_or_404
+import base64
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict access to admin users only with toast message."""
 
@@ -376,6 +377,7 @@ class LineupUpdateView(SuperuserRequiredMixin, UpdateView):
 
         return redirect(reverse_lazy('lineup:lineup-detail', kwargs={'match_id': match.id}))
 
+@method_decorator(csrf_exempt, name='dispatch')
 class FlutterLineupUpdateView(View):
     def put(self, request, lineup_id):
         try:
@@ -425,6 +427,9 @@ class FlutterLineupDeleteView(View):
     def delete(self, request, lineup_id):
         try:
             lineup = get_object_or_404(Lineup, pk=lineup_id)
+            
+            print ("Deleting lineup:", lineup_id)
+            print ("Lineup details:", lineup.match, lineup.team)
             lineup.delete()
             
             return JsonResponse({
@@ -482,9 +487,24 @@ class UploadTeamsView(SuperuserRequiredMixin, View):
 @method_decorator(csrf_exempt, name='dispatch')
 class UploadPlayersView(SuperuserRequiredMixin, View):
     def post(self, request):
-        zip_file = request.FILES.get('file')
-        if not zip_file:
-            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        try:
+            # Handle both multipart form data and JSON with base64
+            if request.content_type == 'application/json':
+                # Base64 JSON format from Flutter
+                body = json.loads(request.body)
+                base64_file = body.get('file')
+                if not base64_file:
+                    return JsonResponse({'error': 'No file in JSON'}, status=400)
+                zip_bytes = base64.b64decode(base64_file)
+                zip_file = io.BytesIO(zip_bytes)
+            else:
+                # Multipart form data format
+                zip_file = request.FILES.get('file')
+                if not zip_file:
+                    return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+        except (json.JSONDecodeError, ValueError) as e:
+            return JsonResponse({'error': f'Invalid request format: {str(e)}'}, status=400)
 
         added, skipped, missing_team, invalid = [], [], [], []
 
@@ -507,41 +527,34 @@ class UploadPlayersView(SuperuserRequiredMixin, View):
                             continue
 
                         for p in players:
-                            required_fields = ['nama', 'tim', 'nomor']
-                            if not all(field in p and p[field] not in (None, '') for field in required_fields):
+                            required = ['nama', 'tim', 'nomor']
+                            if not all(p.get(field) for field in required):
                                 skipped.append({
                                     'file': filename,
-                                    'reason': f"Missing required fields in player {p.get('nama', '(unknown)')}"
+                                    'reason': f"Missing required fields for {p.get('nama','?')}"
                                 })
                                 continue
 
-                            team_name = p.get('tim')
-                            team = Team.objects.filter(name=team_name).first()
+                            team = Team.objects.filter(name=p['tim']).first()
                             if not team:
-                                missing_team.append(team_name)
+                                missing_team.append(p['tim'])
                                 continue
 
                             if Player.objects.filter(nomor=p['nomor'], tim=team).exists():
                                 skipped.append({
                                     'file': filename,
-                                    'reason': f"Duplicate jersey number {p['nomor']} in team {team.name}"
+                                    'reason': f"Duplicate jersey number {p['nomor']} in {team.name}"
                                 })
                                 continue
 
-                            try:
-                                player = Player.objects.create(
-                                    nama=p['nama'],
-                                    asal=p.get('asal', ''),
-                                    umur=p.get('umur') or 0,
-                                    nomor=p['nomor'],
-                                    tim=team
-                                )
-                                added.append(player.nama)
-                            except Exception as e:
-                                skipped.append({
-                                    'file': filename,
-                                    'reason': str(e)
-                                })
+                            player = Player.objects.create(
+                                nama=p['nama'],
+                                asal=p.get('asal', ''),
+                                umur=p.get('umur') if p.get('umur') is not None else 0,
+                                nomor=p['nomor'],
+                                tim=team
+                            )
+                            added.append(player.nama)
 
             return JsonResponse({
                 'status': 'ok',
@@ -596,12 +609,24 @@ def api_team_list(request):
     elif request.method == "POST":
         try:
             body = json.loads(request.body)
-            code = body.get("code")
-            if code not in dict(COUNTRY_CHOICES):
-                return JsonResponse({"error": "Invalid country code"}, status=400)
+            name = body.get("name")
+            
+            if not name:
+                return JsonResponse({"error": "Team name is required"}, status=400)
+            
+            # Look up code from name using COUNTRY_MAP
+            code = COUNTRY_MAP.get(name)
+            if not code:
+                return JsonResponse({"error": "Invalid country name"}, status=400)
 
-            team, created = Team.objects.get_or_create(code=code)
-            team.save()
+            # Check if team already exists
+            if Team.objects.filter(code=code).exists():
+                return JsonResponse({
+                    "error": "Team already exists",
+                    "code": code
+                }, status=400)
+
+            team = Team.objects.create(code=code)
 
             return JsonResponse({
                 "id": team.id,
@@ -616,7 +641,6 @@ def api_team_list(request):
 
 @csrf_exempt
 def api_team_detail(request, team_id):
-    """GET, PUT/PATCH, DELETE on a specific team"""
     try:
         team = Team.objects.get(pk=team_id)
     except Team.DoesNotExist:
@@ -639,22 +663,6 @@ def api_team_detail(request, team_id):
             ]
         })
 
-    elif request.method in ["PUT", "PATCH"]:
-        body = json.loads(request.body)
-        code = body.get("code")
-
-        if code and code in dict(COUNTRY_CHOICES):
-            team.code = code
-            team.save()
-        else:
-            return JsonResponse({"error": "Invalid country code"}, status=400)
-
-        return JsonResponse({"success": True})
-
-    elif request.method == "DELETE":
-        team.delete()
-        return JsonResponse({"deleted": True})
-
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
 
@@ -672,6 +680,7 @@ def api_player_list(request):
                 "nomor": p.nomor,
                 "team_id": p.tim.id,
                 "team_name": p.tim.name,
+                "team_code": p.tim.code,
             }
             for p in players
         ]
@@ -723,7 +732,6 @@ def api_player_detail(request, player_id):
             "asal": player.asal,
             "umur": player.umur,
             "nomor": player.nomor,
-            "team_id": player.tim.id,
             "team_name": player.tim.name,
         })
 
@@ -735,9 +743,12 @@ def api_player_detail(request, player_id):
         player.umur = body.get("umur", player.umur)
         player.nomor = body.get("nomor", player.nomor)
 
-        team_id = body.get("team_id")
-        if team_id:
-            player.tim = Team.objects.get(pk=team_id)
+        team_name = body.get("team_name")
+        if team_name:
+            team = Team.objects.filter(name=team_name).first()
+            if not team:
+                return JsonResponse({"error": "Team not found"}, status=404)
+            player.tim = team
 
         player.save()
         return JsonResponse({"success": True})
@@ -750,12 +761,113 @@ def api_player_detail(request, player_id):
 
 
 @csrf_exempt
+@require_http_methods(["PUT", "PATCH"])
+def api_update_team(request, team_id):
+    """UPDATE - Update a specific team (Flutter API)"""
+    try:
+        team = Team.objects.get(pk=team_id)
+    except Team.DoesNotExist:
+        return JsonResponse({"error": "Team not found"}, status=404)
+
+    try:
+        body = json.loads(request.body)
+        code = body.get("code")
+
+        if code and code in dict(COUNTRY_CHOICES):
+            team.code = code
+            team.save()
+            return JsonResponse({
+                "success": True,
+                "message": "Team updated successfully",
+                "team": {
+                    "id": team.id,
+                    "code": team.code,
+                    "name": team.name
+                }
+            })
+        else:
+            return JsonResponse({"error": "Invalid country code"}, status=400)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["PUT", "PATCH"])
+def api_update_player(request, player_id):
+    """UPDATE - Update a specific player (Flutter API)"""
+    try:
+        player = Player.objects.get(pk=player_id)
+    except Player.DoesNotExist:
+        return JsonResponse({"error": "Player not found"}, status=404)
+
+    try:
+        body = json.loads(request.body)
+
+        # Update player fields
+        if "nama" in body:
+            player.nama = body["nama"]
+        if "asal" in body:
+            player.asal = body["asal"]
+        if "umur" in body:
+            umur = body["umur"]
+            player.umur = umur if umur is not None else 0
+        if "nomor" in body:
+            player.nomor = body["nomor"]
+
+        # Update team if provided
+        if "team_id" in body:
+            team_id = body["team_id"]
+            try:
+                team = Team.objects.get(pk=team_id)
+                player.tim = team
+            except Team.DoesNotExist:
+                return JsonResponse({"error": "Team not found"}, status=404)
+
+        player.save()
+        return JsonResponse({
+            "success": True,
+            "message": "Player updated successfully",
+            "player": {
+                "id": player.id,
+                "nama": player.nama,
+                "asal": player.asal,
+                "umur": player.umur,
+                "nomor": player.nomor,
+                "team_id": player.tim.id,
+                "team_name": player.tim.name,
+            }
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def api_upload_teams(request):
-    zip_file = request.FILES.get('file')
+    try:
+        # Handle both multipart form data and JSON with base64
+        if request.content_type == 'application/json':
+            # Base64 JSON format from Flutter
+            body = json.loads(request.body)
+            base64_file = body.get('file')
+            if not base64_file:
+                return JsonResponse({'error': 'No file in JSON'}, status=400)
+            zip_bytes = base64.b64decode(base64_file)
+            zip_file = io.BytesIO(zip_bytes)
+        else:
+            # Multipart form data format
+            zip_file = request.FILES.get('file')
+            if not zip_file:
+                return JsonResponse({'error': 'No file uploaded'}, status=400)
 
-    if not zip_file:
-        return JsonResponse({'error': 'No file uploaded'}, status=400)
+    except (json.JSONDecodeError, ValueError) as e:
+        return JsonResponse({'error': f'Invalid request format: {str(e)}'}, status=400)
 
     created, skipped = [], []
 
@@ -778,11 +890,13 @@ def api_upload_teams(request):
                         skipped.append(filename)
                         continue
 
-                    team, was_created = Team.objects.get_or_create(code=code)
-                    if was_created:
-                        created.append(team.name)
-                    else:
-                        skipped.append(team.name)
+                    # Check if team already exists
+                    if Team.objects.filter(code=code).exists():
+                        skipped.append({'name': code, 'reason': 'Team already exists'})
+                        continue
+
+                    team = Team.objects.create(code=code)
+                    created.append(team.name)
 
         return JsonResponse({
             "status": "ok",
@@ -798,10 +912,24 @@ def api_upload_teams(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_upload_players(request):
-    zip_file = request.FILES.get('file')
+    try:
+        # Handle both multipart form data and JSON with base64
+        if request.content_type == 'application/json':
+            # Base64 JSON format from Flutter
+            body = json.loads(request.body)
+            base64_file = body.get('file')
+            if not base64_file:
+                return JsonResponse({'error': 'No file in JSON'}, status=400)
+            zip_bytes = base64.b64decode(base64_file)
+            zip_file = io.BytesIO(zip_bytes)
+        else:
+            # Multipart form data format
+            zip_file = request.FILES.get('file')
+            if not zip_file:
+                return JsonResponse({'error': 'No file uploaded'}, status=400)
 
-    if not zip_file:
-        return JsonResponse({'error': 'No file uploaded'}, status=400)
+    except (json.JSONDecodeError, ValueError) as e:
+        return JsonResponse({'error': f'Invalid request format: {str(e)}'}, status=400)
 
     added, skipped, missing_team, invalid = [], [], [], []
 
@@ -847,7 +975,7 @@ def api_upload_players(request):
                         player = Player.objects.create(
                             nama=p['nama'],
                             asal=p.get('asal', ''),
-                            umur=p.get('umur', 0),
+                            umur=p.get('umur') if p.get('umur') is not None else 0,
                             nomor=p['nomor'],
                             tim=team
                         )

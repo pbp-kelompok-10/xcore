@@ -25,8 +25,8 @@ urlpatterns = [
     
     path('flutter/<uuid:match_id>/', FlutterLineupDetailView.as_view(), name='flutter-lineup-detail'),
     path('flutter/create/<uuid:match_id>/', FlutterLineupCreateView.as_view(), name='flutter-lineup-create'),
-    path('flutter/update/<uuid:lineup_id>/', FlutterLineupUpdateView.as_view(), name='flutter-lineup-update'),
-    path('flutter/delete/<uuid:lineup_id>/', FlutterLineupDeleteView.as_view(), name='flutter-lineup-delete'),
+    path('flutter/update/<int:lineup_id>/', FlutterLineupUpdateView.as_view(), name='flutter-lineup-update'),
+    path('flutter/delete/<int:lineup_id>/', FlutterLineupDeleteView.as_view(), name='flutter-lineup-delete'),
 
     path('ajax/get-teams/', get_teams_for_match, name='ajax-get-teams'),
     path('ajax/get-players/', get_players_for_team, name='ajax-get-players'),
@@ -34,6 +34,8 @@ urlpatterns = [
     path('api/upload/teams/', api_upload_teams, name='api-upload-teams'),
     path('api/teams/', api_team_list, name='api-team-list'),
     path('api/teams/<int:team_id>/', api_team_detail, name='api-team-detail'),
+    path('api/teams/<int:team_id>/update/', api_update_team, name='api-update-team'),
     path('api/players/', api_player_list, name='api-player-list'),
     path('api/players/<int:player_id>/', api_player_detail, name='api-player-detail'),
+    path('api/players/<int:player_id>/update/', api_update_player, name='api-update-player'),
 ]
