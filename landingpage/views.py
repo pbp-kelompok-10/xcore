@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -11,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from user.forms import CustomUserCreationForm, EditProfileForm
 import base64
 from django.core.files.base import ContentFile
+
 
 # Create your views here.
 def landing_home(request):
@@ -104,30 +106,35 @@ def update_profile_flutter(request):
     if request.method != 'POST':
         return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
     
+    # Cek login standard Django session
     if not request.user.is_authenticated:
         return JsonResponse({"status": "error", "message": "User not authenticated"}, status=401)
 
     try:
         user = request.user
         
-        # 1. Update Text Data (Sama kayak sebelumnya)
-        user.username = request.POST.get("username", user.username)
-        user.email = request.POST.get("email", user.email)
-        user.bio = request.POST.get("bio", getattr(user, 'bio', ""))
+        # BACA DATA DARI JSON BODY, BUKAN request.POST
+        data = json.loads(request.body)
+        
+        user.username = data.get("username", user.username)
+        user.email = data.get("email", user.email)
+        user.bio = data.get("bio", getattr(user, 'bio', ""))
 
-        # 2. Update File Gambar dari Base64 (LOGIKA BARU)
-        image_data = request.POST.get("image") # Kita ambil string base64
-        image_name = request.POST.get("image_name") # Nama filenya
+        # Logika Base64 Image
+        image_data = data.get("image") 
+        image_name = data.get("image_name") 
 
         if image_data and image_name:
-            # Decode string base64 kembali menjadi file gambar
-            format, imgstr = image_data.split(';base64,') if ";base64," in image_data else (None, image_data)
-            ext = format.split('/')[-1] if format else "jpg"
+            # Pastikan backend bisa handle string base64 murni maupun data URL
+            if ";base64," in image_data:
+                format, imgstr = image_data.split(';base64,')
+            else:
+                imgstr = image_data
             
-            data = ContentFile(base64.b64decode(imgstr), name=image_name)
-            user.profile_picture = data
+            ext = image_name.split('.')[-1]
+            data_file = ContentFile(base64.b64decode(imgstr), name=image_name)
+            user.profile_picture = data_file
 
-        # 3. Save
         user.save()
 
         return JsonResponse({
@@ -138,3 +145,17 @@ def update_profile_flutter(request):
 
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+@csrf_exempt
+def logout_flutter(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "status": "error",
+            "message": "User is not logged in."
+        }, status=401)
+
+    logout(request)
+    return JsonResponse({
+        "status": "success",
+        "message": "Successfully logged out",
+    })

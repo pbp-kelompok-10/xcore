@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Xcore{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'components/navbar.html' %}
+    {% block content %}{% endblock %}
+    {% include 'components/toast.html' %}
+    {% include 'components/footer.html' %}
+    {% include 'toast.html' %}
+
+    <div id="django-messages"
+         data-messages='[
+            {% for message in messages %}
+                {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+         ]'
+         style="display: none;">
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const messagesEl = document.getElementById("django-messages");
+        if (!messagesEl) return;
+
+        try {
+            const messages = JSON.parse(messagesEl.getAttribute("data-messages") || "[]");
+            messages.forEach(msg => {
+                if (msg.tags.includes("success")) {
+                    showToast("Sukses", msg.text, "success");
+                } else if (msg.tags.includes("error")) {
+                    showToast("Error", msg.text, "error");
+                } else if (msg.tags.includes("warning")) {
+                    showToast("Peringatan", msg.text, "warning");
+                } else {
+                    showToast("Info", msg.text, "info");
+                }
+            });
+        } catch (err) {
+            console.error("Error parsing Django messages:", err);
+        }
+    });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

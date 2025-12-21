@@ -1,0 +1,85 @@
+{% extends 'loginregis.html' %}
+
+{% block meta %}
+<title>Login - XCORE</title>
+{% endblock meta %}
+
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section untuk Login -->
+<section class="hero-section">
+  <div class="container-xcore">
+    <div class="card-xcore fade-in" style="max-width: 500px; margin: 60px auto;">
+      
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <p class="hero-tagline" style="opacity: 0.85;">
+          Selamat datang kembali di XCORE!
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form method="POST" class="login-form">
+        {% csrf_token %}
+
+        <div class="form-fields">
+          {% for field in form %}
+            <div class="form-group mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">
+                {{ field.label }}
+                {% if field.field.required %}
+                  <span class="text-green-normal">*</span>
+                {% endif %}
+              </label>
+
+              <div class="input-wrapper">
+                {{ field }}
+              </div>
+
+              {% if field.help_text %}
+                <small class="form-help-text">{{ field.help_text }}</small>
+              {% endif %}
+
+              {% if field.errors %}
+                <small class="form-error-text">{{ field.errors|join:", " }}</small>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-xcore w-100 mt-2">
+          Masuk Sekarang
+        </button>
+      </form>
+
+      <!-- Messages -->
+      {% if messages %}
+        <div class="messages-container mt-3">
+          {% for message in messages %}
+            <div class="message-item {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Register Link -->
+      <div class="text-center mt-4">
+        <span class="text-blue-normal">Belum punya akun?</span>
+        <a href="{% url 'landingpage:register' %}" class="text-green-dark font-weight-600 ml-1" style="text-decoration: underline;">
+          Daftar di sini
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock content %}
