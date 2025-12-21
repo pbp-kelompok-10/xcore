@@ -1,6 +1,3 @@
-// modal_poll.js
-// Handle polling modal (open, close, submit vote to /prediction/submit-vote/)
-
 (function () {
   'use strict';
 
@@ -24,19 +21,18 @@
 
   function openPollingModalFromCard(card) {
     modal = modal || document.querySelector(modalSelector);
-    if (!modal) {
-      console.error('Polling modal not found in DOM');
-      if (typeof showToast === 'function') showToast('Error', 'Polling modal tidak ditemukan!', 'error');
-      return;
-    }
+    if (!modal) return;
 
-    // store prediction id
     modal.dataset.predictionId = card.dataset.predictionId || '';
-    // populate team names if spans exist
+    
+    // Set team names in modal
+    const homeName = card.dataset.homeTeam || 'Home';
+    const awayName = card.dataset.awayTeam || 'Away';
+
     const homeSpan = modal.querySelector('.team-home span');
     const awaySpan = modal.querySelector('.team-away span');
-    if (homeSpan) homeSpan.textContent = card.dataset.homeTeam || (card.querySelector('.team-name') ? card.querySelector('.team-name').textContent : 'Home');
-    if (awaySpan) awaySpan.textContent = card.dataset.awayTeam || 'Away';
+    if (homeSpan) homeSpan.textContent = homeName;
+    if (awaySpan) awaySpan.textContent = awayName;
 
     modal.classList.remove('hidden');
   }
@@ -45,24 +41,13 @@
     modal = modal || document.querySelector(modalSelector);
     if (!modal) return;
     modal.classList.add('hidden');
-    // clear prediction id
     delete modal.dataset.predictionId;
   }
 
   function submitVote(choice, teamBtnEl) {
     modal = modal || document.querySelector(modalSelector);
-    if (!modal) {
-      console.error('Modal missing when submitting vote');
-      if (typeof showToast === 'function') showToast('Error', 'Polling modal tidak tersedia saat submit!', 'error');
-      return;
-    }
     const predictionId = modal.dataset.predictionId;
-    if (!predictionId) {
-      if (typeof showToast === 'function') showToast('Error', 'Prediction ID tidak ditemukan!', 'error');
-      return;
-    }
 
-    // disable clicked button
     if (teamBtnEl) teamBtnEl.disabled = true;
 
     fetch('/prediction/submit-vote/', {
@@ -74,109 +59,94 @@
       },
       body: `prediction_id=${encodeURIComponent(predictionId)}&choice=${encodeURIComponent(choice)}`
     })
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       if (data.status === 'success') {
-        if (typeof showToast === 'function') showToast('Success', 'Vote berhasil! 🎉', 'success');
+        if (typeof showToast === 'function') showToast('Success', 'Vote submitted! 🎉', 'success');
         closePollingModal();
 
-        // update the card dataset and UI
+        // 1. Update Card Dataset
         const card = document.querySelector(`[data-prediction-id="${predictionId}"]`);
         if (card) {
           card.dataset.voted = 'true';
-          card.dataset.voteId = data.vote_id || '';
+          card.dataset.voteId = data.vote_id;
           card.dataset.userChoice = choice;
-          card.dataset.votedAt = data.voted_at || new Date().toISOString();
-          card.dataset.homeVotes = String(data.votes_home_team || card.dataset.homeVotes || '0');
-          card.dataset.awayVotes = String(data.votes_away_team || card.dataset.awayVotes || '0');
-          card.dataset.homePercentage = (typeof data.home_percentage !== 'undefined') ? Number(data.home_percentage).toFixed(1) : (card.dataset.homePercentage || '0');
-          card.dataset.awayPercentage = (typeof data.away_percentage !== 'undefined') ? Number(data.away_percentage).toFixed(1) : (card.dataset.awayPercentage || '0');
 
-          // Update visible result text nodes if present
-          const homeVoteElement = card.querySelector('.results-section .result-row:first-child .result-votes');
-          const awayVoteElement = card.querySelector('.results-section .result-row:last-child .result-votes');
-          const homePercentElement = card.querySelector('.results-section .result-row:first-child .result-percent');
-          const awayPercentElement = card.querySelector('.results-section .result-row:last-child .result-percent');
-          const homeFillElement = card.querySelector('.results-section .result-row:first-child .result-fill');
-          const awayFillElement = card.querySelector('.results-section .result-row:last-child .result-fill');
+          // --- PERBAIKAN FORMAT TANGGAL (FIX TIMESTAMP) ---
+          const now = new Date();
+          
+          // Format Angka: 01, 02, ... 21
+          const day = String(now.getDate()).padStart(2, '0');
+          const hour = String(now.getHours()).padStart(2, '0');
+          const minute = String(now.getMinutes()).padStart(2, '0');
+          const year = now.getFullYear();
 
-          if (homeVoteElement) homeVoteElement.textContent = `${card.dataset.homeVotes} vote${card.dataset.homeVotes !== '1' ? 's' : ''}`;
-          if (awayVoteElement) awayVoteElement.textContent = `${card.dataset.awayVotes} vote${card.dataset.awayVotes !== '1' ? 's' : ''}`;
-          if (homePercentElement) homePercentElement.textContent = `${card.dataset.homePercentage}%`;
-          if (awayPercentElement) awayPercentElement.textContent = `${card.dataset.awayPercentage}%`;
-          if (homeFillElement) homeFillElement.style.width = `${card.dataset.homePercentage}%`;
-          if (awayFillElement) awayFillElement.style.width = `${card.dataset.awayPercentage}%`;
+          // Format Bulan: Jan, Feb, ... Dec
+          const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const month = monthNames[now.getMonth()];
 
-          // Try to refresh card UI & possibly all cards (if available)
+          // GABUNGKAN: "21 Dec 2025, 14:30"
+          // Ini biar sama persis kayak format Django
+          const formattedDate = `${day} ${month} ${year}, ${hour}:${minute}`;
+
+          // Masukkan tanggal cantik ini ke dataset card
+          card.dataset.votedAt = formattedDate;
+          // ------------------------------------------------
+
+          
+          // Update Stats
+          card.dataset.homeVotes = data.votes_home_team;
+          card.dataset.awayVotes = data.votes_away_team;
+          card.dataset.homePercentage = Number(data.home_percentage).toFixed(1);
+          card.dataset.awayPercentage = Number(data.away_percentage).toFixed(1);
+
+          // Update Visual Bar
+          const homeRow = card.querySelector('.results-section .result-row:first-child');
+          const awayRow = card.querySelector('.results-section .result-row:last-child');
+          
+          if(homeRow) {
+             homeRow.querySelector('.result-votes').textContent = `${data.votes_home_team} vote${data.votes_home_team !== 1 ? 's' : ''}`;
+             homeRow.querySelector('.result-percent').textContent = `${Number(data.home_percentage).toFixed(1)}%`;
+             homeRow.querySelector('.result-fill').style.width = `${data.home_percentage}%`;
+          }
+          if(awayRow) {
+             awayRow.querySelector('.result-votes').textContent = `${data.votes_away_team} vote${data.votes_away_team !== 1 ? 's' : ''}`;
+             awayRow.querySelector('.result-percent').textContent = `${Number(data.away_percentage).toFixed(1)}%`;
+             awayRow.querySelector('.result-fill').style.width = `${data.away_percentage}%`;
+          }
+
+          // 2. TRIGGER REFRESH UI
+          // Fungsi ini akan baca card.dataset.votedAt yang barusan kita rapihin
           if (typeof window.refreshCardUI === 'function') window.refreshCardUI(card);
-          if (typeof window.refreshAllCards === 'function') window.refreshAllCards();
-        } else {
-          // if card not found, simply refresh all
           if (typeof window.refreshAllCards === 'function') window.refreshAllCards();
         }
       } else {
-        if (typeof showToast === 'function') showToast('Error', data.message || 'Gagal menyimpan vote.', 'error');
+        if (typeof showToast === 'function') showToast('Error', data.message, 'error');
       }
-    })
-    .catch(err => {
-      console.error('submitVote error', err);
-      if (typeof showToast === 'function') showToast('Error', `Gagal menyimpan vote: ${err.message}`, 'error');
-    })
-    .finally(() => {
-      if (teamBtnEl) teamBtnEl.disabled = false;
     });
   }
 
-  // Delegated click handlers
+  // Event Delegation
   document.addEventListener('click', function (e) {
     const target = e.target;
 
-    // open modal: click on .vote-trigger (button inside card)
+    // Open Modal
     if (target.matches('.vote-trigger') || target.closest('.vote-trigger')) {
-      const btn = target.matches('.vote-trigger') ? target : target.closest('.vote-trigger');
-      // if user not logged in, some templates redirect; we assume server handles that
+      const btn = target.closest('.vote-trigger');
       const card = btn.closest('.prediction-card');
-      if (!card) {
-        console.error('vote-trigger clicked but no card found');
-        return;
-      }
-      // if already voted, prevent opening (UX)
-      if (String(card.dataset.voted || '').toLowerCase() === 'true') {
-        if (typeof showToast === 'function') showToast('Warning', 'Kamu sudah vote! Gunakan "Change Vote".', 'warning');
-        return;
-      }
       openPollingModalFromCard(card);
-      return;
     }
 
-    // close modal via close button (SVG button has class popup-close-btn)
+    // Close Modal
     if (target.matches('.popup-close-btn') || target.closest('.popup-close-btn')) {
       closePollingModal();
-      return;
     }
 
-    // team button clicked inside modal -> submit
+    // Submit Vote (Home/Away)
     if (target.matches('.team-btn') || target.closest('.team-btn')) {
-      const btn = target.matches('.team-btn') ? target : target.closest('.team-btn');
-      const choice = btn.dataset.team; // expected 'home' or 'away'
-      if (!choice) {
-        if (typeof showToast === 'function') showToast('Error', 'Pilihan tim tidak valid!', 'error');
-        return;
-      }
-      // guard: ensure modal open
-      modal = modal || document.querySelector(modalSelector);
-      if (!modal || modal.classList.contains('hidden')) {
-        if (typeof showToast === 'function') showToast('Error', 'Modal tidak terbuka!', 'error');
-        return;
-      }
-      submitVote(choice, btn);
-      return;
+      const btn = target.closest('.team-btn');
+      submitVote(btn.dataset.team, btn);
     }
-  }, false);
+  });
 
-  // expose close for safety
-  window.closePollingModal = closePollingModal;
 })();

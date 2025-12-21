@@ -1,13 +1,19 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
+import json
+from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect, JsonResponse 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.urls import reverse
 from django.contrib import messages
-from django.shortcuts import redirect
-from django.contrib.auth import authenticate, login,logout
-from user.forms import CustomUserCreationForm
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from user.forms import EditProfileForm
+from django.views.decorators.csrf import csrf_exempt
+from user.forms import CustomUserCreationForm, EditProfileForm
+import base64
+from django.core.files.base import ContentFile
+
+
 # Create your views here.
 def landing_home(request):
     context = {
@@ -77,3 +83,79 @@ def profile(request):
         'user': user
     }
     return render(request, 'profile.html', context)
+
+@login_required
+def show_profile_json(request):
+    user = request.user
+    
+    # Handle URL gambar profile
+    profile_picture_url = None
+    if user.profile_picture and hasattr(user.profile_picture, 'url'):
+        profile_picture_url = user.profile_picture.url
+
+    return JsonResponse({
+        "username": user.username,
+        "email": user.email,
+        # Pastikan field 'bio' ada di model User kamu. Kalau error, ganti user.bio jadi ""
+        "bio": getattr(user, 'bio', ""), 
+        "profile_picture": profile_picture_url,
+    })
+
+@csrf_exempt
+def update_profile_flutter(request):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
+    
+    # Cek login standard Django session
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "error", "message": "User not authenticated"}, status=401)
+
+    try:
+        user = request.user
+        
+        # BACA DATA DARI JSON BODY, BUKAN request.POST
+        data = json.loads(request.body)
+        
+        user.username = data.get("username", user.username)
+        user.email = data.get("email", user.email)
+        user.bio = data.get("bio", getattr(user, 'bio', ""))
+
+        # Logika Base64 Image
+        image_data = data.get("image") 
+        image_name = data.get("image_name") 
+
+        if image_data and image_name:
+            # Pastikan backend bisa handle string base64 murni maupun data URL
+            if ";base64," in image_data:
+                format, imgstr = image_data.split(';base64,')
+            else:
+                imgstr = image_data
+            
+            ext = image_name.split('.')[-1]
+            data_file = ContentFile(base64.b64decode(imgstr), name=image_name)
+            user.profile_picture = data_file
+
+        user.save()
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Profile updated successfully!",
+            "username": user.username,
+        })
+
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+@csrf_exempt
+def logout_flutter(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "status": "error",
+            "message": "User is not logged in."
+        }, status=401)
+
+    logout(request)
+    return JsonResponse({
+        "status": "success",
+        "message": "Successfully logged out",
+    })
