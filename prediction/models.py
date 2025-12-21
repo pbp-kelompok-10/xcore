@@ -32,6 +32,14 @@ class Prediction(models.Model):
         total = self.total_votes
         return (self.votes_away_team / total * 100) if total > 0 else 0
     
+    @property
+    def home_team_code(self):
+        return self.match.home_team_code
+
+    @property
+    def away_team_code(self):
+        return self.match.away_team_code
+    
     def is_voting_open(self):
         """Check apakah voting masih bisa dilakukan"""
         now = timezone.now()

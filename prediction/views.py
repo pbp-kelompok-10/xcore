@@ -298,6 +298,9 @@ def show_json(request):
             'logo_home_team': p.logo_home_team or None,
             'logo_away_team': p.logo_away_team or None,
 
+            'home_team_code': p.match.home_team_code, 
+            'away_team_code': p.match.away_team_code,
+
             'votes_home_team': p.votes_home_team,
             'votes_away_team': p.votes_away_team,
             'total_votes': p.total_votes,
@@ -506,6 +509,8 @@ def show_my_votes_json(request):
             'status': match_status,
             'logo_home_team': p.logo_home_team or None,
             'logo_away_team': p.logo_away_team or None,
+            'home_team_code': p.match.home_team_code, 
+            'away_team_code': p.match.away_team_code,
             'votes_home_team': p.votes_home_team,
             'votes_away_team': p.votes_away_team,
             'total_votes': p.total_votes,
