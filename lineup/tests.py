@@ -169,7 +169,13 @@ class HelperFunctionsTest(BaseSetup):
     def test_get_teams_for_match(self):
         res = self.client.get(reverse("lineup:ajax-get-teams"), {"match": self.match.id})
         self.assertEqual(res.status_code, 200)
-        self.assertIn("teams", res.json())
+        data = res.json()
+        self.assertIn("teams", data)
+        # Verify home and away teams are properly identified
+        home_team = next((t for t in data["teams"] if t.get("is_home")), None)
+        away_team = next((t for t in data["teams"] if not t.get("is_home")), None)
+        self.assertIsNotNone(home_team)
+        self.assertIsNotNone(away_team)
 
     def test_get_players_for_team(self):
         res = self.client.get(reverse("lineup:ajax-get-players"), {"team": self.team_home.id})

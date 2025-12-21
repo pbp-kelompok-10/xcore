@@ -198,7 +198,14 @@
                     return;
                 }
 
-                const [homeTeam, awayTeam] = data.teams;
+                const homeTeam = data.teams.find(t => t.is_home);
+                const awayTeam = data.teams.find(t => !t.is_home);
+                
+                if (!homeTeam || !awayTeam) {
+                    alert("Could not identify home and away teams.");
+                    return;
+                }
+
                 document.querySelector("#home-label").textContent = `Home: ${homeTeam.name}`;
                 document.querySelector("#away-label").textContent = `Away: ${awayTeam.name}`;
 
