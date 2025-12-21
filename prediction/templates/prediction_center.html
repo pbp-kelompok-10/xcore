@@ -224,6 +224,66 @@ html, body {
     font-size: 1.2rem;
   }
 
+  .small-timestamp {
+      background: transparent !important; 
+      border: none !important;            
+      box-shadow: none !important;        
+      padding: 0 !important;             
+      
+      margin-top: 5px;                   
+      margin-bottom: 25px;                
+      
+      font-size: 0.85rem;               
+      color: #6c757d;                    
+      text-align: center;
+      width: 100%;
+  }
+
+  .vote-actions-container {
+      display: flex;       
+      gap: 15px;           
+      width: 100%;
+      margin-bottom: 10px; 
+  }
+
+  .vote-actions-container .btn-vote {
+      flex: 1;            
+      padding: 15px 10px;  
+      margin: 0;
+      
+      display: flex;              
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      line-height: 1.2;
+  }
+
+  /* Update: Info Pertandingan Satu Baris */
+  .match-info-box {
+      display: flex !important;        /* Ubah jadi Flexbox */
+      justify-content: center;         /* Tengah secara horizontal */
+      align-items: center;             /* Tengah secara vertikal */
+      gap: 20px;                       /* Jarak antara Tanggal dan Stadium */
+      margin-bottom: 1.5rem;
+      text-align: center;
+      flex-wrap: wrap;                 /* Jaga-jaga kalau layar hp kekecilan, dia turun */
+  }
+
+  .info-row {
+      margin: 0 !important;            /* Reset margin bawaan */
+      display: flex;
+      align-items: center;
+      gap: 6px;                        /* Jarak icon ke teks */
+  }
+
+  /* Update: Sedikit jarak untuk Results Section di posisi baru */
+  .results-section {
+      margin-bottom: 2rem;             /* Beri jarak ke tombol di bawahnya */
+      background: var(--green-light);  /* Pastikan background tetap ada */
+      border-radius: 12px;
+      padding: 1rem;
+  }
+
   @media (max-width: 768px) {
     .predictions-grid {
       grid-template-columns: 1fr;
@@ -338,46 +398,6 @@ html, body {
           </div>
         </div>
 
-        {% if user.is_authenticated %}
-          {% if user_vote %}
-            <div class="voted-badge">
-              ✅ You voted: 
-              {% if user_vote.choice|lower == 'home' %}
-                <strong>{{ prediction.match.home_team }}</strong>
-              {% elif user_vote.choice|lower == 'away' %}
-                <strong>{{ prediction.match.away_team }}</strong>
-              {% else %}
-                <strong>{{ user_vote.choice }}</strong>
-              {% endif %}
-            </div>
-            <div class="vote-timestamp">
-              🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
-            </div>
-            <button class="btn-vote btn-change-vote change-vote-trigger"
-                    data-prediction-id="{{ prediction.id }}"
-                    data-vote-id="{{ user_vote.id }}">
-              🔄 Change Vote
-            </button>
-            <button class="btn-vote delete-vote-btn"
-                    data-vote-id="{{ user_vote.id }}"
-                    data-home-team="{{ prediction.match.home_team }}"
-                    data-away-team="{{ prediction.match.away_team }}"
-                    data-choice="{{ user_vote.choice }}">
-              ❌ Delete Vote
-            </button>
-          {% else %}
-            <button class="btn-vote vote-trigger"
-                    data-prediction-id="{{ prediction.id }}"
-                    data-home="{{ prediction.match.home_team }}"
-                    data-away="{{ prediction.match.away_team }}">
-              🗳️ Vote Now
-            </button>
-          {% endif %}
-        {% else %}
-          <a href="{% url 'landingpage:login' %}" class="btn-vote">🗳️ Login to Vote</a>
-        {% endif %}
-
-        
         <div class="results-section">
           <div class="result-row">
             <div class="result-header">
@@ -400,6 +420,54 @@ html, body {
             <div class="result-votes">{{ prediction.votes_away_team }} vote{{ prediction.votes_away_team|pluralize }}</div>
           </div>
         </div>
+
+        {% if user.is_authenticated %}
+            <div class="voted-badge" style="display: {% if user_vote %}block{% else %}none{% endif %};">
+                {% if user_vote %}
+                  ✅ You voted: 
+                  {% if user_vote.choice|lower == 'home' %}
+                    <strong>{{ prediction.match.home_team }}</strong>
+                  {% elif user_vote.choice|lower == 'away' %}
+                    <strong>{{ prediction.match.away_team }}</strong>
+                  {% else %}
+                    <strong>{{ user_vote.choice }}</strong>
+                  {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="vote-timestamp small-timestamp" style="display: {% if user_vote %}block{% else %}none{% endif %};">
+              {% if user_vote %}
+                🕒 Voted at {{ user_vote.voted_at|date:"d M Y, H:i" }}
+              {% endif %}
+            </div>
+
+            <div class="vote-actions-container" style="display: {% if user_vote %}flex{% else %}none{% endif %};">
+                <button class="btn-vote btn-change-vote change-vote-trigger"
+                        data-prediction-id="{{ prediction.id }}"
+                        data-vote-id="{% if user_vote %}{{ user_vote.id }}{% endif %}">
+                  🔄 Change
+                </button>
+                
+                <button class="btn-vote delete-vote-btn"
+                        data-vote-id="{% if user_vote %}{{ user_vote.id }}{% endif %}"
+                        data-home-team="{{ prediction.match.home_team }}"
+                        data-away-team="{{ prediction.match.away_team }}"
+                        data-choice="{% if user_vote %}{{ user_vote.choice }}{% endif %}">
+                  ❌ Delete
+                </button>
+            </div>
+
+            <button class="btn-vote vote-trigger"
+                    style="display: {% if user_vote %}none{% else %}block{% endif %};"
+                    data-prediction-id="{{ prediction.id }}"
+                    data-home="{{ prediction.match.home_team }}"
+                    data-away="{{ prediction.match.away_team }}">
+              🗳️ Vote Now
+            </button>
+        {% else %}
+          <a href="{% url 'landingpage:login' %}" class="btn-vote">🗳️ Login to Vote</a>
+        {% endif %}
+        
       </div>
       {% endwith %}
     {% endfor %}
