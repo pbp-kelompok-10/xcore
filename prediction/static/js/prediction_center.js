@@ -4,84 +4,105 @@
   function refreshCardUI(card) {
     if (!card) return;
     try {
-      // 1. Ambil status terbaru (Pastikan ini dibaca sebagai boolean)
+      // 1. Ambil Data
       const voted = String(card.dataset.voted || '').trim().toLowerCase() === 'true';
       const status = (card.dataset.status || '').toLowerCase();
       
-      // 2. Select Elements (TARGET LANGSUNG TOMBOLNYA)
+      const homeTeam = card.dataset.homeTeam || 'Home';
+      const awayTeam = card.dataset.awayTeam || 'Away';
+      const userChoice = String(card.dataset.userChoice || '').toLowerCase();
+
+      // --- CEK TAB AKTIF ---
+      const activeTab = document.querySelector('.tab-btn.active');
+      const currentFilter = activeTab ? (activeTab.dataset.filter || 'all') : 'all';
+
+      // --- SELECT ELEMENTS ---
       const voteNowBtn = card.querySelector('.vote-trigger');
-      const changeBtn = card.querySelector('.change-vote-trigger');
-      const deleteBtn = card.querySelector('.delete-vote-btn');
-      
-      // Elements Badge & Timestamp
+      const actionsContainer = card.querySelector('.vote-actions-container'); 
       const votedBadge = card.querySelector('.voted-badge');
       const voteTimestamp = card.querySelector('.vote-timestamp');
-      const badgeTextEl = card.querySelector('.vote-choice-text'); // Text di dalam badge (opsional)
 
-      // Helper update text
-      function updateTextUI() {
-          if (votedBadge) {
-             let choice = String(card.dataset.userChoice || '').toLowerCase();
-             let teamName = card.dataset.userChoice || '-';
-             
-             if (choice.includes('home')) teamName = card.dataset.homeTeam;
-             else if (choice.includes('away')) teamName = card.dataset.awayTeam;
-             
-             // Update text jika ada elemen khusus, atau langsung innerHTML
-             if(badgeTextEl) {
-                 badgeTextEl.textContent = teamName;
-             } else {
-                 // Fallback jika struktur HTML lama
-                 votedBadge.innerHTML = `✅ You voted: <strong>${teamName}</strong>`;
-             }
-          }
-          if (voteTimestamp && card.dataset.votedAt) {
-             voteTimestamp.textContent = `🕒 Voted at ${card.dataset.votedAt}`;
+      let displayTeamName = userChoice;
+      if (userChoice === 'home') displayTeamName = homeTeam;
+      if (userChoice === 'away') displayTeamName = awayTeam;
+
+      // Helper Format Tanggal
+      function formatNiceDate(dateString) {
+          if (!dateString) return '';
+          if (dateString.length < 25 && !dateString.includes('/')) return dateString;
+          try {
+              const date = new Date(dateString);
+              if (isNaN(date.getTime())) return dateString;
+              const day = String(date.getDate()).padStart(2, '0');
+              const year = date.getFullYear();
+              const hour = String(date.getHours()).padStart(2, '0');
+              const minute = String(date.getMinutes()).padStart(2, '0');
+              const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+              const month = monthNames[date.getMonth()];
+              return `${day} ${month} ${year}, ${hour}:${minute}`;
+          } catch (e) {
+              return dateString;
           }
       }
 
-      // 3. LOGIC UTAMA (BRUTE FORCE VISIBILITY)
+      // --- RESET TAMPILAN (Sembunyikan Semua Dulu) ---
+      if (voteNowBtn) voteNowBtn.style.display = 'none';
+      if (actionsContainer) actionsContainer.style.display = 'none';
+      if (votedBadge) votedBadge.style.display = 'none';
+      if (voteTimestamp) voteTimestamp.style.display = 'none';
+
+      // --- LOGIC UTAMA ---
       if (status === 'upcoming') {
-        if (voted) {
-          // --- SUDAH VOTE ---
-          // Matikan tombol Vote Now
-          if (voteNowBtn) voteNowBtn.style.display = 'none';
-
-          // NYALAKAN tombol Change & Delete & Badge SECARA PAKSA
-          if (changeBtn) changeBtn.style.display = 'block';
-          if (deleteBtn) deleteBtn.style.display = 'block';
-          if (votedBadge) votedBadge.style.display = 'block';
-          if (voteTimestamp) voteTimestamp.style.display = 'block';
           
-          updateTextUI();
+          if (currentFilter === 'myvotes') {
+              // ==============================
+              // TAB: MY VOTES
+              // ==============================
+              if (voted) {
+                  // Tampilkan UI "Sudah Vote" Lengkap
+                  if (actionsContainer) actionsContainer.style.display = 'flex'; // Tombol Change/Delete
+                  
+                  if (votedBadge) {
+                      votedBadge.style.display = 'block';
+                      votedBadge.innerHTML = `✅ You voted: <strong>${displayTeamName}</strong>`;
+                  }
+                  
+                  if (voteTimestamp) {
+                      voteTimestamp.style.display = 'block';
+                      if (card.dataset.votedAt) {
+                          voteTimestamp.textContent = `🕒 Voted at ${formatNiceDate(card.dataset.votedAt)}`;
+                      }
+                  }
+              } 
+              // (Jaga-jaga kalau ada kartu belum vote nyasar ke tab My Votes, biarkan kosong/hidden)
+          } 
+          else {
+              // ==============================
+              // TAB: ALL MATCHES (Default)
+              // ==============================
+              // POKOKNYA TAMPILAN SEPERTI BELUM VOTE (Clean)
+              
+              // 1. Selalu Tampilkan Tombol Vote Now
+              if (voteNowBtn) {
+                  voteNowBtn.style.display = 'block';
+                  voteNowBtn.disabled = false;
+              }
 
-        } else {
-          // --- BELUM VOTE ---
-          // Nyalakan tombol Vote Now
-          if (voteNowBtn) {
-              voteNowBtn.style.display = 'block';
-              voteNowBtn.disabled = false;
+              // 2. JANGAN Tampilkan Badge/Timestamp/ChangeButton
+              // (Karena di atas sudah kita hide semua di bagian Reset Tampilan, jadi aman)
           }
 
-          // Matikan yang lain
-          if (changeBtn) changeBtn.style.display = 'none';
-          if (deleteBtn) deleteBtn.style.display = 'none';
-          if (votedBadge) votedBadge.style.display = 'none';
-          if (voteTimestamp) voteTimestamp.style.display = 'none';
-        }
-      } 
-      // Logic FINISHED / LIVE
-      else {
-        if (voteNowBtn) voteNowBtn.style.display = 'none';
-        if (changeBtn) changeBtn.style.display = 'none';
-        if (deleteBtn) deleteBtn.style.display = 'none';
-
-        if (voted) {
-            if (votedBadge) votedBadge.style.display = 'block';
-            updateTextUI();
-        } else {
-            if (votedBadge) votedBadge.style.display = 'none';
-        }
+      } else {
+          // --- LIVE / FINISHED ---
+          // Tidak ada tombol aksi
+          if (voted) {
+              // Cuma Badge & Timestamp (Kalau mau ditampilkan di history)
+              if (votedBadge) {
+                  votedBadge.style.display = 'block';
+                  votedBadge.innerHTML = `✅ You voted: <strong>${displayTeamName}</strong>`;
+              }
+              if (voteTimestamp) voteTimestamp.style.display = 'block';
+          }
       }
 
     } catch (err) {
@@ -102,23 +123,23 @@
         const isVoted = String(card.dataset.voted || '').toLowerCase() === 'true';
         const status = (card.dataset.status || '').toLowerCase();
 
-        // 1. Tentukan Visibilitas
+        // 1. Filter Logic
         let shouldShow = false;
         if (filter === 'all') shouldShow = true;
-        else if (filter === 'myvotes') shouldShow = isVoted; // <-- INI YANG BIKIN MUNCUL DI MY VOTES
+        else if (filter === 'myvotes') shouldShow = isVoted;
         else shouldShow = (status === filter);
 
-        // 2. Terapkan Display
+        // 2. Display & Refresh UI
         if (shouldShow) {
-          card.style.display = ''; // Reset ke default CSS (biasanya block)
-          refreshCardUI(card);     // <-- INI AKAN JALAN DAN MEMUNCULKAN TOMBOL
+          card.style.display = ''; 
+          refreshCardUI(card); // UI menyesuaikan tab (All vs My Votes)
           visibleCount++;
         } else {
           card.style.display = 'none';
         }
       });
 
-      // 3. Empty State
+      // 3. Empty State Logic
       if (emptyState) {
         const emptyMessages = {
           'all': { icon: '📭', title: 'No predictions available', message: 'Check back later!' },

@@ -68,27 +68,31 @@
         // 1. Update Card Dataset
         const card = document.querySelector(`[data-prediction-id="${predictionId}"]`);
         if (card) {
-          card.dataset.voted = 'true'; // IMPORTANT!
+          card.dataset.voted = 'true';
           card.dataset.voteId = data.vote_id;
           card.dataset.userChoice = choice;
 
+          // --- PERBAIKAN FORMAT TANGGAL (FIX TIMESTAMP) ---
           const now = new Date();
           
-          // 1. Ambil komponen waktu
-          const day = String(now.getDate()).padStart(2, '0'); // "01", "21"
+          // Format Angka: 01, 02, ... 21
+          const day = String(now.getDate()).padStart(2, '0');
+          const hour = String(now.getHours()).padStart(2, '0');
+          const minute = String(now.getMinutes()).padStart(2, '0');
           const year = now.getFullYear();
-          const hour = String(now.getHours()).padStart(2, '0'); // "04"
-          const minute = String(now.getMinutes()).padStart(2, '0'); // "15"
-          
-          // 2. Buat nama bulan (English short) agar sama dengan Django "M"
+
+          // Format Bulan: Jan, Feb, ... Dec
           const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
           const month = monthNames[now.getMonth()];
 
-          // 3. Gabungkan jadi format: "21 Dec 2025, 04:15"
+          // GABUNGKAN: "21 Dec 2025, 14:30"
+          // Ini biar sama persis kayak format Django
           const formattedDate = `${day} ${month} ${year}, ${hour}:${minute}`;
 
-          // 4. Masukkan ke dataset
+          // Masukkan tanggal cantik ini ke dataset card
           card.dataset.votedAt = formattedDate;
+          // ------------------------------------------------
+
           
           // Update Stats
           card.dataset.homeVotes = data.votes_home_team;
@@ -96,32 +100,29 @@
           card.dataset.homePercentage = Number(data.home_percentage).toFixed(1);
           card.dataset.awayPercentage = Number(data.away_percentage).toFixed(1);
 
-          // Update Result Bars (Visual)
+          // Update Visual Bar
           const homeRow = card.querySelector('.results-section .result-row:first-child');
           const awayRow = card.querySelector('.results-section .result-row:last-child');
           
           if(homeRow) {
-             homeRow.querySelector('.result-votes').textContent = `${data.votes_home_team} votes`;
-             homeRow.querySelector('.result-percent').textContent = `${data.home_percentage}%`;
+             homeRow.querySelector('.result-votes').textContent = `${data.votes_home_team} vote${data.votes_home_team !== 1 ? 's' : ''}`;
+             homeRow.querySelector('.result-percent').textContent = `${Number(data.home_percentage).toFixed(1)}%`;
              homeRow.querySelector('.result-fill').style.width = `${data.home_percentage}%`;
           }
           if(awayRow) {
-             awayRow.querySelector('.result-votes').textContent = `${data.votes_away_team} votes`;
-             awayRow.querySelector('.result-percent').textContent = `${data.away_percentage}%`;
+             awayRow.querySelector('.result-votes').textContent = `${data.votes_away_team} vote${data.votes_away_team !== 1 ? 's' : ''}`;
+             awayRow.querySelector('.result-percent').textContent = `${Number(data.away_percentage).toFixed(1)}%`;
              awayRow.querySelector('.result-fill').style.width = `${data.away_percentage}%`;
           }
 
-          // 2. TRIGGER REFRESH (Handles UI Switch & My Votes Tab)
+          // 2. TRIGGER REFRESH UI
+          // Fungsi ini akan baca card.dataset.votedAt yang barusan kita rapihin
           if (typeof window.refreshCardUI === 'function') window.refreshCardUI(card);
           if (typeof window.refreshAllCards === 'function') window.refreshAllCards();
         }
       } else {
         if (typeof showToast === 'function') showToast('Error', data.message, 'error');
       }
-    })
-    .catch(err => console.error(err))
-    .finally(() => {
-      if (teamBtnEl) teamBtnEl.disabled = false;
     });
   }
 
