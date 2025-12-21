@@ -573,8 +573,15 @@ def get_teams_for_match(request):
     match_id = request.GET.get('match')
     try:
         match = Match.objects.get(pk=match_id)
-        teams = Team.objects.filter(code__in=[match.home_team_code, match.away_team_code])
-        data = [{'id': t.id, 'name': t.name} for t in teams]
+        home_team = Team.objects.filter(code=match.home_team_code).first()
+        away_team = Team.objects.filter(code=match.away_team_code).first()
+        
+        data = []
+        if home_team:
+            data.append({'id': home_team.id, 'name': home_team.name, 'is_home': True})
+        if away_team:
+            data.append({'id': away_team.id, 'name': away_team.name, 'is_home': False})
+        
         return JsonResponse({'teams': data})
     except Match.DoesNotExist:
         return JsonResponse({'teams': []})
